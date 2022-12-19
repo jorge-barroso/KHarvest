@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
 
-import QtQuick 2.6
+import QtQuick 2.9
 import QtQuick.Controls 2.3 as Controls
-import QtQuick.Layouts 1.2
+import QtQuick.Layouts 1.3
 import org.kde.kirigami 2.19 as Kirigami
 
 Kirigami.OverlaySheet{
@@ -34,9 +34,13 @@ Kirigami.OverlaySheet{
                 left: parent.left
                 right: parent.right
             }
-            Kirigami.FormData.label: i18nc("@label:textbox", "Project:")
-            model: ["Banana", "Apple", "Coconut"]
-            onAccepted: taskField.forceActiveFocus()
+            // Kirigami.FormData.label: i18nc("@label:textbox", "Project:")
+            textRole: "projectName"
+            currentIndex: 0
+            model: projectsModel
+            onCurrentIndexChanged: console.debug(projectsModel.get(currentIndex).text + ", " + projectsModel.get(currentIndex).subitems)
+
+
         }
         Controls.ComboBox {
             id: taskField
@@ -45,8 +49,8 @@ Kirigami.OverlaySheet{
                 right: parent.right
             }
             Kirigami.FormData.label: i18nc("@label:textbox", "Task:")
-            model: ["Banana", "Apple", "Coconut"]
-            onAccepted: notefield.forceActiveFocus()
+            textRole: subitems
+            model: projectsModel
         }
         Controls.TextArea {
             id: noteField
@@ -54,7 +58,9 @@ Kirigami.OverlaySheet{
                 left: parent.left
                 right: parent.right
                 top: taskField.bottom
+                topMargin: 10
                 bottom: timeField.top
+                bottomMargin: 10
             }
             Layout.minimumHeight: Kirigami.Units.gridUnit * 10
             Kirigami.FormData.label: i1nc("@label:textbox", "Note:")
@@ -67,7 +73,7 @@ Kirigami.OverlaySheet{
             Kirigami.FormData.label: i1nc("@label:textbox", "Time:")
             inputMask: "00:00"
             placeholderText: i18n("HH:MM")
-            text: mode === "add" ? "" : timeTracked
+            text: mode === "add" ? "00:00" : timeTracked
         }
 
         RowLayout {
