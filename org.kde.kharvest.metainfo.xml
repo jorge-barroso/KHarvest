@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: FSFAP
+  SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+ -->
+<component type="desktop-application">
+  <id>org.kde.kharvest</id>
+  <name>KHarvest Harvest Timer</name>
+  <summary>KDE application for Harvest Timer</summary>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <developer_name>baam</developer_name>
+  <description>
+    <p>Harvest Timer is a leading platform for time tracking and billing options.</p>
+    <p>If you are a Harvest user, or considering it, this app will help you to use it from the comfort of your desktop, so you don\'t need to recur to their web app.</p>
+    <p>The main features of this app are:</p>
+    <ul>
+      <li>Add, Remove and Edit tasks from Harvest</li>
+      <li>Start/Stop live time tracking</li>
+      <li>Save frequently used tasks as favourites</li>
+    </ul>
+  </description>
+</component>

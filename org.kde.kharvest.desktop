@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+[Desktop Entry]
+Name=KHarvest
+Comment=Harvest Timing Tracker Software With Invoicing
+Version=1.0
+Exec=kharvest
+Icon=harvest
+Type=Application
+Terminal=false
+# Add an actual main category here (and possibly applicable additional ones)
+#   https://specifications.freedesktop.org/menu-spec/latest/apa.html#main-category-registry
+Categories=Qt;KDE;Office;Utility
