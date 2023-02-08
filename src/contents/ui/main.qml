@@ -89,10 +89,6 @@ Kirigami.ApplicationWindow {
         id: favouritesModel
     }
 
-    MainPage {
-        id: page
-    }
-
     AddEditTask{
         id: addEditTaskSheet
         onAdded: taskModel.append({
@@ -108,5 +104,8 @@ Kirigami.ApplicationWindow {
         onRemoved: taskModel.remove(index, 1)
     }
 
-    pageStack.initialPage: page
+    pageStack.initialPage: MainPage {
+                               id: page
+                               Component.onCompleted: addEditTaskSheet.parent = page
+                           }
 }

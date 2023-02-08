@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
 
-import QtQuick 2.9
-import QtQuick.Controls 2.3 as Controls
-import QtQuick.Layouts 1.3
+import QtQuick 2.15
+import QtQuick.Controls 2.15 as Controls
+import QtQuick.Layouts 1.15
 import org.kde.kirigami 2.19 as Kirigami
 import org.kde.kharvest 1.0 as KHarvest
 
@@ -73,6 +73,7 @@ Kirigami.OverlaySheet{
             anchors.right: parent.right
             Kirigami.FormData.label: i18nc("@label:textbox", "Time:")
             inputMask: "00:00"
+            inputMethodHints: Qt.ImhDigitsOnly
             placeholderText: i18n("HH:MM")
             text: mode === "add" ? "00:00" : timeTracked
         }
@@ -86,7 +87,7 @@ Kirigami.OverlaySheet{
                 id: doneButton
                 Layout.fillWidth: true
                 text: i18nc("@action:button", "Done")
-                enabled: projectField.text !== undefined && projectField.text.length > 0 && taskField.text.length > 0
+                enabled: projectField.text.length > 0 && taskField.text.length > 0
                 onClicked: {
                     if(mode === "add") {
                         addEditTaskSheet.added(
