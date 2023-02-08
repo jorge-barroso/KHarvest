@@ -89,10 +89,6 @@ Kirigami.ApplicationWindow {
         id: favouritesModel
     }
 
-    ProjectsModel {
-        id: projectsModel
-    }
-
     MainPage {
         id: page
     }
