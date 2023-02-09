@@ -9,7 +9,7 @@
 #include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QEventLoop>
-#include <QNetworkInformation>
+#include <optional>
 #include "settingsmanager.h"
 #include "harvestproject.h"
 #include "task.h"
@@ -42,8 +42,6 @@ class HarvestHandler : public QObject
 		void delete_task(const Task& task);
 
 		void list_tasks(const QDate& from_date, const QDate& to_date);
-
-		void set_network_reachability(const QNetworkInformation::Reachability& reachability);
 
 	signals:
 

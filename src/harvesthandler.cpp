@@ -17,7 +17,7 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QDebug>
-#include <QNetworkInformation>
+#include <cmath>
 
 HarvestHandler* HarvestHandler::harvest_handler{ nullptr };
 const QString HarvestHandler::default_grant_type{ "authorization_code" };
@@ -49,11 +49,6 @@ HarvestHandler::HarvestHandler(const QDir& config_dir)
 		, loop()
 		, is_network_reachable{ true }
 {
-	if(QNetworkInformation::instance() != nullptr)
-	{
-		this->set_network_reachability(QNetworkInformation::instance()->reachability());
-	}
-
 	network_manager.setAutoDeleteReplies(true);
 
 	// try and load the authentication details stored in the user configuration directories
@@ -147,7 +142,7 @@ bool HarvestHandler::json_auth_is_complete()
 
 bool HarvestHandler::json_auth_is_safely_active()
 {
-	auto expires_on{ QDateTime::fromMSecsSinceEpoch(json_auth["expires_on"].toInteger()) };
+	auto expires_on{ QDateTime::fromMSecsSinceEpoch(json_auth["expires_on"].toInt()) };
 
 	// if there's less than a full day of time left before the token expires...
 	return expires_on > QDateTime::currentDateTime().addDays(1);
@@ -231,7 +226,7 @@ void HarvestHandler::authentication_received(const QNetworkReply* reply)
 	// as const in the previous error handling
 	json_auth = read_close_reply(const_cast<QNetworkReply *>(reply));
 	QJsonObject json_object{ json_auth.object() };
-	qint64 seconds{ json_object["expires_in"].toInteger() };
+	qint64 seconds{ json_object["expires_in"].toInt() };
 	json_object.insert("expires_on", QDateTime::currentDateTime().addSecs(seconds).toMSecsSinceEpoch());
 	json_auth.setObject(json_object);
 
@@ -345,22 +340,22 @@ void HarvestHandler::get_projects_data(const QJsonDocument& json_payload, std::v
 {
 	for (const QJsonValue project_assignment: json_payload["project_assignments"].toArray())
 	{
-		std::vector<HarvestTask> project_tasks_vector;
+		QVector<HarvestTask> project_tasks_vector;
 		for (const QJsonValue json_task: project_assignment["task_assignments"].toArray())
 		{
 			const QJsonValue json_task_details{ json_task["task"] };
 			const HarvestTask task = HarvestTask{
-					json_task_details["id"].toInteger(),
+					json_task_details["id"].toInt(),
 					json_task_details["name"].toString()
 			};
 
-			project_tasks_vector.emplace_back(task);
+			project_tasks_vector.append(task);
 		}
 
 		const HarvestProject project{
 				project_assignment["client"]["name"].toString(),
 				project_assignment["project"]["name"].toString(),
-				project_assignment["project"]["id"].toInteger(),
+				project_assignment["project"]["id"].toInt(),
 				project_tasks_vector
 		};
 		projects_vector.emplace_back(project);
@@ -550,10 +545,10 @@ void HarvestHandler::tasks_list_ready()
 	for (const QJsonValueRef&& harvestTask: tasks_object.toArray())
 	{
 		const QJsonObject task_object{ harvestTask.toObject() };
-		const long long int task_entry_id{ task_object["id"].toInteger() };
-		const long long int project_id{ task_object["project"]["id"].toInteger() };
+		const long long int task_entry_id{ task_object["id"].toInt() };
+		const long long int project_id{ task_object["project"]["id"].toInt() };
 		const QString project_name{ task_object["project"]["name"].toString() };
-		const long long int task_id{ task_object["task"]["id"].toInteger() };
+		const long long int task_id{ task_object["task"]["id"].toInt() };
 		const QString task_name{ task_object["task"]["name"].toString() };
 		const QString note{ task_object["notes"].toString() };
 
@@ -593,8 +588,8 @@ void HarvestHandler::add_task_checks()
 	// Get response from the reply object
 	const QJsonDocument add_task_response{ read_close_reply(reply) };
 
-	const long long int project_id{ add_task_response["project"]["id"].toInteger() };
-	const long long int task_id{ add_task_response["task"]["id"].toInteger() };
+	const long long int project_id{ add_task_response["project"]["id"].toInt() };
+	const long long int task_id{ add_task_response["task"]["id"].toInt() };
 	const size_t key{ qHash(QString::number(project_id).append(QString::number(task_id))) };
 
 	const auto task_element = tasks_queue.find(key);
@@ -606,7 +601,7 @@ void HarvestHandler::add_task_checks()
 	// if we could find a task, let's fetch it and remove it from the queue map
 	Task* task = task_element->second;
 	tasks_queue.erase(task_element);
-	task->time_entry_id = add_task_response["id"].toInteger();
+	task->time_entry_id = add_task_response["id"].toInt();
 
 	emit task_added(task);
 }
@@ -660,11 +655,6 @@ bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString& ba
 		return true;
 	}
 	return false;
-}
-
-void HarvestHandler::set_network_reachability(const QNetworkInformation::Reachability& reachability)
-{
-	is_network_reachable = reachability == QNetworkInformation::Reachability::Online;
 }
 
 QString HarvestHandler::get_http_message(const QString& message) {

@@ -6,8 +6,8 @@ add_executable(kharvest
     about.h
     app.cpp
     app.h
-    # harvesthandler.cpp
-    # harvesthandler.h
+    harvesthandler.cpp
+    harvesthandler.h
     harvestproject.h
     harvesttask.h
     main.cpp
@@ -18,7 +18,9 @@ add_executable(kharvest
     settingsmanager.cpp
     settingsmanager.h
     task.h
-    resources.qrc tasksmodel.h tasksmodel.cpp)
+    tasksmodel.h
+    tasksmodel.cpp
+    resources.qrc)
 
 target_link_libraries(kharvest
     Qt::Core
