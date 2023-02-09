@@ -18,6 +18,7 @@ add_executable(kharvest
     settingsmanager.cpp
     settingsmanager.h
     task.h
+    task.cpp
     tasksmodel.h
     tasksmodel.cpp
     resources.qrc)
