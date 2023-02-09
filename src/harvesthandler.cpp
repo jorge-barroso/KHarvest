@@ -227,7 +227,7 @@ void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_t
 }
 
 
-std::vector<HarvestProject> HarvestHandler::update_user_data() {
+QVector<HarvestProject> HarvestHandler::update_user_data() {
     if (!is_network_reachable) {
         QMessageBox::warning(nullptr,
                              QApplication::translate("HarvestHandler", "Network Unreachable"),
@@ -262,7 +262,7 @@ std::vector<HarvestProject> HarvestHandler::update_user_data() {
 }
 
 void
-HarvestHandler::get_projects_data(const QJsonDocument &json_payload, std::vector<HarvestProject> &projects_vector) {
+HarvestHandler::get_projects_data(const QJsonDocument &json_payload, QVector<HarvestProject> &projects_vector) {
     for (const QJsonValue project_assignment: json_payload["project_assignments"].toArray()) {
         const QString client_name{project_assignment["client"]["name"].toString()};
         QVector<HarvestTask> project_tasks_vector;
@@ -283,7 +283,7 @@ HarvestHandler::get_projects_data(const QJsonDocument &json_payload, std::vector
                 project_assignment["project"]["id"].toInt(),
                 project_tasks_vector
         };
-        projects_vector.emplace_back(project);
+        projects_vector.append(project);
     }
 }
 

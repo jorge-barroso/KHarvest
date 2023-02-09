@@ -44,5 +44,9 @@ void ProjectsModel::setList(ProjectsList *list) {
 
     m_list = list;
 
+    if (m_list != nullptr) {
+        connect(m_list, &ProjectsList::projectsUpdated, this, &ProjectsModel::endResetModel);
+    }
+
     endResetModel();
 }

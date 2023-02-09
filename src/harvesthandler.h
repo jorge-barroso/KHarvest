@@ -33,7 +33,7 @@ public slots:
 public:
     static HarvestHandler *instance();
 
-    std::vector<HarvestProject> update_user_data();
+    QVector<HarvestProject> update_user_data();
 
     [[nodiscard]] bool is_ready() const;
 
@@ -103,7 +103,7 @@ private:
     const QString time_entries_url{ requests_host + "/v2/time_entries" };
     const QString user_url{ requests_host + "/v2/users/me" };
 
-    std::vector<HarvestProject> projects;
+    QVector<HarvestProject> projects;
 
     QNetworkAccessManager network_manager;
 
@@ -132,7 +132,7 @@ private:
     QNetworkReply* do_request_with_auth(const QUrl& url, bool sync_request, const QByteArray& verb,
                                         const std::optional<QJsonDocument>& payload = std::nullopt);
 
-    static void get_projects_data(const QJsonDocument& json_payload, std::vector<HarvestProject>& projects_vector);
+    static void get_projects_data(const QJsonDocument &json_payload, QVector<HarvestProject> &projects_vector);
 
     static QJsonDocument read_close_reply(QNetworkReply* reply);
 

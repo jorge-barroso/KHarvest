@@ -5,9 +5,10 @@
 #include <vector>
 #include "harvestproject.h"
 
-class ProjectsList : public QObject
-{
-    Q_OBJECT
+static const int INITIAL_INDEX = 0;
+
+class ProjectsList : public QObject {
+Q_OBJECT
 public:
     explicit ProjectsList(QObject *parent = nullptr);
 
@@ -16,6 +17,8 @@ public:
     [[nodiscard]] QVector<HarvestTask> tasks() const;
 
 signals:
+
+    void projectsUpdated();
 
     void preTaskChanged();
 
