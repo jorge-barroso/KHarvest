@@ -26,7 +26,7 @@ public slots:
     void task_added(Task *task);
 
 private:
-    QMap<QDate, QVector<Task *>> m_tasks;
+    QMap<QDate, QVector<Task *>> mTasks;
     QDate current_date;
 };
 

@@ -4,14 +4,6 @@
 
 AddedTasksList::AddedTasksList(QObject *parent)
         : QObject{parent}, current_date{QDate::fromJulianDay(0)} {
-
-    task_added(new Task{
-            .client_name = "Sample Client Name",
-            .project_name="Sample Project Name",
-            .task_name="Sample Task Name",
-            .time_tracked=QTime(0, 0, 0, 0),
-            .note="Sample Note",
-    });
     auto *harvest_handler{HarvestHandler::instance()};
     connect(harvest_handler, &HarvestHandler::task_added, this, &AddedTasksList::task_added);
     if (harvest_handler->is_ready()) {
@@ -28,20 +20,16 @@ void AddedTasksList::task_added(Task *task) {
     // TODO favourite status
     emit preTaskAdded();
 
-    MapUtils::map_insert_or_create_vector(m_tasks, task->date, task);
+    MapUtils::map_insert_or_create_vector(mTasks, task->date, task);
 
     emit postTaskAdded();
 }
 
 QVector<Task *> AddedTasksList::tasks() const {
-    QMap<QDate, QVector<Task *>>::const_iterator lb{m_tasks.constFind(current_date)};
-    if (lb == m_tasks.constEnd()) {
+    QMap<QDate, QVector<Task *>>::const_iterator lb{mTasks.constFind(current_date)};
+    if (lb == mTasks.constEnd()) {
         return {};
     }
 
     return lb.value();
 }
-
-//QVector<HarvestTask> AddedTasksList::tasks() const {
-//    return m_tasks;
-//}
