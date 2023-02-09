@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: CC0-1.0
-# SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+# SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 [Desktop Entry]
 Name=KHarvest
+GenericName=Timer for Harvest
 Comment=Harvest Timing Tracker Software With Invoicing
 Version=1.0
 Exec=kharvest
-Icon=harvest
+Icon=org.kde.kharvest
 Type=Application
 Terminal=false
 # Add an actual main category here (and possibly applicable additional ones)
