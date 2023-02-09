@@ -2,8 +2,8 @@
 #include "harvesttask.h"
 #include "harvestproject.h"
 #include "task.h"
+#include "kharvestconfig.h"
 
-#include <QTextStream>
 #include <QApplication>
 #include <QTcpSocket>
 #include <QDataStream>
@@ -34,30 +34,21 @@ HarvestHandler *HarvestHandler::instance() {
     return harvest_handler;
 }
 
-void HarvestHandler::reset() {
-    delete harvest_handler;
-    harvest_handler = nullptr;
-}
-
 HarvestHandler::HarvestHandler()
         : auth_server{nullptr}
         , auth_socket{nullptr}
-        , user_config(KSharedConfig::openConfig()->group(user_details_group))
         , network_manager(this)
         , loop()
         , is_network_reachable{true} {
 
     network_manager.setAutoDeleteReplies(true);
 
-    // try and load the authentication details stored in the user configuration directories
-    this->json_auth = get_authentication();
     // this auth is considered found not only if we read it, but we also need to make sure all the necessary fields are present
-    auth_found = !json_auth.isEmpty() && json_auth_is_complete();
+    auth_found = !KHarvestConfig::access_token().isEmpty() && json_auth_is_complete();
 
     if (!auth_found) {
         login();
     } else {
-        load_user_ids();
         emit ready();
     }
 }
@@ -73,17 +64,9 @@ HarvestHandler::~HarvestHandler() {
 // token or we need to refresh it before any requests can be performed
 void HarvestHandler::check_authenticate() {
     if (!json_auth_is_safely_active()) {
-        QString refresh_token(json_auth["refresh_token"].toString());
+        QString refresh_token(KHarvestConfig::refresh_token());
         authenticate_request(nullptr, &refresh_token);
     }
-}
-
-QJsonDocument HarvestHandler::get_authentication() {
-    if (!user_config.exists()) {
-        return {};
-    }
-
-    return get_auth_details();
 }
 
 void HarvestHandler::login() {
@@ -101,32 +84,17 @@ void HarvestHandler::login() {
     connect(auth_server, &QTcpServer::newConnection, this, &HarvestHandler::new_connection);
 }
 
-QJsonDocument HarvestHandler::get_auth_details() {
-//    user_config.open(QFile::ReadOnly | QFile::Text);
-//    QTextStream text_stream(&user_config);
-//
-//    const QByteArray auth_text{text_stream.readAll().toUtf8()};
-//    QJsonDocument auth_details{QJsonDocument::fromJson(auth_text)};
-//
-//    user_config.close();
-//
-//    return auth_details;
-    return {};
-}
-
 bool HarvestHandler::json_auth_is_complete() {
-    const QJsonObject json_object{json_auth.object()};
-
-    bool contains_access_token{json_object.contains("access_token")};
-    bool contains_refresh_token{json_object.contains("refresh_token")};
-    bool contains_token_type{json_object.contains("token_type")};
-    bool contains_expires_in{json_object.contains("expires_in")};
+    bool contains_access_token{!KHarvestConfig::access_token().isEmpty()};
+    bool contains_refresh_token{!KHarvestConfig::refresh_token().isEmpty()};
+    bool contains_token_type{!KHarvestConfig::token_type().isEmpty()};
+    bool contains_expires_in{KHarvestConfig::expires_in() != 0};
 
     return contains_access_token && contains_refresh_token && contains_token_type && contains_expires_in;
 }
 
 bool HarvestHandler::json_auth_is_safely_active() {
-    auto expires_on{QDateTime::fromMSecsSinceEpoch(json_auth["expires_on"].toInt())};
+    auto expires_on{QDateTime::fromMSecsSinceEpoch(KHarvestConfig::expires_on())};
 
     // if there's less than a full day of time left before the token expires...
     return expires_on > QDateTime::currentDateTime().addDays(1);
@@ -198,13 +166,13 @@ void HarvestHandler::authentication_received(const QNetworkReply *reply) {
 
     // reply is originally non-const so this cast should be safe while allowing to use it
     // as const in the previous error handling
-    json_auth = read_close_reply(const_cast<QNetworkReply *>(reply));
+    QJsonDocument json_auth{read_close_reply(const_cast<QNetworkReply *>(reply))};
     QJsonObject json_object{json_auth.object()};
     qint64 seconds{json_object["expires_in"].toInt()};
     json_object.insert("expires_on", QDateTime::currentDateTime().addSecs(seconds).toMSecsSinceEpoch());
     json_auth.setObject(json_object);
 
-    save_authentication();
+    save_authentication(json_auth);
 }
 
 QJsonDocument HarvestHandler::read_close_reply(QNetworkReply *reply) {
@@ -213,18 +181,13 @@ QJsonDocument HarvestHandler::read_close_reply(QNetworkReply *reply) {
     return QJsonDocument::fromJson(response_body);
 }
 
-void HarvestHandler::save_authentication() {
-//    if (!user_config.open(QFile::WriteOnly | QFile::Text)) {
-//        QString error_text{QApplication::translate("HarvestHandler",
-//                                                   "It was not possible to save your credentials, you will have to log in again the next time you open Harvest Timer")};
-//        QMessageBox::information(nullptr, QApplication::translate("HarvestHandler", "Error saving authentication"),
-//                                 error_text);
-//        return;
-//    }
-//
-//    user_config.write(json_auth.toJson(QJsonDocument::Compact));
-//
-//    user_config.close();
+void HarvestHandler::save_authentication(const QJsonDocument &json_auth) {
+    KHarvestConfig::setAccess_token(json_auth["access_token"].toString());
+    KHarvestConfig::setRefresh_token(json_auth["refresh_token"].toString());
+    KHarvestConfig::setExpires_in(json_auth["expires_in"].toVariant().toLongLong());
+    KHarvestConfig::setExpires_on(json_auth["expires_on"].toVariant().toLongLong());
+    KHarvestConfig::setToken_type(json_auth["token_type"].toString());
+    KHarvestConfig::self()->save();
 }
 
 void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_token) {
@@ -325,16 +288,10 @@ HarvestHandler::get_projects_data(const QJsonDocument &json_payload, std::vector
 }
 
 void HarvestHandler::get_user_details(const QString &scope) {
-    account_id = scope.split("%3A")[1];
-
-    user_id = get_user_id();
+    KHarvestConfig::setAccount_id(scope.split("%3A")[1]);
+    KHarvestConfig::setUser_id(get_user_id());
 
     emit ready();
-}
-
-// the account id was previously extracted and saved in a settings file
-void HarvestHandler::load_user_ids() {
-    // FIXME! Reimplement me
 }
 
 bool HarvestHandler::is_ready() const {
@@ -355,7 +312,7 @@ void HarvestHandler::list_tasks(const QDate &from_date, const QDate &to_date) {
     QUrlQuery url_query;
     url_query.addQueryItem("from", from_date.toString(Qt::ISODate));
     url_query.addQueryItem("to", to_date.toString(Qt::ISODate));
-    url_query.addQueryItem("user_id", user_id);
+    url_query.addQueryItem("user_id", KHarvestConfig::user_id());
     request_url.setQuery(url_query);
 
     QNetworkReply *reply{do_request_with_auth(request_url, false, "GET")};
@@ -460,8 +417,8 @@ QNetworkReply *HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
 
     QNetworkRequest request(url);
     request.setTransferTimeout(HarvestHandler::request_timeout_constant);
-    request.setRawHeader("Authorization", "Bearer " + json_auth["access_token"].toString().toUtf8());
-    request.setRawHeader("Harvest-Account-Id", account_id.toUtf8());
+    request.setRawHeader("Authorization", "Bearer " + KHarvestConfig::access_token().toUtf8());
+    request.setRawHeader("Harvest-Account-Id", KHarvestConfig::account_id().toUtf8());
 
     QNetworkReply *reply;
     if (payload.has_value()) {
