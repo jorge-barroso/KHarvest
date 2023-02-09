@@ -42,9 +42,7 @@ struct Task {
         task.project_id = values[++i].toLongLong();
         task.task_id = values[++i].toLongLong();
         task.time_entry_id = values[++i].toLongLong();
-        if (values.length() == 10) {
-            task.client_name = values[++i];
-        }
+        task.client_name = values[++i];
         task.project_name = values[++i];
         task.task_name = values[++i];
         task.time_tracked = QTime::fromString(values[++i]);
