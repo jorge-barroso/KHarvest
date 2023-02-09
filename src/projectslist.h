@@ -7,7 +7,7 @@
 
 class ProjectsList : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
 public:
     explicit ProjectsList(QObject *parent = nullptr);
 
@@ -16,6 +16,8 @@ public:
     [[nodiscard]] QVector<HarvestTask> tasks() const;
 
 signals:
+
+    void projectsUpdated();
 
     void preTaskChanged();
 

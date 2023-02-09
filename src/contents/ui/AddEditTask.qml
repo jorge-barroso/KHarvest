@@ -37,6 +37,9 @@ Kirigami.OverlaySheet{
             }
             model: KHarvest.ProjectsModel {
                 list: projectsList
+                onModelReset: {
+                    projectField.currentIndex = 0;
+                }
             }
              onActivated: {
                 model.list.setTasksFromProject(currentIndex)
@@ -51,8 +54,12 @@ Kirigami.OverlaySheet{
             }
             model: KHarvest.TasksModel{
                 list: projectsList
+                onModelReset: {
+                    taskField.currentIndex = 0;
+                }
             }
         }
+
         Controls.TextArea {
             id: noteField
             anchors {

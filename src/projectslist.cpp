@@ -1,30 +1,22 @@
 #include "projectslist.h"
+#include "harvesthandler.h"
 
 ProjectsList::ProjectsList(QObject *parent)
-    : QObject{parent}
-    , current_index{0}
-{
-    int j{1};
-    for (int i{1}; i<=3; ++i) {
-        const QString iString{QString::number(i)};
-        QVector<HarvestTask> tasks;
-        for (int k{1}; k <= 3; ++j, ++k) {
-            const QString jString{QString::number(j)};
-            tasks.append(HarvestTask{
-                    .task_id=rand(),
-                    .task_name="Test Task " + jString,
-                    .client_name="Test Client " + iString
-            });
-        }
-        m_projects.append(HarvestProject{
-                .company_name="Test Company " + iString,
-                .project_name="Test Project " + iString,
-                .project_id=rand(),
-                .task={tasks}
+        : QObject{parent}, current_index{-1} {
+
+    auto *harvest_handler{HarvestHandler::instance()};
+    if (harvest_handler->is_ready()) {
+        current_index = 0;
+        m_projects = harvest_handler->update_user_data();
+    } else {
+        connect(harvest_handler, &HarvestHandler::ready, this, [this, harvest_handler] {
+            m_projects = harvest_handler->update_user_data();
+            emit projectsUpdated();
+            setTasksFromProject(0);
         });
     }
 
-    if(!m_projects.empty()) {
+    if (!m_projects.empty()) {
         m_tasks = m_projects.at(current_index).task;
     }
 }
@@ -40,10 +32,10 @@ QVector<HarvestTask> ProjectsList::tasks() const {
 void ProjectsList::setTasksFromProject(const int index) {
     emit preTaskChanged();
 
-    if(index < 0 || index >= m_projects.size())
+    if (index < 0 || index >= m_projects.size())
         return;
 
-    if(index == current_index)
+    if (index == current_index)
         return;
 
     current_index = index;
