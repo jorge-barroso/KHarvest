@@ -15,15 +15,23 @@ public:
 
     [[nodiscard]] QVector<Task *> tasks() const;
 
+    bool taskEdited(const int index, const Task *const task);
+
 signals:
 
     void preTaskAdded();
 
     void postTaskAdded();
 
+    void preTaskRemoved(int index);
+
+    void postTaskRemoved();
+
 public slots:
 
-    void task_added(Task *task);
+    void taskAdded(Task *task);
+
+    void taskRemoved(int index);
 
 private:
     QMap<QDate, QVector<Task *>> mTasks;

@@ -52,9 +52,19 @@ void AddedTasksModel::setList(AddedTasksList *list) {
     m_list = list;
 
     if (m_list != nullptr) {
-//        connect(m_list, &AddedTasksList::postTaskAdded, this, [this]() {
-//            endInsertRows();
-//        });
+        connect(m_list, &AddedTasksList::preTaskAdded, this, [this]() {
+            const int index = m_list->tasks().size();
+            beginInsertRows(QModelIndex(), index, index);
+        });
+        connect(m_list, &AddedTasksList::postTaskAdded, this, [this]() {
+            endInsertRows();
+        });
+        connect(m_list, &AddedTasksList::preTaskRemoved, this, [this](const int index) {
+            beginRemoveRows(QModelIndex(), index, index);
+        });
+        connect(m_list, &AddedTasksList::postTaskRemoved, this, [this]() {
+            endRemoveRows();
+        });
     }
 
     endResetModel();
