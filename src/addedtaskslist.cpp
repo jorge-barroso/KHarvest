@@ -3,15 +3,14 @@
 #include "maputils.h"
 
 AddedTasksList::AddedTasksList(QObject *parent)
-        : QObject{parent}, current_date{QDate::fromJulianDay(0)} {
-    auto *harvest_handler{HarvestHandler::instance()};
-    connect(harvest_handler, &HarvestHandler::task_added, this, &AddedTasksList::taskAdded);
-    if (harvest_handler->is_ready()) {
+        : QObject{parent}, current_date{QDate::fromJulianDay(0)}, harvestHandler{HarvestHandler::instance()} {
+    connect(harvestHandler, &HarvestHandler::task_added, this, &AddedTasksList::taskAdded);
+    if (harvestHandler->is_ready()) {
         current_date = QDate::currentDate();
-        harvest_handler->list_tasks(current_date.addDays(-2), current_date.addDays(2));
+        harvestHandler->list_tasks(current_date.addDays(-2), current_date.addDays(2));
     } else {
-        connect(harvest_handler, &HarvestHandler::ready, this, [this, harvest_handler] {
-            harvest_handler->list_tasks(current_date.addDays(-2), current_date.addDays(2));
+        connect(harvestHandler, &HarvestHandler::ready, this, [this] {
+            harvestHandler->list_tasks(current_date.addDays(-2), current_date.addDays(2));
         });
     }
 }
@@ -56,15 +55,9 @@ void AddedTasksList::taskRemoved(const int index) {
         return;
     }
 
-    qDebug() << "Property size: " << mTasks.find(current_date).value().size();
-    qDebug() << "Variable size: " << tasks.size();
+    HarvestHandler::instance()->delete_task(*tasks.at(index));
     emit preTaskRemoved(index);
-
     tasks.remove(index);
-
-    qDebug() << "Post-property size: " << mTasks.find(current_date).value().size();
-    qDebug() << "Post-variable size: " << tasks.size();
-
     emit postTaskRemoved();
 }
 
