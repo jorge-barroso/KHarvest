@@ -4,16 +4,18 @@ ProjectsList::ProjectsList(QObject *parent)
     : QObject{parent}
     , current_index{0}
 {
+    int j{1};
     for (int i{1}; i<=3; ++i) {
+        const QString iString{QString::number(i)};
         QVector<HarvestTask> tasks;
-        for(int j{1}; j<=3; ++j) {
-            const QString jString{QString::number(i*j)};
+        for (int k{1}; k <= 3; ++j, ++k) {
+            const QString jString{QString::number(j)};
             tasks.append(HarvestTask{
                     .task_id=rand(),
-                    .task_name="Test Task" + jString
+                    .task_name="Test Task " + jString,
+                    .client_name="Test Client " + iString
             });
         }
-        const QString iString{QString::number(i)};
         m_projects.append(HarvestProject{
                 .company_name="Test Company " + iString,
                 .project_name="Test Project " + iString,
