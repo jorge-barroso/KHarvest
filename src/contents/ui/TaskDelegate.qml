@@ -30,7 +30,7 @@ Kirigami.AbstractCard {
                 Kirigami.Heading {
                     Layout.fillWidth: true
                     level: 1
-                    text: projectName
+                    text: model.header
                 }
                 Kirigami.Separator {
                     Layout.fillWidth: true
@@ -39,14 +39,14 @@ Kirigami.AbstractCard {
                 Controls.Label {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    text: taskName
-                    visible: taskName.length > 0
+                    text: model.subtitle
+                    visible: subtitle.length > 0
                 }
             }
 
             Controls.Label {
                 Layout.fillHeight: true
-                text: timeTracked
+                text: model.time
             }
 
             TaskActionButtons {

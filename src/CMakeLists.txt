@@ -4,6 +4,10 @@
 add_executable(kharvest
         about.cpp
         about.h
+        addedtasksmodel.cpp
+        addedtasksmodel.h
+        addedtaskslist.cpp
+        addedtaskslist.h
         app.cpp
         app.h
         harvesthandler.cpp
@@ -11,16 +15,17 @@ add_executable(kharvest
         harvestproject.h
         harvesttask.h
         main.cpp
-        projectslist.h
+        maputils.h
         projectslist.cpp
+        projectslist.h
         projectsmodel.cpp
         projectsmodel.h
         settingsmanager.cpp
         settingsmanager.h
-        task.h
         task.cpp
-        tasksmodel.h
+        task.h
         tasksmodel.cpp
+        tasksmodel.h
         resources.qrc)
 
 target_link_libraries(kharvest

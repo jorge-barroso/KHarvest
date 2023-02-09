@@ -23,11 +23,11 @@ signals:
     void preTaskChanged();
 
     void postTasksChanged();
-//
+
 public slots:
 
     void setTasksFromProject(int index);
-//    void projectChanged();
+
 private:
     QVector<HarvestProject> m_projects;
     QVector<HarvestTask> m_tasks;
