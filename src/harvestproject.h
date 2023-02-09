@@ -7,6 +7,7 @@
 
 
 #include <QString>
+#include <QVector>
 #include "harvesttask.h"
 
 struct HarvestProject
@@ -14,7 +15,7 @@ struct HarvestProject
 	QString company_name;
 	QString project_name;
 	qint64 project_id;
-	std::vector<HarvestTask> task;
+	QVector<HarvestTask> task;
 };
 
 

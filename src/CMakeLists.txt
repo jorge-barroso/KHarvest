@@ -2,10 +2,23 @@
 # SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
 
 add_executable(kharvest
-    main.cpp
     about.cpp
+    about.h
     app.cpp
-    resources.qrc)
+    app.h
+    # harvesthandler.cpp
+    # harvesthandler.h
+    harvestproject.h
+    harvesttask.h
+    main.cpp
+    projectslist.h
+    projectslist.cpp
+    projectsmodel.cpp
+    projectsmodel.h
+    settingsmanager.cpp
+    settingsmanager.h
+    task.h
+    resources.qrc tasksmodel.h tasksmodel.cpp)
 
 target_link_libraries(kharvest
     Qt::Core
