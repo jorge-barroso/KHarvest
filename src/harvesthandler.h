@@ -9,151 +9,162 @@
 #include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QEventLoop>
-#include <QNetworkInformation>
-#include "settingsmanager.h"
+
+#include <KSharedConfig>
+
+#include <optional>
+#include <KConfigGroup>
+
 #include "harvestproject.h"
 #include "task.h"
 
+static const char *const account_id_key = "account_id";
+static const char *const user_id_key = "user_id";
+static const char *const user_details_group{"User"};
+
 class HarvestHandler : public QObject
 {
-	Q_OBJECT
+Q_OBJECT
 
-	public slots:
+public slots:
 
-		void new_connection();
+    void new_connection();
 
-	public:
-		static HarvestHandler* get_instance(const QDir& config_dir);
+    void logout_cleanup();
 
-		static void reset_instance();
+public:
+    static HarvestHandler *instance();
 
-		std::vector<HarvestProject> update_user_data();
+    static void reset();
 
-		[[nodiscard]] bool is_ready() const;
+    std::vector<HarvestProject> update_user_data();
 
-		void add_task(Task* task);
+    [[nodiscard]] bool is_ready() const;
 
-		void update_task(const Task* updated_task);
+    void add_task(Task* task);
 
-		void start_task(const Task& task);
+    void update_task(const Task* updated_task);
 
-		void stop_task(const Task& task);
+    void start_task(const Task& task);
 
-		void delete_task(const Task& task);
+    void stop_task(const Task& task);
 
-		void list_tasks(const QDate& from_date, const QDate& to_date);
+    void delete_task(const Task& task);
 
-		void set_network_reachability(const QNetworkInformation::Reachability& reachability);
+    void list_tasks(const QDate& from_date, const QDate& to_date);
 
-	signals:
+signals:
 
-		void ready();
+    void ready();
 
-		void data_ready(std::vector<HarvestProject>);
+    void data_ready(std::vector<HarvestProject>);
 
-		void task_added(Task*);
+    void task_added(Task*);
 
-	protected:
-		// We're taking a singleton approach here so the constructor will remain protected
-		explicit HarvestHandler(const QDir& config_dir); // Prevent construction
-		~HarvestHandler() override; // Prevent unwanted destruction
+protected:
+    // We're taking a singleton approach here so the constructor will remain protected
+    HarvestHandler(); // Prevent construction
+    ~HarvestHandler() override; // Prevent unwanted destruction
 
-	private slots:
+private slots:
 
-		void code_received();
+    void code_received();
 
-		void authentication_received(const QNetworkReply* reply);
+    void authentication_received(const QNetworkReply* reply);
 
-		void tasks_list_ready();
+    void tasks_list_ready();
 
-		void update_task_checks();
+    void update_task_checks();
 
-		void add_task_checks();
+    void add_task_checks();
 
-		void start_task_checks();
+    void start_task_checks();
 
-		void stop_task_checks();
+    void stop_task_checks();
 
-		void delete_task_checks();
+    void delete_task_checks();
 
-	private:
-		static HarvestHandler* harvest_handler;
+private:
+    static HarvestHandler* harvest_handler;
 
-		QTcpServer* auth_server;
-		QTcpSocket* auth_socket;
+    QTcpServer* auth_server;
+    QTcpSocket* auth_socket;
 
-		const QString client_id{ "VkKA3WoB2M5cEQGwf82VkeHb" };
-		const QString client_secret{
-				"QUwB8dtQxMwY5omBHgZBsXAhB2h_jzKZcGZkCUom1CPBYvTKUGPty7ree7ao92PV5FT5VQHbVWwNzTQUITVLmg" };
-		static const QString default_grant_type;
-		static const QString refresh_grant_type;
+    const QString client_id{ "VkKA3WoB2M5cEQGwf82VkeHb" };
+    const QString client_secret{
+            "QUwB8dtQxMwY5omBHgZBsXAhB2h_jzKZcGZkCUom1CPBYvTKUGPty7ree7ao92PV5FT5VQHbVWwNzTQUITVLmg" };
+    static const QString default_grant_type;
+    static const QString refresh_grant_type;
 
-		// Authentication endpoints
-		const QString auth_host{ "https://id.getharvest.com" };
-		const QString login_url{ auth_host + "/oauth2/authorize?client_id=" + client_id + "&response_type=code" };
-		const QString auth_url{ auth_host + "/api/v2/oauth2/token" };
+    // Authentication endpoints
+    const QString auth_host{ "https://id.getharvest.com" };
+    const QString login_url{ auth_host + "/oauth2/authorize?client_id=" + client_id + "&response_type=code" };
+    const QString auth_url{ auth_host + "/api/v2/oauth2/token" };
 
-		// Task-related endpoints
-		const QString requests_host{ "https://api.harvestapp.com" };
-		const QString assignments_url{ requests_host + "/v2/users/me/project_assignments" };
-		const QString time_entries_url{ requests_host + "/v2/time_entries" };
+    // Task-related endpoints
+    const QString requests_host{ "https://api.harvestapp.com" };
+    const QString assignments_url{ requests_host + "/v2/users/me/project_assignments" };
+    const QString time_entries_url{ requests_host + "/v2/time_entries" };
+    const QString user_url{ requests_host + "/v2/users/me" };
 
-		std::vector<HarvestProject> projects;
+    std::vector<HarvestProject> projects;
 
-		const QString auth_file_name = "harvest_auth.json";
-		QFile auth_file;
-		SettingsManager* settings_manager;
+    const QString auth_file_name = "harvest_auth.json";
+    KConfigGroup user_config;
 
-		QNetworkAccessManager network_manager;
+    QNetworkAccessManager network_manager;
 
-		QJsonDocument json_auth;
-		QString account_id;
+    QJsonDocument json_auth;
+    QString account_id;
+    QString user_id;
 
-		bool auth_found;
+    bool auth_found;
 
-		QEventLoop loop;
+    QEventLoop loop;
 
-		const QString pagination_records{ "100" };
+    const QString pagination_records{ "100" };
 
-		QJsonDocument get_authentication();
+    QJsonDocument get_authentication();
 
-		QJsonDocument get_auth_details();
+    QJsonDocument get_auth_details();
 
-		void login();
+    void login();
 
-		bool json_auth_is_complete();
+    bool json_auth_is_complete();
 
-		[[maybe_unused]] bool json_auth_is_safely_active();
+    [[maybe_unused]] bool json_auth_is_safely_active();
 
-		static std::map<QString, QString> parse_query_string(QString& query_string);
+    static std::map<QString, QString> parse_query_string(QString& query_string);
 
-		void save_authentication();
+    void save_authentication();
 
-		void authenticate_request(QString* auth_code, QString* refresh_token);
+    void authenticate_request(QString* auth_code, QString* refresh_token);
 
-		void get_new_account_id(QString& scope);
+    void get_user_details(const QString& scope);
 
-		void load_account_id();
+    void load_user_ids();
 
-		QNetworkReply* do_request_with_auth(const QUrl& url, bool sync_request, const QByteArray& verb,
-											const std::optional<QJsonDocument>& payload = std::nullopt);
+    QNetworkReply* do_request_with_auth(const QUrl& url, bool sync_request, const QByteArray& verb,
+                                        const std::optional<QJsonDocument>& payload = std::nullopt);
 
-		static void get_projects_data(const QJsonDocument& json_payload, std::vector<HarvestProject>& projects_vector);
+    static void get_projects_data(const QJsonDocument& json_payload, std::vector<HarvestProject>& projects_vector);
 
-		static QJsonDocument read_close_reply(QNetworkReply* reply);
+    static QJsonDocument read_close_reply(QNetworkReply* reply);
 
-		static bool default_error_check(QNetworkReply* reply, const QString& base_error_title,
-										const QString& base_error_body);
+    static bool default_error_check(QNetworkReply* reply, const QString& base_error_title,
+                                    const QString& base_error_body);
 
-		void check_authenticate();
+    void check_authenticate();
 
-        static QString get_http_message(const QString& message);
+    static QString get_http_message(const QString& message);
 
-		std::unordered_map<size_t, Task*> tasks_queue;
+    std::unordered_map<size_t, Task*> tasks_queue;
 
-		static const int request_timeout_constant;
+    static const int request_timeout_constant;
 
-		bool is_network_reachable;
+    bool is_network_reachable;
+
+    QString get_user_id();
 };
 
 #endif // HARVESTHANDLER_H

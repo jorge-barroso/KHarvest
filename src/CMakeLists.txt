@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+# SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 
 add_executable(kharvest
     about.cpp
     about.h
     app.cpp
     app.h
-    # harvesthandler.cpp
-    # harvesthandler.h
+    harvesthandler.cpp
+    harvesthandler.h
     harvestproject.h
     harvesttask.h
     main.cpp
@@ -18,7 +18,10 @@ add_executable(kharvest
     settingsmanager.cpp
     settingsmanager.h
     task.h
-    resources.qrc tasksmodel.h tasksmodel.cpp)
+    task.cpp
+    tasksmodel.h
+    tasksmodel.cpp
+    resources.qrc)
 
 target_link_libraries(kharvest
     Qt::Core

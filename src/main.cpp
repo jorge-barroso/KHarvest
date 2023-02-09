@@ -1,6 +1,6 @@
 /*
     SPDX-License-Identifier: GPL-2.0-or-later
-    SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+    SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 */
 
 #include <QApplication>
@@ -21,6 +21,7 @@
 #include <KLocalizedString>
 
 #include "kharvestconfig.h"
+#include "harvesthandler.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -86,6 +87,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     qmlRegisterType<TasksModel>("org.kde.kharvest", 1, 0, "TasksModel");
     qmlRegisterUncreatableType<ProjectsList>("org.kde.kharvest", 1, 0, "ProjectsList",
                                              QStringLiteral("ProjectsList should not be created in QML"));
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "AccountManager", HarvestHandler::instance());
 
     QQmlApplicationEngine engine;
 

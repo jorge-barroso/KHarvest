@@ -4,13 +4,24 @@
     xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
     http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
 <!--
-SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 SPDX-License-Identifier: LGPL-2.0-or-later
 -->
-    <group name="General">
-        <entry name="someSetting" type="Bool">
-            <label>Some setting description</label>
-            <default>true</default>
+    <group name="HarvestUserDetails">
+        <entry name="access_token" type="String">
+            <label>The token we need to give the user access to their account</label>
+        </entry>
+        <entry name="refresher_token" type="String">
+            <label>The token we need to reauthenticate the user and fetch a new token once the previous one expires</label>
+        </entry>
+        <entry name="expires_in" type="UInt">
+            <label>How long before we need to refresh the access token</label>
+        </entry>
+        <entry name="expires_on" type="ULongLong">
+            <label>Epoch of the date and time when the access token expires</label>
+        </entry>
+        <entry name="token_type" type="String">
+            <label>Type of token provided (usually bearer)</label>
         </entry>
     </group>
 </kcfg>
