@@ -65,7 +65,7 @@ Kirigami.OverlaySheet{
             }
             Layout.minimumHeight: Kirigami.Units.gridUnit * 10
             text: mode === "add" ? "" : taskNote
-            placeholderText: i18nc("@label:textbox", "Note:")
+            placeholderText: i18nc("@label:textbox", "Add A Custom Note...")
         }
 
         Controls.TextField {
@@ -77,8 +77,9 @@ Kirigami.OverlaySheet{
             placeholderText: i18n("HH:MM")
             text: mode === "add" ? "00:00" : timeTracked
         }
+    }
 
-        RowLayout {
+    footer: RowLayout {
             anchors {
                 left: parent.left
                 right: parent.right
@@ -86,6 +87,7 @@ Kirigami.OverlaySheet{
             Controls.Button {
                 id: doneButton
                 Layout.fillWidth: true
+                flat: true
                 text: i18nc("@action:button", "Done")
                 enabled: projectField.text.length > 0 && taskField.text.length > 0
                 onClicked: {
@@ -112,6 +114,7 @@ Kirigami.OverlaySheet{
             Controls.Button {
                 id: removeButton
                 Layout.fillWidth: true
+                flat: true
                 text: i18nc("@action:button", "Remove")
                 visible: mode === "edit"
                 onClicked: {
@@ -122,6 +125,7 @@ Kirigami.OverlaySheet{
             Controls.Button {
                 id: toFavouritesButton
                 Layout.fillWidth: true
+                flat: true
                 text: i18nc("@action:button", "Favourites")
                 visible: mode === "add"
                 onClicked: {
@@ -136,6 +140,7 @@ Kirigami.OverlaySheet{
             Controls.Button {
                 id: cancelButton
                 Layout.fillWidth: true
+                flat: true
                 text: i18nc("@action:button", "Cancel")
                 onClicked: {
                     addEditTaskSheet.close();
@@ -146,5 +151,4 @@ Kirigami.OverlaySheet{
                 }
             }
         }
-    }
 }

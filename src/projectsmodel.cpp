@@ -45,7 +45,6 @@ void ProjectsModel::setList(ProjectsList *list) {
     if(m_list)
         m_list->disconnect(this);
 
-    qDebug() << list->projects().size();
     m_list = list;
 }
 
