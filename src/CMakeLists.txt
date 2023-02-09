@@ -26,7 +26,7 @@ add_executable(kharvest
         task.h
         tasksmodel.cpp
         tasksmodel.h
-        resources.qrc)
+        resources.qrc tasksmanager.cpp tasksmanager.h)
 
 target_link_libraries(kharvest
         Qt::Core

@@ -126,17 +126,6 @@ Kirigami.ApplicationWindow {
 
     AddEditTask{
         id: addEditTaskSheet
-        onAdded: taskModel.append({
-            "projectName": projectName,
-            "taskName": taskName,
-            "taskNote": taskNote
-        })
-        onEdited: taskModel.set(index, {
-            "projectName": projectName,
-            "taskName": taskName,
-            "taskNote": taskNote
-        })
-        onRemoved: taskModel.remove(index, 1)
     }
 
     MainPage {

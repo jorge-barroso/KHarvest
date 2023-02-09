@@ -4,6 +4,7 @@
 
 AddedTasksList::AddedTasksList(QObject *parent)
         : QObject{parent}, current_date{QDate::fromJulianDay(0)}, harvestHandler{HarvestHandler::instance()} {
+
     connect(harvestHandler, &HarvestHandler::task_added, this, &AddedTasksList::taskAdded);
     if (harvestHandler->is_ready()) {
         current_date = QDate::currentDate();
@@ -38,6 +39,7 @@ bool AddedTasksList::taskEdited(const int index, const Task *const task) {
 void AddedTasksList::taskAdded(Task *task) {
     // TODO favourite status
     emit preTaskAdded();
+
 
     MapUtils::map_insert_or_create_vector(mTasks, task->date, task);
 

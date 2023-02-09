@@ -13,7 +13,7 @@ GridLayout {
     columnSpacing: Kirigami.Units.smallSpacing
     columns: 2
 
-    /*media-plaback-start and media-playback-stop*/
+    // START/STOP TASK
     Controls.Button {
         id: startStopButton
         Layout.alignment: Qt.AlignRight
@@ -22,7 +22,7 @@ GridLayout {
         // onClicked: {}
     }
 
-    /*bookmark-new and bookmark-remove*/
+    // SAVE/REMOVE TASK FROM FAVOURITES
     Controls.Button {
         id: favUnfavButton
         Layout.alignment: Qt.AlignRight
@@ -31,6 +31,7 @@ GridLayout {
         // onClicked: {}
     }
 
+    // EDIT TASK
     Controls.Button {
         id: editButton
         Layout.alignment: Qt.AlignRight
@@ -39,6 +40,7 @@ GridLayout {
         onClicked: openPopulateSheet("edit")
     }
 
+    // REMOVE TASK
     Controls.Button {
         id: removeButton
         Layout.alignment: Qt.AlignRight

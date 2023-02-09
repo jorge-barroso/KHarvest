@@ -24,6 +24,7 @@
 #include <KLocalizedString>
 #include "kharvestconfig.h"
 #include "harvesthandler.h"
+#include "tasksmanager.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -104,16 +105,19 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     App application;
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "App", &application);
 
-    ProjectsList projects_list;
-    engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projects_list);
-    AddedTasksList added_tasks_list;
-    engine.rootContext()->setContextProperty(QStringLiteral("addedTasksList"), &added_tasks_list);
+    ProjectsList projectsList;
+    engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projectsList);
+    AddedTasksList addedTasksList;
+    engine.rootContext()->setContextProperty(QStringLiteral("addedTasksList"), &addedTasksList);
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
     if (engine.rootObjects().isEmpty()) {
         return -1;
     }
+
+    TasksManager tasksManager(nullptr, &projectsList, &addedTasksList);
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "TasksManager", &tasksManager);
 
     return app.exec();
 }

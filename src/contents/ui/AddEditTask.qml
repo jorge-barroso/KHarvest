@@ -19,9 +19,7 @@ Kirigami.OverlaySheet{
     property string taskNote: ""
     property string timeTracked: ""
 
-    signal added (string projectName, string taskName, string taskNote)
-    signal edited (int index, string projectName, string taskName, string taskNote)
-    signal removed(int index)
+    property int initialIndex: 0
 
     header: Kirigami.Heading {
         text: mode === "add" ? i18nc("@title:window", "Add Task")
@@ -38,12 +36,12 @@ Kirigami.OverlaySheet{
             model: KHarvest.ProjectsModel {
                 list: projectsList
                 onModelReset: {
-                    projectField.currentIndex = 0;
+                    projectField.currentIndex = initialIndex;
                 }
             }
              onActivated: {
-                model.list.setTasksFromProject(currentIndex)
-                taskField.currentIndex = 0
+                model.list.setTasksFromProject(currentIndex);
+                taskField.currentIndex = initialIndex;
              }
         }
         Controls.ComboBox {
@@ -55,7 +53,7 @@ Kirigami.OverlaySheet{
             model: KHarvest.TasksModel{
                 list: projectsList
                 onModelReset: {
-                    taskField.currentIndex = 0;
+                    taskField.currentIndex = initialIndex;
                 }
             }
         }
@@ -99,18 +97,16 @@ Kirigami.OverlaySheet{
                 enabled: projectField.text.length > 0 && taskField.text.length > 0
                 onClicked: {
                     if(mode === "add") {
-                        addEditTaskSheet.added(
-                            projectField.text,
-                            taskField.text,
-                            noteField.text,
-                            timeField.text
-                        );
+                        KHarvest.TasksManager.newTaskAdded(projectField.currentIndex,
+                                                taskField.currentIndex,
+                                                noteField.text,
+                                                timeField.text);
                     }
                     else {
                         addEditTaskSheet.edited(
                             index,
-                            projectField.text,
-                            taskField.text,
+                            projectField.currentIndex,
+                            taskField.currentIndex,
                             noteField.text,
                             timeField.text
                         );
