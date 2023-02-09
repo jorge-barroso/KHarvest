@@ -6,13 +6,13 @@ ProjectsList::ProjectsList(QObject *parent)
 
     auto *harvest_handler{HarvestHandler::instance()};
     if (harvest_handler->is_ready()) {
-        current_index = 0;
+        current_index = INITIAL_INDEX;
         m_projects = harvest_handler->update_user_data();
     } else {
         connect(harvest_handler, &HarvestHandler::ready, this, [this, harvest_handler] {
             m_projects = harvest_handler->update_user_data();
             emit projectsUpdated();
-            setTasksFromProject(0);
+            setTasksFromProject(INITIAL_INDEX);
         });
     }
 
