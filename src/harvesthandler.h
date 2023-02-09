@@ -17,10 +17,7 @@
 
 #include "harvestproject.h"
 #include "task.h"
-
-static const char *const account_id_key = "account_id";
-static const char *const user_id_key = "user_id";
-static const char *const user_details_group{"User"};
+#include "kharvestconfig.h"
 
 class HarvestHandler : public QObject
 {
@@ -34,8 +31,6 @@ public slots:
 
 public:
     static HarvestHandler *instance();
-
-    static void reset();
 
     std::vector<HarvestProject> update_user_data();
 
@@ -70,7 +65,7 @@ private slots:
 
     void code_received();
 
-    void authentication_received(const QNetworkReply* reply);
+    static void authentication_received(const QNetworkReply *reply);
 
     void tasks_list_ready();
 
@@ -109,14 +104,7 @@ private:
 
     std::vector<HarvestProject> projects;
 
-    const QString auth_file_name = "harvest_auth.json";
-    KConfigGroup user_config;
-
     QNetworkAccessManager network_manager;
-
-    QJsonDocument json_auth;
-    QString account_id;
-    QString user_id;
 
     bool auth_found;
 
@@ -124,19 +112,15 @@ private:
 
     const QString pagination_records{ "100" };
 
-    QJsonDocument get_authentication();
-
-    QJsonDocument get_auth_details();
-
     void login();
 
-    bool json_auth_is_complete();
+    static bool json_auth_is_complete();
 
-    [[maybe_unused]] bool json_auth_is_safely_active();
+    [[maybe_unused]] static bool json_auth_is_safely_active();
 
     static std::map<QString, QString> parse_query_string(QString& query_string);
 
-    void save_authentication();
+    static void save_authentication(const QJsonDocument &json_auth);
 
     void authenticate_request(QString* auth_code, QString* refresh_token);
 

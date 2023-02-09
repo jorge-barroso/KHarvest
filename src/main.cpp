@@ -91,7 +91,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    auto config = kharvestConfig::self();
+    auto config = KHarvestConfig::self();
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "Config", config);
 
     AboutType about;
