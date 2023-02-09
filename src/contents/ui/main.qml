@@ -22,8 +22,6 @@ Kirigami.ApplicationWindow {
     onXChanged: saveWindowGeometryTimer.restart()
     onYChanged: saveWindowGeometryTimer.restart()
 
-    Component.onCompleted: App.restoreWindowGeometry(root)
-
     // This timer allows to batch update the window size change to reduce
     // the io load and also work around the fact that x/y/width/height are
     // changed when loading the page and overwrite the saved geometry from
@@ -34,6 +32,43 @@ Kirigami.ApplicationWindow {
         onTriggered: App.saveWindowGeometry(root)
     }
 
+    footer: ColumnLayout {
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                Controls.Label {
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    font.bold: true
+                    text: "09 February 2023"
+                }
+                id: dateToolBar
+                visible: HarvestHandler.isReady
+                Kirigami.ActionToolBar {
+                    alignment: Qt.AlignCenter
+                    flat: true
+                    actions: [
+                       Kirigami.Action {
+                           icon.name: "go-previous"
+                           onTriggered: {}
+                       },
+                       Kirigami.Action {
+                           icon.name: "view-calendar"
+                           onTriggered: {}
+                       },
+                       Kirigami.Action {
+                           icon.name: "go-next"
+                           onTriggered: {}
+                       }
+                   ]
+                }
+            }
+
+    Connections {
+        target: HarvestHandler
+
+        function onReady() {
+            applicationWindow().pageStack.replace(page)
+            dateToolBar.visible = true
+        }
+    }
     function openPopulateSheet(mode, index = -1, projectName = "", taskName = "", taskNote = "", timeTracked = "") {
         addEditTaskSheet.mode = mode
         if(mode === "edit") {
@@ -104,8 +139,17 @@ Kirigami.ApplicationWindow {
         onRemoved: taskModel.remove(index, 1)
     }
 
-    pageStack.initialPage: MainPage {
-                               id: page
-                               Component.onCompleted: addEditTaskSheet.parent = page
-                           }
+    MainPage {
+        id: page
+        Component.onCompleted: addEditTaskSheet.parent = page
+    }
+
+    Component.onCompleted: {
+        App.restoreWindowGeometry(root)
+        if (HarvestHandler.isReady) {
+            pageStack.push(page);
+        } else {
+            pageStack.push('qrc:/content/ui/LoginPage.qml');
+        }
+    }
 }

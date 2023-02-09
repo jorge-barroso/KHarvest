@@ -11,7 +11,7 @@ int TasksModel::rowCount(const QModelIndex &parent) const
 {
     // For list models only the root node (an invalid parent) should return the list's size. For all
     // other (valid) parents, rowCount() should return 0 so that it does not become a tree model.
-    if (parent.isValid())
+    if (parent.isValid() || !m_list)
         return 0;
 
     return m_list->tasks().size();
@@ -39,11 +39,13 @@ ProjectsList *TasksModel::list() const {
 void TasksModel::setList(ProjectsList *list) {
     beginResetModel();
 
-    if(m_list)
+    if (m_list)
         m_list->disconnect(this);
 
     m_list = list;
-    connect(m_list, &ProjectsList::postTasksChanged, this, &TasksModel::endResetModel);
+
+    if (m_list)
+        connect(m_list, &ProjectsList::postTasksChanged, this, &TasksModel::endResetModel);
 
     endResetModel();
 }
