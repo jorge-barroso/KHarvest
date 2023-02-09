@@ -38,8 +38,8 @@ Kirigami.OverlaySheet{
             model: KHarvest.ProjectsModel {
                 list: projectsList
             }
-             onCurrentIndexChanged: {
-                model.newProjectChosen(currentIndex)
+             onActivated: {
+                model.list.setTasksFromProject(currentIndex)
                 taskField.currentIndex = 0
              }
         }
