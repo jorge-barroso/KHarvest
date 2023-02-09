@@ -32,11 +32,41 @@ Kirigami.ApplicationWindow {
         onTriggered: App.saveWindowGeometry(root)
     }
 
+    footer: ColumnLayout {
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                Controls.Label {
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    font.bold: true
+                    text: "09 February 2023"
+                }
+                id: dateToolBar
+                visible: HarvestHandler.isReady
+                Kirigami.ActionToolBar {
+                    alignment: Qt.AlignCenter
+                    flat: true
+                    actions: [
+                       Kirigami.Action {
+                           icon.name: "go-previous"
+                           onTriggered: {}
+                       },
+                       Kirigami.Action {
+                           icon.name: "view-calendar"
+                           onTriggered: {}
+                       },
+                       Kirigami.Action {
+                           icon.name: "go-next"
+                           onTriggered: {}
+                       }
+                   ]
+                }
+            }
+
     Connections {
         target: HarvestHandler
 
         function onReady() {
             applicationWindow().pageStack.replace(page)
+            dateToolBar.visible = true
         }
     }
     function openPopulateSheet(mode, index = -1, projectName = "", taskName = "", taskNote = "", timeTracked = "") {
