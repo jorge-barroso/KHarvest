@@ -22,8 +22,6 @@ Kirigami.ApplicationWindow {
     onXChanged: saveWindowGeometryTimer.restart()
     onYChanged: saveWindowGeometryTimer.restart()
 
-    Component.onCompleted: App.restoreWindowGeometry(root)
-
     // This timer allows to batch update the window size change to reduce
     // the io load and also work around the fact that x/y/width/height are
     // changed when loading the page and overwrite the saved geometry from
@@ -34,6 +32,13 @@ Kirigami.ApplicationWindow {
         onTriggered: App.saveWindowGeometry(root)
     }
 
+    Connections {
+        target: HarvestHandler
+
+        function onReady() {
+            applicationWindow().pageStack.replace(page)
+        }
+    }
     function openPopulateSheet(mode, index = -1, projectName = "", taskName = "", taskNote = "", timeTracked = "") {
         addEditTaskSheet.mode = mode
         if(mode === "edit") {
@@ -104,8 +109,17 @@ Kirigami.ApplicationWindow {
         onRemoved: taskModel.remove(index, 1)
     }
 
-    pageStack.initialPage: MainPage {
-                               id: page
-                               Component.onCompleted: addEditTaskSheet.parent = page
-                           }
+    MainPage {
+        id: page
+        Component.onCompleted: addEditTaskSheet.parent = page
+    }
+
+    Component.onCompleted: {
+        App.restoreWindowGeometry(root)
+        if (HarvestHandler.isReady) {
+            pageStack.push(page);
+        } else {
+            pageStack.push('qrc:/content/ui/LoginPage.qml');
+        }
+    }
 }

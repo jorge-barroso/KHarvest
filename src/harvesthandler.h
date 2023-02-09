@@ -22,6 +22,7 @@
 class HarvestHandler : public QObject
 {
 Q_OBJECT
+    Q_PROPERTY(bool isReady READ is_ready NOTIFY ready)
 
 public slots:
 
