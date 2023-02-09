@@ -12,14 +12,18 @@ public:
     explicit ProjectsList(QObject *parent = nullptr);
 
     [[nodiscard]] QVector<HarvestProject> projects() const;
+
     [[nodiscard]] QVector<HarvestTask> tasks() const;
 
-    void setTasksFromProject(int index);
 signals:
+
     void preTaskChanged();
+
     void postTasksChanged();
 //
-//public slots:
+public slots:
+
+    void setTasksFromProject(int index);
 //    void projectChanged();
 private:
     QVector<HarvestProject> m_projects;
