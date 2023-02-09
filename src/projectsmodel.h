@@ -2,7 +2,6 @@
 #define PROJECTSMODEL_H
 
 #include <QAbstractListModel>
-#include "harvestproject.h"
 
 class ProjectsList;
 

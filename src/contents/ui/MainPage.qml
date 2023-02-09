@@ -5,7 +5,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
 import org.kde.kirigami 2.19 as Kirigami
-import org.kde.kharvest 1.0
+import org.kde.kharvest 1.0 as KHarvest
 
 Kirigami.ScrollablePage {
     id: page
@@ -33,7 +33,9 @@ Kirigami.ScrollablePage {
 
     Kirigami.CardsListView {
         id: layout
-        model: taskModel
+        model: KHarvest.AddedTasksModel {
+            list: addedTasksList
+        }
         delegate: TaskDelegate {}
     }
 }

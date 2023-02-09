@@ -15,16 +15,17 @@
 #include "projectslist.h"
 #include "projectsmodel.h"
 #include "tasksmodel.h"
+#include "addedtaskslist.h"
+#include "addedtasksmodel.h"
 #include "version-kharvest.h"
 #include <KAboutData>
 #include <KLocalizedContext>
-#include <KLocalizedString>
 
+#include <KLocalizedString>
 #include "kharvestconfig.h"
 #include "harvesthandler.h"
 
-Q_DECL_EXPORT int main(int argc, char *argv[])
-{
+Q_DECL_EXPORT int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -85,8 +86,11 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     qmlRegisterType<ProjectsModel>("org.kde.kharvest", 1, 0, "ProjectsModel");
     qmlRegisterType<TasksModel>("org.kde.kharvest", 1, 0, "TasksModel");
+    qmlRegisterType<AddedTasksModel>("org.kde.kharvest", 1, 0, "AddedTasksModel");
     qmlRegisterUncreatableType<ProjectsList>("org.kde.kharvest", 1, 0, "ProjectsList",
                                              QStringLiteral("ProjectsList should not be created in QML"));
+    qmlRegisterUncreatableType<AddedTasksList>("org.kde.kharvest", 1, 0, "AddedTasksList",
+                                               QStringLiteral("AddedTasksList should not be created in QML"));
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "HarvestHandler", HarvestHandler::instance());
 
     QQmlApplicationEngine engine;
@@ -102,6 +106,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     ProjectsList projects_list;
     engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projects_list);
+    AddedTasksList added_tasks_list;
+    engine.rootContext()->setContextProperty(QStringLiteral("addedTasksList"), &added_tasks_list);
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
