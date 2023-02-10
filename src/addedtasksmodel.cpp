@@ -58,7 +58,11 @@ bool AddedTasksModel::setData(const QModelIndex &index, const QVariant &value, i
             task->projectName = value.toString();
             break;
         case StartedRole:
-            mList->tasks().at(index.row())->started = value.toBool();
+            if (value.toBool()) {
+                mList->startTask(index.row());
+            } else {
+                mList->stopTask(index.row());
+            }
             break;
         default:
             return false;

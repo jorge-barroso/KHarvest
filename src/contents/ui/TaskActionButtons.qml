@@ -16,13 +16,15 @@ GridLayout {
     // START/STOP TASK
     Controls.Button {
         id: startStopButton
+        checkable: true
+        checked: model.started
         Layout.alignment: Qt.AlignRight
         Layout.columnSpan: 1
-        icon.name: "media-playback-start"
-        // onClicked: {}
+        icon.name: model.started ? "media-playback-stop" : "media-playback-start"
+        onClicked: model.started = checked
     }
 
-    // SAVE/REMOVE TASK FROM FAVOURITES
+    // SAVE/REMOVE FAVOURITE TASK
     Controls.Button {
         id: favUnfavButton
         Layout.alignment: Qt.AlignRight
