@@ -24,6 +24,15 @@ Kirigami.OverlaySheet{
 
     property int initialIndex: 0
 
+    function resetAndClose() {
+        close();
+        projectField.currentIndex = initialIndex;
+        projectsList.setTasksFromProject(initialIndex)
+        taskField.currentIndex = initialIndex;
+        noteField.text = '';
+        timeField.text = '';
+    }
+
     header: Kirigami.Heading {
         text: mode === "add" ? i18nc("@title:window", "Add Task")
                              : i18nc("@title:window", "Edit Task")
@@ -117,7 +126,7 @@ Kirigami.OverlaySheet{
                         model.note = noteField.text
                         model.time = timeField.text
                     }
-                    addEditTaskSheet.close();
+                    resetAndClose();
                 }
             }
             Controls.Button {
@@ -128,7 +137,7 @@ Kirigami.OverlaySheet{
                 visible: mode === "edit"
                 onClicked: {
                     addedTasksList.taskRemoved(index);
-                    addEditTaskSheet.close();
+                    resetAndClose();
                 }
             }
             Controls.Button {
@@ -143,7 +152,7 @@ Kirigami.OverlaySheet{
                                                 taskField.text,
                                                 noteField.text,
                                                 timeField.text)
-                    addEditTaskSheet.close();
+                    resetAndClose();
                 }
             }
             Controls.Button {
@@ -152,11 +161,7 @@ Kirigami.OverlaySheet{
                 flat: true
                 text: i18nc("@action:button", "Cancel")
                 onClicked: {
-                    addEditTaskSheet.close();
-                    projectField.currentIndex = initialIndex;
-                    taskField.currentIndex = initialIndex;
-                    noteField.text = '';
-                    timeField.text = '';
+                    resetAndClose();
                 }
             }
         }
