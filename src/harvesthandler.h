@@ -18,6 +18,7 @@
 #include "harvestproject.h"
 #include "task.h"
 #include "kharvestconfig.h"
+#include "keychain.h"
 
 class HarvestHandler : public QObject
 {
@@ -66,7 +67,7 @@ private slots:
 
     void code_received();
 
-    static void authentication_received(const QNetworkReply *reply);
+    void authentication_received(const QNetworkReply *reply);
 
     void tasks_list_ready();
 
@@ -81,20 +82,37 @@ private slots:
     void delete_task_checks();
 
 private:
-    static HarvestHandler* harvest_handler;
+    static HarvestHandler *harvest_handler;
 
-    QTcpServer* auth_server;
-    QTcpSocket* auth_socket;
+    KeyChain keyChain;
+    QString accessToken;
+    QString refreshToken;
+    qlonglong expiresIn{0};
+    qlonglong expiresOn{0};
+    QString tokenType;
+    QString accountId;
+    QString userId;
 
-    const QString client_id{ "VkKA3WoB2M5cEQGwf82VkeHb" };
+    static const QString AccessTokenKey;
+    static const QString RefreshTokenKey;
+    static const QString ExpiresInKey;
+    static const QString ExpiresOnKey;
+    static const QString TokenTypeKey;
+    static const QString AccountIdKey;
+    static const QString UserIdKey;
+
+    QTcpServer *auth_server;
+    QTcpSocket *auth_socket;
+
+    const QString client_id{"VkKA3WoB2M5cEQGwf82VkeHb"};
     const QString client_secret{
-            "QUwB8dtQxMwY5omBHgZBsXAhB2h_jzKZcGZkCUom1CPBYvTKUGPty7ree7ao92PV5FT5VQHbVWwNzTQUITVLmg" };
+            "QUwB8dtQxMwY5omBHgZBsXAhB2h_jzKZcGZkCUom1CPBYvTKUGPty7ree7ao92PV5FT5VQHbVWwNzTQUITVLmg"};
     static const QString default_grant_type;
     static const QString refresh_grant_type;
 
     // Authentication endpoints
-    const QString auth_host{ "https://id.getharvest.com" };
-    const QString login_url{ auth_host + "/oauth2/authorize?client_id=" + client_id + "&response_type=code" };
+    const QString auth_host{"https://id.getharvest.com"};
+    const QString login_url{auth_host + "/oauth2/authorize?client_id=" + client_id + "&response_type=code"};
     const QString auth_url{ auth_host + "/api/v2/oauth2/token" };
 
     // Task-related endpoints
@@ -115,19 +133,17 @@ private:
 
     void login();
 
-    static bool json_auth_is_complete();
+    bool json_auth_is_complete();
 
-    [[maybe_unused]] static bool json_auth_is_safely_active();
+    [[maybe_unused]]  bool json_auth_is_safely_active() const;
 
     static std::map<QString, QString> parse_query_string(QString& query_string);
 
-    static void save_authentication(const QJsonDocument &json_auth);
+    void getAuthDetails(const QJsonDocument &json_auth);
 
     void authenticate_request(QString* auth_code, QString* refresh_token);
 
-    void get_user_details(const QString& scope);
-
-    void load_user_ids();
+    void getUserDetails(const QString &scope);
 
     QNetworkReply* do_request_with_auth(const QUrl& url, bool sync_request, const QByteArray& verb,
                                         const std::optional<QJsonDocument>& payload = std::nullopt);
@@ -141,15 +157,17 @@ private:
 
     void check_authenticate();
 
-    static QString get_http_message(const QString& message);
+    static QString get_http_message(const QString &message);
 
-    std::unordered_map<size_t, Task*> tasks_queue;
+    std::unordered_map<size_t, Task *> tasks_queue;
 
     static const int request_timeout_constant;
 
     bool is_network_reachable;
 
     QString get_user_id();
+
+    void saveData(bool includeAccount);
 };
 
 #endif // HARVESTHANDLER_H

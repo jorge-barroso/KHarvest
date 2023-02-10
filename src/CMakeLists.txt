@@ -14,6 +14,8 @@ add_executable(kharvest
         harvesthandler.h
         harvestproject.h
         harvesttask.h
+        keychain.cpp
+        keychain.h
         main.cpp
         maputils.h
         projectslist.cpp
@@ -41,7 +43,9 @@ target_link_libraries(kharvest
         KF5::I18n
         KF5::CoreAddons
         KF5::ConfigCore
-        KF5::ConfigGui)
+        KF5::ConfigGui
+        KF5::Wallet
+        ${QTKEYCHAIN_LIBRARIES})
 
 if (ANDROID)
     kirigami_package_breeze_icons(ICONS

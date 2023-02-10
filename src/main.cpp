@@ -10,6 +10,10 @@
 #include <QQuickStyle>
 #include <QStringLiteral>
 
+#include <KAboutData>
+#include <KLocalizedContext>
+#include <KLocalizedString>
+
 #include "about.h"
 #include "app.h"
 #include "projectslist.h"
@@ -18,10 +22,6 @@
 #include "addedtaskslist.h"
 #include "addedtasksmodel.h"
 #include "version-kharvest.h"
-#include <KAboutData>
-#include <KLocalizedContext>
-
-#include <KLocalizedString>
 #include "kharvestconfig.h"
 #include "harvesthandler.h"
 #include "tasksmanager.h"
