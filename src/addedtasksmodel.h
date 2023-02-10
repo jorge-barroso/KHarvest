@@ -19,12 +19,17 @@ public:
         TimeRole,
         EntryIdRole,
         ProjectNameRole,
+        StartedRole,
     };
 
     // Basic functionality:
     [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
 
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
+
+    [[nodiscard]] bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 

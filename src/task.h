@@ -59,7 +59,9 @@ struct Task {
                timeEntryId == other_task.timeEntryId &&
                clientName == other_task.clientName &&
                projectName == other_task.projectName &&
-               taskName == other_task.taskName;
+               started == other_task.started &&
+               taskName == other_task.taskName &&
+               note == other_task.note;
     }
 
     bool operator!=(const Task &other_task) const {

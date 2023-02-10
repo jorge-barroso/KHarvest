@@ -15,6 +15,7 @@ Kirigami.OverlaySheet{
 
     property int index: -1
     property int entryId: -1
+    property var model: {}
 
     property alias projectIndex: projectField.currentIndex
     property alias taskIndex: taskField.currentIndex
@@ -105,11 +106,16 @@ Kirigami.OverlaySheet{
                                                 timeTracked);
                     }
                     else {
-                        KHarvest.TasksManager.taskUpdated(entryId,
+                        KHarvest.TasksManager.taskUpdated(index,
+                                                        entryId,
                                                         projectIndex,
                                                         taskIndex,
                                                         taskNote,
                                                         timeTracked);
+                        model.project = projectField.currentText
+                        model.subtitle = taskField.currentText
+                        model.note = noteField.text
+                        model.time = timeField.text
                     }
                     addEditTaskSheet.close();
                 }

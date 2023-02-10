@@ -45,8 +45,8 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
     harvestHandler->add_task(newTask);
 }
 
-void TasksManager::taskUpdated(unsigned int entryId, int projectIndex, int taskIndex, const QString &note,
-                               const QString &time) {
+void TasksManager::taskUpdated(const int index, unsigned int entryId, int projectIndex, int taskIndex,
+                               const QString &note, const QString &time) {
     if (projectIndex < 0 || projectIndex >= mProjects->projects().size())
         return;
     const HarvestProject project{mProjects->projects().at(projectIndex)};
@@ -66,7 +66,7 @@ void TasksManager::taskUpdated(unsigned int entryId, int projectIndex, int taskI
             .timeTracked=timeTracked,
             .note=note,
             .started=zero_time.secsTo(timeTracked) == 0,
-            .date{currentDate}
+            .date = currentDate
     }};
     harvestHandler->update_task(newTask);
 }

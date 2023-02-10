@@ -36,6 +36,43 @@ QVariant AddedTasksModel::data(const QModelIndex &index, int role) const {
     }
 }
 
+bool AddedTasksModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (!mList)
+        return false;
+
+    Task *task{mList->tasks().at(index.row())};
+    switch (role) {
+        case SubtitleRole:
+            task->taskName = value.toString();
+            break;
+        case NoteRole:
+            task->note = value.toString();
+            break;
+        case TimeRole:
+            task->timeTracked = QTime::fromString(value.toString(), "hh:mm");
+            break;
+        case ProjectNameRole:
+            task->projectName = value.toString();
+            break;
+        case StartedRole:
+            mList->tasks().at(index.row())->started = value.toBool();
+            break;
+        default:
+            return false;
+    }
+
+    if (mList->taskEdited(index.row(), task)) {
+        return false;
+    }
+
+    emit dataChanged(index, index, {role});
+    return true;
+}
+
+Qt::ItemFlags AddedTasksModel::flags(const QModelIndex &index) const {
+    return index.isValid() ? Qt::ItemIsEditable : Qt::NoItemFlags;
+}
+
 QHash<int, QByteArray> AddedTasksModel::roleNames() const {
     return {
             {HeaderRole,      "header"},
@@ -44,6 +81,7 @@ QHash<int, QByteArray> AddedTasksModel::roleNames() const {
             {TimeRole,        "time"},
             {EntryIdRole,     "entryId"},
             {ProjectNameRole, "project"},
+            {StartedRole,     "started"},
     };
 }
 

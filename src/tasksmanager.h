@@ -26,7 +26,8 @@ public slots:
 
     void newTaskAdded(int projectIndex, int taskIndex, const QString &note, const QString &time);
 
-    void taskUpdated(unsigned int entryId, int projectIndex, int taskIndex, const QString &note, const QString &time);
+    void taskUpdated(int index, unsigned int entryId, int projectIndex, int taskIndex, const QString &note,
+                     const QString &time);
 
     long projectIndexByName(const QString &projectName);
 

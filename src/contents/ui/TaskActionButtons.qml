@@ -37,7 +37,7 @@ GridLayout {
         Layout.alignment: Qt.AlignRight
         Layout.columnSpan: 1
         icon.name: "document-edit"
-        onClicked: openEditTaskSheet(index, model.entryId, model.project, model.subtitle, model.note, model.time)
+        onClicked: openEditTaskSheet(index, model)
     }
 
     // REMOVE TASK

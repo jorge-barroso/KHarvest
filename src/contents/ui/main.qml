@@ -15,7 +15,7 @@ Kirigami.ApplicationWindow {
     minimumWidth: Kirigami.Units.gridUnit * 20
     minimumHeight: Kirigami.Units.gridUnit * 40
 
-    onClosing: App.saveWindowGeometry(root)
+    onClosing: KHarvest.App.saveWindowGeometry(root)
 
     onWidthChanged: saveWindowGeometryTimer.restart()
     onHeightChanged: saveWindowGeometryTimer.restart()
@@ -71,15 +71,16 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    function openEditTaskSheet(index = -1, entryId = -1, projectName = "", taskName = "", taskNote = "", timeTracked = "") {
+    function openEditTaskSheet(index = -1, model = {}) {
         addEditTaskSheet.mode = "edit"
         addEditTaskSheet.index = index;
-        addEditTaskSheet.entryId = entryId;
-        addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByName(projectName);
+        addEditTaskSheet.entryId = model.entryId;
+        addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByName(model.project);
         projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
-        addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByName(taskName);
-        addEditTaskSheet.taskNote = taskNote;
-        addEditTaskSheet.timeTracked = timeTracked;
+        addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByName(model.subtitle);
+        addEditTaskSheet.taskNote = model.note;
+        addEditTaskSheet.timeTracked = model.time;
+        addEditTaskSheet.model = model;
         addEditTaskSheet.open()
     }
 
