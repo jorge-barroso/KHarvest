@@ -32,6 +32,8 @@ Kirigami.ApplicationWindow {
         onTriggered: KHarvest.App.saveWindowGeometry(root)
     }
 
+    property var runningTask: undefined
+
     footer: ColumnLayout {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Controls.Label {
@@ -90,14 +92,6 @@ Kirigami.ApplicationWindow {
         addEditTaskSheet.taskNote = "";
         addEditTaskSheet.timeTracked = "00:00";
         addEditTaskSheet.open()
-    }
-
-    function deleteTask(index) {
-        taskModel.remove(index)
-    }
-
-    function unfavTask(index) {
-        favouritesModel.remove(index)
     }
 
     globalDrawer: Kirigami.GlobalDrawer {

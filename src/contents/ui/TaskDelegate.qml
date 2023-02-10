@@ -14,6 +14,20 @@ Kirigami.AbstractCard {
     property int baseUnitToOneSecond: 1000
     property int timeBetweenUpdates: secondsToUpdate * baseUnitToOneSecond
 
+    function startCurrent() {
+        console.info(root.runningTask);
+        if(root.runningTask !== undefined) {
+            root.runningTask.started = false;
+        }
+
+        root.runningTask = model;
+    }
+
+    function stopCurrent() {
+        model.started = false;
+        root.runningTask = undefined;
+    }
+
     function increaseTimeCounter() {
         model.time = new Date(model.time.getTime() + timeBetweenUpdates);
     }
@@ -65,6 +79,12 @@ Kirigami.AbstractCard {
 
             TaskActionButtons {
                 id: actionButtonsLayout
+            }
+        }
+
+        Component.onCompleted: {
+            if(model.started) {
+                startCurrent();
             }
         }
     }

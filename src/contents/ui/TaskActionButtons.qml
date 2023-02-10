@@ -22,8 +22,13 @@ GridLayout {
         Layout.columnSpan: 1
         icon.name: model.started ? "media-playback-stop" : "media-playback-start"
         onClicked: {
-            model.started = checked
-
+            if(checked) {
+                console.info('starting new task');
+                model.started = true;
+                startCurrent();
+            } else {
+                stopCurrent();
+            }
         }
     }
 
