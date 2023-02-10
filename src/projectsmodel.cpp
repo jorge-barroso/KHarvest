@@ -22,7 +22,7 @@ QVariant ProjectsModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || !m_list)
         return {};
 
-    return (role == ProjectRole) ? m_list->projects().at(index.row()).project_name : QVariant();
+    return (role == ProjectRole) ? m_list->projects().at(index.row()).get_project_label() : QVariant();
 }
 
 QHash<int, QByteArray> ProjectsModel::roleNames() const
