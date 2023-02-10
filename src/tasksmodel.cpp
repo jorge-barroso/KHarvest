@@ -1,6 +1,5 @@
 #include "tasksmodel.h"
 #include "projectslist.h"
-#include <QDebug>
 
 TasksModel::TasksModel(QObject *parent)
     : QAbstractListModel(parent)

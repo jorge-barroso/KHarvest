@@ -5,7 +5,6 @@
 #ifndef HARVESTTIMER_QT_CMAKE_MAPUTILS_H
 #define HARVESTTIMER_QT_CMAKE_MAPUTILS_H
 
-#include <QDebug>
 #include <QMap>
 #include <QVector>
 #include <QSet>

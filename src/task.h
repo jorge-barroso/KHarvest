@@ -75,6 +75,15 @@ struct Task {
 
         return projectName + " (" + clientName + ")";
     }
+
+    void update_task_from_project_label(const QString &projectLabel) {
+        QStringList labelComponents{projectLabel.split(" (")};
+        this->projectName = labelComponents.at(0);
+        if (labelComponents.size() == 2) {
+            const QString &clientNameLabel = labelComponents.at(1);
+            this->clientName = clientNameLabel.left(clientNameLabel.lastIndexOf(")"));
+        }
+    }
 };
 
 #endif // TASK_H

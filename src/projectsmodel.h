@@ -14,7 +14,8 @@ public:
     explicit ProjectsModel(QObject *parent = nullptr);
 
     enum {
-        ProjectRole = Qt::UserRole,
+        ProjectNameRole = Qt::UserRole,
+        ProjectLabelRole,
     };
 
     // Basic functionality:

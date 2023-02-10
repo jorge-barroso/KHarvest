@@ -4,7 +4,6 @@
 
 #include "tasksmanager.h"
 
-
 TasksManager::TasksManager(QObject *parent, ProjectsList *projectsList, AddedTasksList *addedTaskList)
         : QObject(parent), mProjects{projectsList}, mAddedTasks{addedTaskList},
           harvestHandler{HarvestHandler::instance()}, currentDate{QDate::currentDate()}, zero_time{QTime(0, 0)} {}
@@ -43,7 +42,7 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
     harvestHandler->add_task(newTask);
 }
 
-void TasksManager::taskUpdated(const int index, unsigned int entryId, int projectIndex, int taskIndex,
+void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
                                const QString &note, const QString &time) {
     if (projectIndex < 0 || projectIndex >= mProjects->projects().size())
         return;
@@ -65,23 +64,24 @@ void TasksManager::taskUpdated(const int index, unsigned int entryId, int projec
     harvestHandler->update_task(editedTask);
 }
 
-long TasksManager::projectIndexByName(const QString &projectName) {
+long TasksManager::projectIndexByName(const QString &projectLabel) {
     const QVector<HarvestProject> &harvestProjects{mProjects->projects()};
-    const long index{std::distance(harvestProjects.begin(), std::find_if(harvestProjects.begin(), harvestProjects.end(),
-                                                                         [&projectName](const HarvestProject &project) {
-                                                                             return project.project_name == projectName;
-                                                                         })
-    )};
+    const HarvestProject *project = std::find_if(harvestProjects.begin(), harvestProjects.end(),
+                                                 [&projectLabel](const HarvestProject &project) {
+                                                     return project.get_project_label() == projectLabel;
+                                                 });
+    const long index{std::distance(harvestProjects.begin(), project)};
+
     return index;
 }
 
 long TasksManager::taskIndexByName(const QString &taskName) {
     const QVector<HarvestTask> &harvestTasks{mProjects->tasks()};
-    const long index{std::distance(harvestTasks.begin(), std::find_if(harvestTasks.begin(), harvestTasks.end(),
-                                                                      [taskName](const HarvestTask &task) {
-                                                                          return task.task_name == taskName;
-                                                                      })
-    )};
+    const HarvestTask *task = std::find_if(harvestTasks.begin(), harvestTasks.end(),
+                                           [taskName](const HarvestTask &task) {
+                                               return task.task_name == taskName;
+                                           });
+    const long index{std::distance(harvestTasks.begin(), task)};
     return index;
 }
 
