@@ -38,12 +38,13 @@ bool AddedTasksList::taskEdited(const int index, const Task *const task) {
 
 void AddedTasksList::taskAdded(Task *task) {
     // TODO favourite status
-    emit preTaskAdded();
-
+    if (task->date == current_date)
+            emit preTaskAdded();
 
     MapUtils::map_insert_or_create_vector(mTasks, task->date, task);
 
-    emit postTaskAdded();
+    if (task->date == current_date)
+            emit postTaskAdded();
 }
 
 void AddedTasksList::taskRemoved(const int index) {
