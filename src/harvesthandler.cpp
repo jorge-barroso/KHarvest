@@ -552,7 +552,8 @@ bool HarvestHandler::default_error_check(QNetworkReply *reply, const QString &ba
     if (reply->error() != QNetworkReply::NetworkError::NoError) {
         const QJsonDocument error_report{read_close_reply(const_cast<QNetworkReply *>(reply))};
         qDebug() << "received error: " << reply->error();
-        qDebug() << "error message: " << error_report;
+        qDebug() << "with error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "and error message: " << error_report;
 
         const QString error_string{(error_report["error"].isNull() ?
                                     error_report["error"] :

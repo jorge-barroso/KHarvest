@@ -31,6 +31,8 @@ QVariant AddedTasksModel::data(const QModelIndex &index, int role) const {
             return {pTask->timeTracked};
         case ProjectNameRole:
             return {pTask->projectName};
+        case ShouldAutoStopRole:
+            return {pTask->shouldAutomaticallyStop};
         case StartedRole:
             return {pTask->started};
         default:
@@ -63,6 +65,9 @@ bool AddedTasksModel::setData(const QModelIndex &index, const QVariant &value, i
         case ProjectNameRole:
             task->projectName = value.toString();
             break;
+        case ShouldAutoStopRole:
+            task->shouldAutomaticallyStop = value.toBool();
+            break;
         case StartedRole:
             if (value.toBool()) {
                 mList->startTask(index.row());
@@ -88,13 +93,14 @@ Qt::ItemFlags AddedTasksModel::flags(const QModelIndex &index) const {
 
 QHash<int, QByteArray> AddedTasksModel::roleNames() const {
     return {
-            {HeaderRole,      "header"},
-            {SubtitleRole,    "subtitle"},
-            {NoteRole,        "note"},
-            {TimeLabelRole,   "timeLabel"},
-            {TimeRole,        "time"},
-            {ProjectNameRole, "project"},
-            {StartedRole,     "started"},
+            {HeaderRole,         "header"},
+            {SubtitleRole,       "subtitle"},
+            {NoteRole,           "note"},
+            {TimeLabelRole,      "timeLabel"},
+            {TimeRole,           "time"},
+            {ProjectNameRole,    "project"},
+            {ShouldAutoStopRole, "shouldAutomaticallyStop"},
+            {StartedRole,        "started"},
     };
 }
 

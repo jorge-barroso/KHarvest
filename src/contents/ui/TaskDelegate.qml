@@ -17,6 +17,7 @@ Kirigami.AbstractCard {
     function startCurrent() {
         console.info(root.runningTask);
         if(root.runningTask !== undefined) {
+            root.runningTask.shouldAutomaticallyStop = true;
             root.runningTask.started = false;
         }
 

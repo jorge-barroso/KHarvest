@@ -19,6 +19,7 @@ public:
         TimeLabelRole,
         TimeRole,
         ProjectNameRole,
+        ShouldAutoStopRole,
         StartedRole,
     };
 
