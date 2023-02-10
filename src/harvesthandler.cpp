@@ -291,6 +291,7 @@ void HarvestHandler::get_user_details(const QString &scope) {
     KHarvestConfig::setAccount_id(scope.split("%3A")[1]);
     KHarvestConfig::setUser_id(get_user_id());
 
+    KHarvestConfig::self()->save();
     emit ready();
 }
 
@@ -348,7 +349,8 @@ void HarvestHandler::add_task(Task *task) {
 
 void HarvestHandler::update_task(const Task *updated_task) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
+        QMessageBox::warning(nullptr,
+                             QApplication::translate("HarvestHandler", "Network Unreachable"),
                              QApplication::translate("HarvestHandler",
                                                      "You are currently not connected to the internet, please reconnect and try again"));
         return;
@@ -357,8 +359,8 @@ void HarvestHandler::update_task(const Task *updated_task) {
     const float seconds{static_cast<float>(QTime(0, 0).secsTo(updated_task->timeTracked))};
 
     QJsonObject request_payload;
-    request_payload.insert("projectId", updated_task->projectId);
-    request_payload.insert("taskId", updated_task->taskId);
+    request_payload.insert("project_id", updated_task->projectId);
+    request_payload.insert("task_id", updated_task->taskId);
     request_payload.insert("notes", updated_task->note);
     request_payload.insert("hours", seconds / 60 / 60);
 
@@ -464,7 +466,7 @@ void HarvestHandler::tasks_list_ready() {
         tracked_minutes = std::modf(time_tracked_decimal, &tracked_hours);
         const QTime time_tracked(static_cast<int>(tracked_hours), static_cast<int>(tracked_minutes * 60));
 
-        const bool started{!task_object["started_time"].toString().isNull()};
+        const bool started{!task_object["started_time"].toString().isEmpty()};
         const QDate task_date{QDate::fromString(task_object["spent_date"].toString(), Qt::DateFormat::ISODate)};
 
         Task *task = new Task{

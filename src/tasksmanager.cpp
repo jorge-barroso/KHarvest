@@ -4,8 +4,6 @@
 
 #include "tasksmanager.h"
 
-#include <utility>
-
 
 TasksManager::TasksManager(QObject *parent, ProjectsList *projectsList, AddedTasksList *addedTaskList)
         : QObject(parent), mProjects{projectsList}, mAddedTasks{addedTaskList},
@@ -56,19 +54,15 @@ void TasksManager::taskUpdated(const int index, unsigned int entryId, int projec
     const HarvestTask task{project.task.at(taskIndex)};
 
     const QTime timeTracked{QTime::fromString(time, "HH:mm")};
-    Task *newTask{new Task{
-            .projectId=project.project_id,
-            .taskId=task.task_id,
-            .timeEntryId=entryId,
-            .clientName=task.client_name,
-            .projectName=project.project_name,
-            .taskName=task.task_name,
-            .timeTracked=timeTracked,
-            .note=note,
-            .started=zero_time.secsTo(timeTracked) == 0,
-            .date = currentDate
-    }};
-    harvestHandler->update_task(newTask);
+    Task *editedTask{mAddedTasks->tasks().at(index)};
+    editedTask->projectId = project.project_id;
+    editedTask->taskId = task.task_id;
+    editedTask->clientName = task.client_name;
+    editedTask->projectName = project.project_name;
+    editedTask->taskName = task.task_name;
+    editedTask->timeTracked = timeTracked;
+    editedTask->note = note;
+    harvestHandler->update_task(editedTask);
 }
 
 long TasksManager::projectIndexByName(const QString &projectName) {
