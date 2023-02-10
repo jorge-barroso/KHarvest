@@ -2,7 +2,6 @@
 #include "harvesttask.h"
 #include "harvestproject.h"
 #include "task.h"
-#include "kharvestconfig.h"
 
 #include <QApplication>
 #include <QTcpSocket>
@@ -20,11 +19,21 @@
 #include <QDebug>
 
 #include <cmath>
+#include <QtConcurrent/QtConcurrent>
 
 HarvestHandler *HarvestHandler::harvest_handler{nullptr};
 const QString HarvestHandler::default_grant_type{"authorization_code"};
 const QString HarvestHandler::refresh_grant_type{"refresh_token"};
 const int HarvestHandler::request_timeout_constant{10 * 1000};
+
+const QString HarvestHandler::AccessTokenKey{"access_token"};
+const QString HarvestHandler::RefreshTokenKey{"refresh_token"};
+const QString HarvestHandler::ExpiresInKey{"expires_in"};
+const QString HarvestHandler::ExpiresOnKey{"expires_on"};
+const QString HarvestHandler::TokenTypeKey{"token_type"};
+const QString HarvestHandler::AccountIdKey{"account_id"};
+const QString HarvestHandler::UserIdKey{"user_id"};
+
 
 HarvestHandler *HarvestHandler::instance() {
     if (harvest_handler == nullptr) {
@@ -35,16 +44,14 @@ HarvestHandler *HarvestHandler::instance() {
 }
 
 HarvestHandler::HarvestHandler()
-        : auth_server{nullptr}
-        , auth_socket{nullptr}
-        , network_manager(this)
-        , loop()
-        , is_network_reachable{true} {
+        : keyChain(), auth_server{nullptr}, auth_socket{nullptr}, network_manager(this), loop(),
+          is_network_reachable{true} {
 
     network_manager.setAutoDeleteReplies(true);
 
+//    QKeyChain::WritePasswordJob job{QStringLiteral("Sample")};
     // this auth is considered found not only if we read it, but we also need to make sure all the necessary fields are present
-    auth_found = !KHarvestConfig::access_token().isEmpty() && json_auth_is_complete();
+    auth_found = json_auth_is_complete();
 
     if (!auth_found) {
         login();
@@ -64,8 +71,8 @@ HarvestHandler::~HarvestHandler() {
 // token or we need to refresh it before any requests can be performed
 void HarvestHandler::check_authenticate() {
     if (!json_auth_is_safely_active()) {
-        QString refresh_token(KHarvestConfig::refresh_token());
-        authenticate_request(nullptr, &refresh_token);
+        authenticate_request(nullptr, &refreshToken);
+        saveData(false);
     }
 }
 
@@ -85,16 +92,28 @@ void HarvestHandler::login() {
 }
 
 bool HarvestHandler::json_auth_is_complete() {
-    bool contains_access_token{!KHarvestConfig::access_token().isEmpty()};
-    bool contains_refresh_token{!KHarvestConfig::refresh_token().isEmpty()};
-    bool contains_token_type{!KHarvestConfig::token_type().isEmpty()};
-    bool contains_expires_in{KHarvestConfig::expires_in() != 0};
+    accessToken = keyChain.readKeySynchronous(HarvestHandler::AccessTokenKey);
+    refreshToken = keyChain.readKeySynchronous(HarvestHandler::RefreshTokenKey);
+    tokenType = keyChain.readKeySynchronous(HarvestHandler::TokenTypeKey);
+    expiresIn = keyChain.readKeySynchronous(HarvestHandler::ExpiresInKey).toLongLong();
+    expiresOn = keyChain.readKeySynchronous(HarvestHandler::ExpiresOnKey).toLongLong();
+    accountId = keyChain.readKeySynchronous(HarvestHandler::AccountIdKey);
+    userId = keyChain.readKeySynchronous(HarvestHandler::UserIdKey);
 
-    return contains_access_token && contains_refresh_token && contains_token_type && contains_expires_in;
+    bool containsAccessToken{!accessToken.isEmpty()};
+    bool containsRefreshToken{!refreshToken.isEmpty()};
+    bool containsTokenType{!tokenType.isEmpty()};
+    bool containsExpiresIn{expiresIn != 0};
+    bool containsExpiresOn{expiresOn != 0};
+    bool containsAccountId{!accountId.isEmpty()};
+    bool containsUserId{!userId.isEmpty()};
+
+    return containsAccessToken && containsRefreshToken && containsTokenType && containsExpiresIn && containsExpiresOn &&
+           containsAccountId && containsUserId;
 }
 
-bool HarvestHandler::json_auth_is_safely_active() {
-    auto expires_on{QDateTime::fromMSecsSinceEpoch(KHarvestConfig::expires_on())};
+bool HarvestHandler::json_auth_is_safely_active() const {
+    auto expires_on{QDateTime::fromMSecsSinceEpoch(expiresOn)};
 
     // if there's less than a full day of time left before the token expires...
     return expires_on > QDateTime::currentDateTime().addDays(1);
@@ -132,7 +151,7 @@ void HarvestHandler::code_received() {
                     QApplication::quit();
                 }
                 authenticate_request(&query_map["code"], nullptr);
-                get_user_details(query_map["scope"]);
+                getUserDetails(query_map["scope"]);
             }
         }
     }
@@ -155,6 +174,10 @@ std::map<QString, QString> HarvestHandler::parse_query_string(QString &query_str
 
 void HarvestHandler::authentication_received(const QNetworkReply *reply) {
     if (reply->error() != QNetworkReply::NetworkError::NoError) {
+        const QJsonDocument error_report{read_close_reply(const_cast<QNetworkReply *>(reply))};
+        qDebug() << "received error: " << reply->error();
+        qDebug() << "with error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "and error message: " << error_report;
         const QString error_string{
                 QApplication::translate("HarvestHandler", "Error while authenticating with Harvest services: ") +
                 reply->errorString()};
@@ -168,11 +191,11 @@ void HarvestHandler::authentication_received(const QNetworkReply *reply) {
     // as const in the previous error handling
     QJsonDocument json_auth{read_close_reply(const_cast<QNetworkReply *>(reply))};
     QJsonObject json_object{json_auth.object()};
-    qint64 seconds{json_object["expires_in"].toInt()};
-    json_object.insert("expires_on", QDateTime::currentDateTime().addSecs(seconds).toMSecsSinceEpoch());
+    qint64 seconds{json_object[HarvestHandler::ExpiresInKey].toInt()};
+    json_object.insert(HarvestHandler::ExpiresOnKey, QDateTime::currentDateTime().addSecs(seconds).toMSecsSinceEpoch());
     json_auth.setObject(json_object);
 
-    save_authentication(json_auth);
+    getAuthDetails(json_auth);
 }
 
 QJsonDocument HarvestHandler::read_close_reply(QNetworkReply *reply) {
@@ -181,14 +204,23 @@ QJsonDocument HarvestHandler::read_close_reply(QNetworkReply *reply) {
     return QJsonDocument::fromJson(response_body);
 }
 
-void HarvestHandler::save_authentication(const QJsonDocument &json_auth) {
-    KHarvestConfig::setAccess_token(json_auth["access_token"].toString());
-    KHarvestConfig::setRefresh_token(json_auth["refresh_token"].toString());
-    KHarvestConfig::setExpires_in(json_auth["expires_in"].toVariant().toLongLong());
-    KHarvestConfig::setExpires_on(json_auth["expires_on"].toVariant().toLongLong());
-    KHarvestConfig::setToken_type(json_auth["token_type"].toString());
-    KHarvestConfig::self()->save();
+void HarvestHandler::getAuthDetails(const QJsonDocument &json_auth) {
+    accessToken = json_auth[HarvestHandler::AccessTokenKey].toString();
+    refreshToken = json_auth[HarvestHandler::RefreshTokenKey].toString();
+    expiresIn = json_auth[HarvestHandler::ExpiresInKey].toVariant().toLongLong();
+    expiresOn = json_auth[HarvestHandler::ExpiresOnKey].toVariant().toLongLong();
+    tokenType = json_auth[HarvestHandler::TokenTypeKey].toString();
 }
+
+void HarvestHandler::getUserDetails(const QString &scope) {
+    accountId = scope.split("%3A")[1];
+    userId = get_user_id();
+
+    emit ready();
+
+    saveData(true);
+}
+
 
 void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_token) {
     if (!is_network_reachable) {
@@ -201,6 +233,7 @@ void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_t
     QUrl request_url(auth_url);
     QNetworkRequest request(request_url);
     request.setHeader(QNetworkRequest::UserAgentHeader, "Harvest Timer Qt (jorge_barroso_11@hotmail.com)");
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setRawHeader("Accept", "application/json");
 
     QUrlQuery url_query;
@@ -212,11 +245,10 @@ void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_t
         url_query.addQueryItem("code", *auth_code);
         grant_type = HarvestHandler::default_grant_type;
     } else if (refresh_token != nullptr) {
-        url_query.addQueryItem("refresh_token", *refresh_token);
+        url_query.addQueryItem(HarvestHandler::RefreshTokenKey, *refresh_token);
         grant_type = HarvestHandler::refresh_grant_type;
     }
     url_query.addQueryItem("grant_type", grant_type);
-
 
     QNetworkReply *reply{network_manager.post(request, url_query.toString().toUtf8())};
 
@@ -225,7 +257,6 @@ void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_t
 
     authentication_received(reply);
 }
-
 
 QVector<HarvestProject> HarvestHandler::update_user_data() {
     if (!is_network_reachable) {
@@ -287,14 +318,6 @@ HarvestHandler::get_projects_data(const QJsonDocument &json_payload, QVector<Har
     }
 }
 
-void HarvestHandler::get_user_details(const QString &scope) {
-    KHarvestConfig::setAccount_id(scope.split("%3A")[1]);
-    KHarvestConfig::setUser_id(get_user_id());
-
-    KHarvestConfig::self()->save();
-    emit ready();
-}
-
 bool HarvestHandler::is_ready() const {
     return auth_found;
 }
@@ -313,7 +336,7 @@ void HarvestHandler::list_tasks(const QDate &from_date, const QDate &to_date) {
     QUrlQuery url_query;
     url_query.addQueryItem("from", from_date.toString(Qt::ISODate));
     url_query.addQueryItem("to", to_date.toString(Qt::ISODate));
-    url_query.addQueryItem("user_id", KHarvestConfig::user_id());
+    url_query.addQueryItem(HarvestHandler::UserIdKey, userId);
     request_url.setQuery(url_query);
 
     QNetworkReply *reply{do_request_with_auth(request_url, false, "GET")};
@@ -419,8 +442,8 @@ QNetworkReply *HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
 
     QNetworkRequest request(url);
     request.setTransferTimeout(HarvestHandler::request_timeout_constant);
-    request.setRawHeader("Authorization", "Bearer " + KHarvestConfig::access_token().toUtf8());
-    request.setRawHeader("Harvest-Account-Id", KHarvestConfig::account_id().toUtf8());
+    request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
+    request.setRawHeader("Harvest-Account-Id", accountId.toUtf8());
 
     QNetworkReply *reply;
     if (payload.has_value()) {
@@ -429,7 +452,6 @@ QNetworkReply *HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
     } else {
         reply = network_manager.sendCustomRequest(request, verb, "");
     }
-
     if (sync_request) {
         // Execute the event loop here, now we will wait here until readyRead() signal is emitted
         // which in turn will trigger event loop quit.
@@ -589,4 +611,31 @@ QString HarvestHandler::get_user_id() {
 
     const QJsonDocument json_payload{read_close_reply(reply)};
     return QString::number(json_payload["id"].toDouble(), 'f', 0);
+}
+
+void HarvestHandler::saveData(const bool includeAccount) {
+    QThreadPool::globalInstance()->start([this, includeAccount]() {
+        connect(&keyChain, &KeyChain::keyStored, this, [this, includeAccount](const QString &key) {
+            if (key == HarvestHandler::AccessTokenKey) {
+                keyChain.writeKey(HarvestHandler::RefreshTokenKey, refreshToken);
+            } else if (key == HarvestHandler::RefreshTokenKey) {
+                keyChain.writeKey(HarvestHandler::ExpiresInKey, QString::number(expiresIn));
+            } else if (key == HarvestHandler::ExpiresInKey) {
+                keyChain.writeKey(HarvestHandler::ExpiresOnKey, QString::number(expiresOn));
+            } else if (key == HarvestHandler::ExpiresOnKey) {
+                keyChain.writeKey(HarvestHandler::TokenTypeKey, tokenType);
+            } else if (key == HarvestHandler::TokenTypeKey) {
+                if (includeAccount) {
+                    keyChain.writeKey(HarvestHandler::AccountIdKey, accountId);
+                } else {
+                    keyChain.disconnect(this);
+                }
+            } else if (key == HarvestHandler::AccountIdKey) {
+                keyChain.writeKey(HarvestHandler::UserIdKey, userId);
+            } else if (key == HarvestHandler::UserIdKey) {
+                keyChain.disconnect();
+            }
+        });
+        keyChain.writeKey(HarvestHandler::AccessTokenKey, accessToken);
+    });
 }
