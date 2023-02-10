@@ -328,18 +328,18 @@ void HarvestHandler::add_task(Task *task) {
     }
 
     const QString spent_date{task->date.toString(Qt::ISODate)};
-    const float seconds{static_cast<float>(QTime(0, 0).secsTo(task->time_tracked))};
+    const float seconds{static_cast<float>(QTime(0, 0).secsTo(task->timeTracked))};
 
     QJsonObject request_payload;
-    request_payload.insert("project_id", task->project_id);
-    request_payload.insert("task_id", task->task_id);
+    request_payload.insert("project_id", task->projectId);
+    request_payload.insert("task_id", task->taskId);
     request_payload.insert("spent_date", QJsonValue(spent_date));
     request_payload.insert("notes", task->note);
     request_payload.insert("hours", seconds / 60 / 60);
     request_payload.insert("is_running", seconds == 0);
 
     // We save our task in a map so that we can retrieve it later when the response comes
-    size_t key{qHash(QString::number(task->project_id).append(QString::number(task->task_id)))};
+    size_t key{qHash(QString::number(task->projectId).append(QString::number(task->taskId)))};
     tasks_queue.insert({key, task});
 
     QNetworkReply *reply{do_request_with_auth(time_entries_url, false, "POST", QJsonDocument(request_payload))};
@@ -354,19 +354,19 @@ void HarvestHandler::update_task(const Task *updated_task) {
         return;
     }
 
-    const float seconds{static_cast<float>(QTime(0, 0).secsTo(updated_task->time_tracked))};
+    const float seconds{static_cast<float>(QTime(0, 0).secsTo(updated_task->timeTracked))};
 
     QJsonObject request_payload;
-    request_payload.insert("project_id", updated_task->project_id);
-    request_payload.insert("task_id", updated_task->task_id);
+    request_payload.insert("projectId", updated_task->projectId);
+    request_payload.insert("taskId", updated_task->taskId);
     request_payload.insert("notes", updated_task->note);
     request_payload.insert("hours", seconds / 60 / 60);
 
     // We save our task in a map so that we can retrieve it later when the response comes
-    size_t key{qHash(QString::number(updated_task->project_id).append(QString::number(updated_task->task_id)))};
+    size_t key{qHash(QString::number(updated_task->projectId).append(QString::number(updated_task->taskId)))};
     tasks_queue.insert({key, const_cast<Task *>(updated_task)});
 
-    QString update_url{time_entries_url + "/" + QString::number(updated_task->time_entry_id)};
+    QString update_url{time_entries_url + "/" + QString::number(updated_task->timeEntryId)};
     QNetworkReply *reply{do_request_with_auth(update_url, false, "PATCH", QJsonDocument(request_payload))};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::update_task_checks);
 }
@@ -380,7 +380,7 @@ void HarvestHandler::start_task(const Task &task) {
         return;
     }
 
-    const QUrl url{time_entries_url + "/" + QString::number(task.time_entry_id) + "/restart"};
+    const QUrl url{time_entries_url + "/" + QString::number(task.timeEntryId) + "/restart"};
     QNetworkReply *reply{do_request_with_auth(url, false, "PATCH")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::start_task_checks);
 }
@@ -393,7 +393,7 @@ void HarvestHandler::stop_task(const Task &task) {
         return;
     }
 
-    const QUrl url{time_entries_url + "/" + QString::number(task.time_entry_id) + "/stop"};
+    const QUrl url{time_entries_url + "/" + QString::number(task.timeEntryId) + "/stop"};
     QNetworkReply *reply{do_request_with_auth(url, false, "PATCH")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::stop_task_checks);
 }
@@ -406,7 +406,7 @@ void HarvestHandler::delete_task(const Task &task) {
         return;
     }
 
-    const QUrl url{time_entries_url + "/" + QString::number(task.time_entry_id)};
+    const QUrl url{time_entries_url + "/" + QString::number(task.timeEntryId)};
     QNetworkReply *reply{do_request_with_auth(url, false, "DELETE")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::delete_task_checks);
 }
@@ -451,7 +451,7 @@ void HarvestHandler::tasks_list_ready() {
 
     for (const QJsonValueRef &&harvestTask: tasks_object.toArray()) {
         const QJsonObject task_object{harvestTask.toObject()};
-        const long long int task_entry_id{task_object["id"].toInt()};
+        const unsigned int task_entry_id{static_cast<unsigned int>(task_object["id"].toInt())};
         const long long int project_id{task_object["project"]["id"].toInt()};
         const QString project_name{task_object["project"]["name"].toString()};
         const QString client_name{task_object["client"]["name"].toString()};
@@ -468,13 +468,13 @@ void HarvestHandler::tasks_list_ready() {
         const QDate task_date{QDate::fromString(task_object["spent_date"].toString(), Qt::DateFormat::ISODate)};
 
         Task *task = new Task{
-                .project_id = project_id,
-                .task_id = task_id,
-                .time_entry_id = task_entry_id,
-                .client_name = client_name,
-                .project_name = project_name,
-                .task_name = task_name,
-                .time_tracked = time_tracked,
+                .projectId = project_id,
+                .taskId = task_id,
+                .timeEntryId = task_entry_id,
+                .clientName = client_name,
+                .projectName = project_name,
+                .taskName = task_name,
+                .timeTracked = time_tracked,
                 .note = note,
                 .started = started,
                 .date = task_date,
@@ -506,7 +506,7 @@ void HarvestHandler::add_task_checks() {
     // if we could find a task, let's fetch it and remove it from the queue map
     Task *task = task_element->second;
     tasks_queue.erase(task_element);
-    task->time_entry_id = add_task_response["id"].toInt();
+    task->timeEntryId = add_task_response["id"].toInt();
 
     emit task_added(task);
 }

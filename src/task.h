@@ -7,13 +7,13 @@
 #include <ostream>
 
 struct Task {
-    long long project_id;
-    long long task_id;
-    long long time_entry_id;
-    QString client_name;
-    QString project_name;
-    QString task_name;
-    QTime time_tracked;
+    long long projectId;
+    long long taskId;
+    unsigned int timeEntryId;
+    QString clientName;
+    QString projectName;
+    QString taskName;
+    QTime timeTracked;
     QString note;
     bool started{false};
     QDate date{QDate::currentDate()};
@@ -25,9 +25,9 @@ struct Task {
     static const QString end_line_separator;
 
     friend QTextStream &operator<<(QTextStream &stream, const Task &task) {
-        stream << task.project_id << values_separator << task.task_id << values_separator << task.time_entry_id
-               << values_separator << task.client_name << values_separator << task.project_name << values_separator
-               << task.task_name << values_separator << task.time_tracked.toString() << values_separator << task.note
+        stream << task.projectId << values_separator << task.taskId << values_separator << task.timeEntryId
+               << values_separator << task.clientName << values_separator << task.projectName << values_separator
+               << task.taskName << values_separator << task.timeTracked.toString() << values_separator << task.note
                << values_separator << task.started << values_separator
                << task.date.toString() << end_line_separator;
 
@@ -39,13 +39,13 @@ struct Task {
         QStringList values{contents.split(values_separator)};
 
         int i{-1};
-        task.project_id = values[++i].toLongLong();
-        task.task_id = values[++i].toLongLong();
-        task.time_entry_id = values[++i].toLongLong();
-        task.client_name = values[++i];
-        task.project_name = values[++i];
-        task.task_name = values[++i];
-        task.time_tracked = QTime::fromString(values[++i]);
+        task.projectId = values[++i].toLongLong();
+        task.taskId = values[++i].toLongLong();
+        task.timeEntryId = values[++i].toLongLong();
+        task.clientName = values[++i];
+        task.projectName = values[++i];
+        task.taskName = values[++i];
+        task.timeTracked = QTime::fromString(values[++i]);
         task.note = values[++i];
         task.started = QVariant(values[++i]).toBool();
         task.date = QDate::fromString(values[++i]);
@@ -54,12 +54,12 @@ struct Task {
     }
 
     bool operator==(const Task &other_task) const {
-        return project_id == other_task.project_id &&
-               task_id == other_task.task_id &&
-               time_entry_id == other_task.time_entry_id &&
-               client_name == other_task.client_name &&
-               project_name == other_task.project_name &&
-               task_name == other_task.task_name;
+        return projectId == other_task.projectId &&
+               taskId == other_task.taskId &&
+               timeEntryId == other_task.timeEntryId &&
+               clientName == other_task.clientName &&
+               projectName == other_task.projectName &&
+               taskName == other_task.taskName;
     }
 
     bool operator!=(const Task &other_task) const {
@@ -67,11 +67,11 @@ struct Task {
     }
 
     [[nodiscard]] QString get_project_label() const {
-        if(client_name.isNull() || client_name.isEmpty()) {
-            return project_name;
+        if (clientName.isNull() || clientName.isEmpty()) {
+            return projectName;
         }
 
-        return project_name + " (" + client_name + ")";
+        return projectName + " (" + clientName + ")";
     }
 };
 

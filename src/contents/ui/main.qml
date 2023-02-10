@@ -5,7 +5,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
 import org.kde.kirigami 2.19 as Kirigami
-import org.kde.kharvest 1.0
+import org.kde.kharvest 1.0 as KHarvest
 
 Kirigami.ApplicationWindow {
     id: root
@@ -29,18 +29,19 @@ Kirigami.ApplicationWindow {
     Timer {
         id: saveWindowGeometryTimer
         interval: 1000
-        onTriggered: App.saveWindowGeometry(root)
+        onTriggered: KHarvest.App.saveWindowGeometry(root)
     }
 
     footer: ColumnLayout {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Controls.Label {
+                    id: dateLabel
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     font.bold: true
-                    text: "09 February 2023"
+                    text: "10 February 2023"
                 }
                 id: dateToolBar
-                visible: HarvestHandler.isReady
+                visible: KHarvest.HarvestHandler.isReady
                 Kirigami.ActionToolBar {
                     alignment: Qt.AlignCenter
                     flat: true
@@ -62,22 +63,32 @@ Kirigami.ApplicationWindow {
             }
 
     Connections {
-        target: HarvestHandler
+        target: KHarvest.HarvestHandler
 
         function onReady() {
             applicationWindow().pageStack.replace(page)
             dateToolBar.visible = true
         }
     }
-    function openPopulateSheet(mode, index = -1, projectName = "", taskName = "", taskNote = "", timeTracked = "") {
-        addEditTaskSheet.mode = mode
-        if(mode === "edit") {
-            addEditTaskSheet.index = index;
-            addEditTaskSheet.projectName = projectName;
-            addEditTaskSheet.taskName = taskName;
-            addEditTaskSheet.taskNote = taskNote;
-            addEditTaskSheet.timeTracked = timeTracked;
-        }
+
+    function openEditTaskSheet(index = -1, entryId = -1, projectName = "", taskName = "", taskNote = "", timeTracked = "") {
+        addEditTaskSheet.mode = "edit"
+        addEditTaskSheet.index = index;
+        addEditTaskSheet.entryId = entryId;
+        addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByName(projectName);
+        projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
+        addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByName(taskName);
+        addEditTaskSheet.taskNote = taskNote;
+        addEditTaskSheet.timeTracked = timeTracked;
+        addEditTaskSheet.open()
+    }
+
+    function openAddTaskSheet() {
+        addEditTaskSheet.mode = "add"
+        addEditTaskSheet.projectIndex = 0;
+        addEditTaskSheet.taskIndex = 0;
+        addEditTaskSheet.taskNote = "";
+        addEditTaskSheet.timeTracked = "00:00";
         addEditTaskSheet.open()
     }
 
@@ -97,7 +108,7 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("Add Task")
                 icon.name: "list-add"
-                onTriggered: openPopulateSheet("add")
+                onTriggered: openAddTaskSheet()
             },
             Kirigami.Action {
                 text: i18n("About KHarvest")
@@ -134,8 +145,8 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        App.restoreWindowGeometry(root)
-        if (HarvestHandler.isReady) {
+        KHarvest.App.restoreWindowGeometry(root)
+        if (KHarvest.HarvestHandler.isReady) {
             pageStack.push(page);
         } else {
             pageStack.push('qrc:/content/ui/LoginPage.qml');

@@ -30,20 +30,65 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
     const HarvestTask task{project.task.at(taskIndex)};
 
     const QTime timeTracked{QTime::fromString(time, "HH:mm")};
-    qDebug() << zero_time;
-    qDebug() << timeTracked;
     Task *newTask{new Task{
-            .project_id=project.project_id,
-            .task_id=task.task_id,
-            .client_name=task.client_name,
-            .project_name=project.project_name,
-            .task_name=task.task_name,
-            .time_tracked=timeTracked,
+            .projectId=project.project_id,
+            .taskId=task.task_id,
+            .timeEntryId=0,
+            .clientName=task.client_name,
+            .projectName=project.project_name,
+            .taskName=task.task_name,
+            .timeTracked=timeTracked,
             .note=note,
             .started=zero_time.secsTo(timeTracked) == 0,
             .date{currentDate}
     }};
     harvestHandler->add_task(newTask);
+}
+
+void TasksManager::taskUpdated(unsigned int entryId, int projectIndex, int taskIndex, const QString &note,
+                               const QString &time) {
+    if (projectIndex < 0 || projectIndex >= mProjects->projects().size())
+        return;
+    const HarvestProject project{mProjects->projects().at(projectIndex)};
+
+    if (taskIndex < 0 || taskIndex >= project.task.size())
+        return;
+    const HarvestTask task{project.task.at(taskIndex)};
+
+    const QTime timeTracked{QTime::fromString(time, "HH:mm")};
+    Task *newTask{new Task{
+            .projectId=project.project_id,
+            .taskId=task.task_id,
+            .timeEntryId=entryId,
+            .clientName=task.client_name,
+            .projectName=project.project_name,
+            .taskName=task.task_name,
+            .timeTracked=timeTracked,
+            .note=note,
+            .started=zero_time.secsTo(timeTracked) == 0,
+            .date{currentDate}
+    }};
+    harvestHandler->update_task(newTask);
+}
+
+long TasksManager::projectIndexByName(const QString &projectName) {
+    const QVector<HarvestProject> &harvestProjects{mProjects->projects()};
+    const long index{std::distance(harvestProjects.begin(), std::find_if(harvestProjects.begin(), harvestProjects.end(),
+                                                                         [&projectName](const HarvestProject &project) {
+                                                                             return project.project_name == projectName;
+                                                                         })
+    )};
+    return index;
+}
+
+long TasksManager::taskIndexByName(const QString &taskName) {
+    const QVector<HarvestTask> &harvestTasks{mProjects->tasks()};
+    const long index{std::distance(harvestTasks.begin(), std::find_if(harvestTasks.begin(), harvestTasks.end(),
+                                                                      [taskName](const HarvestTask &task) {
+                                                                          return task.task_name == taskName;
+                                                                      })
+    )};
+    return index;
 }
 
 void TasksManager::timeForward() {

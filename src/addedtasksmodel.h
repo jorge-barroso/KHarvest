@@ -16,7 +16,9 @@ public:
         HeaderRole = Qt::UserRole,
         SubtitleRole,
         NoteRole,
-        TimeRole
+        TimeRole,
+        EntryIdRole,
+        ProjectNameRole,
     };
 
     // Basic functionality:
@@ -31,7 +33,7 @@ public:
     void setList(AddedTasksList *list);
 
 private:
-    AddedTasksList *m_list;
+    AddedTasksList *mList;
 };
 
 #endif // ADDEDTASKSMODEL_H

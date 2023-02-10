@@ -14,10 +14,12 @@ Kirigami.OverlaySheet{
     property string mode: "add"
 
     property int index: -1
-    property string projectName: ""
-    property string taskName: ""
-    property string taskNote: ""
-    property string timeTracked: ""
+    property int entryId: -1
+
+    property alias projectIndex: projectField.currentIndex
+    property alias taskIndex: taskField.currentIndex
+    property alias taskNote: noteField.text
+    property alias timeTracked: timeField.text
 
     property int initialIndex: 0
 
@@ -80,7 +82,7 @@ Kirigami.OverlaySheet{
             inputMask: "00:00"
             inputMethodHints: Qt.ImhDigitsOnly
             placeholderText: i18n("HH:MM")
-            text: mode === "add" ? "00:00" : timeTracked
+            text: mode === "edit" ? "00:00" : timeTracked
         }
     }
 
@@ -97,19 +99,17 @@ Kirigami.OverlaySheet{
                 enabled: projectField.text.length > 0 && taskField.text.length > 0
                 onClicked: {
                     if(mode === "add") {
-                        KHarvest.TasksManager.newTaskAdded(projectField.currentIndex,
-                                                taskField.currentIndex,
-                                                noteField.text,
-                                                timeField.text);
+                        KHarvest.TasksManager.newTaskAdded(projectIndex,
+                                                taskIndex,
+                                                taskNote,
+                                                timeTracked);
                     }
                     else {
-                        addEditTaskSheet.edited(
-                            index,
-                            projectField.currentIndex,
-                            taskField.currentIndex,
-                            noteField.text,
-                            timeField.text
-                        );
+                        KHarvest.TasksManager.taskUpdated(entryId,
+                                                        projectIndex,
+                                                        taskIndex,
+                                                        taskNote,
+                                                        timeTracked);
                     }
                     addEditTaskSheet.close();
                 }

@@ -26,6 +26,12 @@ public slots:
 
     void newTaskAdded(int projectIndex, int taskIndex, const QString &note, const QString &time);
 
+    void taskUpdated(unsigned int entryId, int projectIndex, int taskIndex, const QString &note, const QString &time);
+
+    long projectIndexByName(const QString &projectName);
+
+    long taskIndexByName(const QString &taskName);
+
     void timeForward();
 
     void timeBackwards();
@@ -38,6 +44,7 @@ private:
     QTime zero_time;
 
     void updateCurrentTime(int days);
+
 };
 
 
