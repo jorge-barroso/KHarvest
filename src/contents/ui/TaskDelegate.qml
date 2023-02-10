@@ -10,6 +10,20 @@ import org.kde.kharvest 1.0
 Kirigami.AbstractCard {
     id: taskDelegate
 
+    property int secondsToUpdate: 60
+    property int baseUnitToOneSecond: 1000
+    property int timeBetweenUpdates: secondsToUpdate * baseUnitToOneSecond
+
+    function increaseTimeCounter() {
+        model.time = new Date(model.time.getTime() + timeBetweenUpdates);
+    }
+
+    Timer {
+        id: taskTimer
+        interval: timeBetweenUpdates; running: model.started; repeat: true;
+        onTriggered: taskDelegate.increaseTimeCounter()
+    }
+
     contentItem: Item {
         // implicitWidth/Height define the natural width/height of an item if no width or height is specified.
         // The setting below defines a component's preferred size based on its content
@@ -46,7 +60,7 @@ Kirigami.AbstractCard {
 
             Controls.Label {
                 Layout.fillHeight: true
-                text: model.time
+                text: model.timeLabel
             }
 
             TaskActionButtons {

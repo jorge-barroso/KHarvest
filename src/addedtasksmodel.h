@@ -16,6 +16,7 @@ public:
         HeaderRole = Qt::UserRole,
         SubtitleRole,
         NoteRole,
+        TimeLabelRole,
         TimeRole,
         ProjectNameRole,
         StartedRole,

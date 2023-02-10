@@ -78,7 +78,7 @@ Kirigami.ApplicationWindow {
         projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
         addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByName(model.subtitle);
         addEditTaskSheet.taskNote = model.note;
-        addEditTaskSheet.timeTracked = model.time;
+        addEditTaskSheet.timeTracked = model.timeLabel;
         addEditTaskSheet.model = model;
         addEditTaskSheet.open()
     }

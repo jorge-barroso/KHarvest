@@ -125,7 +125,7 @@ Kirigami.OverlaySheet{
                         model.header = projectField.currentText
                         model.subtitle = taskField.currentText
                         model.note = noteField.text
-                        model.time = timeField.text
+                        model.timeLabel = timeField.text
                     }
                     resetAndClose();
                 }

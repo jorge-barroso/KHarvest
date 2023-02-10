@@ -21,7 +21,10 @@ GridLayout {
         Layout.alignment: Qt.AlignRight
         Layout.columnSpan: 1
         icon.name: model.started ? "media-playback-stop" : "media-playback-start"
-        onClicked: model.started = checked
+        onClicked: {
+            model.started = checked
+
+        }
     }
 
     // SAVE/REMOVE FAVOURITE TASK
