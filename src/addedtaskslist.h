@@ -7,6 +7,7 @@
 #include <QObject>
 
 #include "task.h"
+#include "harvesthandler.h"
 
 class AddedTasksList : public QObject {
 Q_OBJECT
@@ -15,19 +16,29 @@ public:
 
     [[nodiscard]] QVector<Task *> tasks() const;
 
+    bool taskEdited(int index, const Task *task);
+
 signals:
 
     void preTaskAdded();
 
     void postTaskAdded();
 
+    void preTaskRemoved(int index);
+
+    void postTaskRemoved();
+
 public slots:
 
-    void task_added(Task *task);
+    void taskAdded(Task *task);
+
+    void taskRemoved(int index);
 
 private:
     QMap<QDate, QVector<Task *>> mTasks;
     QDate current_date;
+
+    HarvestHandler *const harvestHandler;
 };
 
 #endif // ADDEDTASKSLIST_H

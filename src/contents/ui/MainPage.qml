@@ -20,7 +20,7 @@ Kirigami.ScrollablePage {
             icon.name: "list-add"
             text: i18nc("@action:button", "Add Task")
             tooltip: i18n("Add a New Task")
-            onTriggered: openPopulateSheet("add")
+            onTriggered: openAddTaskSheet()
         }
         contextualActions: [
             Kirigami.Action {

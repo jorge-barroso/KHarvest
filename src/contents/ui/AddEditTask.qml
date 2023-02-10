@@ -14,14 +14,15 @@ Kirigami.OverlaySheet{
     property string mode: "add"
 
     property int index: -1
-    property string projectName: ""
-    property string taskName: ""
-    property string taskNote: ""
-    property string timeTracked: ""
+    property int entryId: -1
+    property var model: {}
 
-    signal added (string projectName, string taskName, string taskNote)
-    signal edited (int index, string projectName, string taskName, string taskNote)
-    signal removed(int index)
+    property alias projectIndex: projectField.currentIndex
+    property alias taskIndex: taskField.currentIndex
+    property alias taskNote: noteField.text
+    property alias timeTracked: timeField.text
+
+    property int initialIndex: 0
 
     header: Kirigami.Heading {
         text: mode === "add" ? i18nc("@title:window", "Add Task")
@@ -38,12 +39,12 @@ Kirigami.OverlaySheet{
             model: KHarvest.ProjectsModel {
                 list: projectsList
                 onModelReset: {
-                    projectField.currentIndex = 0;
+                    projectField.currentIndex = initialIndex;
                 }
             }
              onActivated: {
-                model.list.setTasksFromProject(currentIndex)
-                taskField.currentIndex = 0
+                model.list.setTasksFromProject(currentIndex);
+                taskField.currentIndex = initialIndex;
              }
         }
         Controls.ComboBox {
@@ -55,7 +56,7 @@ Kirigami.OverlaySheet{
             model: KHarvest.TasksModel{
                 list: projectsList
                 onModelReset: {
-                    taskField.currentIndex = 0;
+                    taskField.currentIndex = initialIndex;
                 }
             }
         }
@@ -82,7 +83,7 @@ Kirigami.OverlaySheet{
             inputMask: "00:00"
             inputMethodHints: Qt.ImhDigitsOnly
             placeholderText: i18n("HH:MM")
-            text: mode === "add" ? "00:00" : timeTracked
+            text: mode === "edit" ? "00:00" : timeTracked
         }
     }
 
@@ -99,21 +100,22 @@ Kirigami.OverlaySheet{
                 enabled: projectField.text.length > 0 && taskField.text.length > 0
                 onClicked: {
                     if(mode === "add") {
-                        addEditTaskSheet.added(
-                            projectField.text,
-                            taskField.text,
-                            noteField.text,
-                            timeField.text
-                        );
+                        KHarvest.TasksManager.newTaskAdded(projectIndex,
+                                                taskIndex,
+                                                taskNote,
+                                                timeTracked);
                     }
                     else {
-                        addEditTaskSheet.edited(
-                            index,
-                            projectField.text,
-                            taskField.text,
-                            noteField.text,
-                            timeField.text
-                        );
+                        KHarvest.TasksManager.taskUpdated(index,
+                                                        entryId,
+                                                        projectIndex,
+                                                        taskIndex,
+                                                        taskNote,
+                                                        timeTracked);
+                        model.project = projectField.currentText
+                        model.subtitle = taskField.currentText
+                        model.note = noteField.text
+                        model.time = timeField.text
                     }
                     addEditTaskSheet.close();
                 }
@@ -125,7 +127,7 @@ Kirigami.OverlaySheet{
                 text: i18nc("@action:button", "Remove")
                 visible: mode === "edit"
                 onClicked: {
-                    addEditTaskSheet.removed(index)
+                    addedTasksList.taskRemoved(index);
                     addEditTaskSheet.close();
                 }
             }
@@ -151,8 +153,8 @@ Kirigami.OverlaySheet{
                 text: i18nc("@action:button", "Cancel")
                 onClicked: {
                     addEditTaskSheet.close();
-                    projectField.currentIndex=0;
-                    taskField.currentIndex = 0;
+                    projectField.currentIndex = initialIndex;
+                    taskField.currentIndex = initialIndex;
                     noteField.text = '';
                     timeField.text = '';
                 }
