@@ -121,7 +121,7 @@ Kirigami.OverlaySheet{
                 text: i18nc("@action:button", "Remove")
                 visible: mode === "edit"
                 onClicked: {
-                    addEditTaskSheet.removed(index)
+                    addedTasksList.taskRemoved(index);
                     addEditTaskSheet.close();
                 }
             }
@@ -147,8 +147,8 @@ Kirigami.OverlaySheet{
                 text: i18nc("@action:button", "Cancel")
                 onClicked: {
                     addEditTaskSheet.close();
-                    projectField.currentIndex=0;
-                    taskField.currentIndex = 0;
+                    projectField.currentIndex = initialIndex;
+                    taskField.currentIndex = initialIndex;
                     noteField.text = '';
                     timeField.text = '';
                 }
