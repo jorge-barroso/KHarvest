@@ -1,6 +1,5 @@
 #include "projectsmodel.h"
 #include "projectslist.h"
-#include <QDebug>
 
 ProjectsModel::ProjectsModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -22,13 +21,21 @@ QVariant ProjectsModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || !m_list)
         return {};
 
-    return (role == ProjectRole) ? m_list->projects().at(index.row()).get_project_label() : QVariant();
+    const HarvestProject &project = m_list->projects().at(index.row());
+    switch (role) {
+        case ProjectNameRole:
+            return project.project_name;
+        case ProjectLabelRole:
+            return project.get_project_label();
+        default:
+            return {};
+    }
 }
 
-QHash<int, QByteArray> ProjectsModel::roleNames() const
-{
+QHash<int, QByteArray> ProjectsModel::roleNames() const {
     QHash<int, QByteArray> names;
-    names[ProjectRole] = "projectName";
+    names[ProjectNameRole] = "projectName";
+    names[ProjectLabelRole] = "projectLabel";
     return names;
 }
 

@@ -1,6 +1,5 @@
 #include "addedtasksmodel.h"
 #include "addedtaskslist.h"
-#include <QDebug>
 
 AddedTasksModel::AddedTasksModel(QObject *parent)
         : QAbstractListModel(parent), mList(nullptr) {}
@@ -42,6 +41,9 @@ bool AddedTasksModel::setData(const QModelIndex &index, const QVariant &value, i
 
     Task *task{mList->tasks().at(index.row())};
     switch (role) {
+        case HeaderRole:
+            task->update_task_from_project_label(value.toString());
+            break;
         case SubtitleRole:
             task->taskName = value.toString();
             break;
@@ -79,7 +81,6 @@ QHash<int, QByteArray> AddedTasksModel::roleNames() const {
             {SubtitleRole,    "subtitle"},
             {NoteRole,        "note"},
             {TimeRole,        "time"},
-            {EntryIdRole,     "entryId"},
             {ProjectNameRole, "project"},
             {StartedRole,     "started"},
     };

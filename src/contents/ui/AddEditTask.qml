@@ -44,6 +44,8 @@ Kirigami.OverlaySheet{
                 left: parent.left
                 right: parent.right
             }
+            textRole: "projectLabel"
+            valueRole: "projectName"
             model: KHarvest.ProjectsModel {
                 list: projectsList
                 onModelReset: {
@@ -119,7 +121,8 @@ Kirigami.OverlaySheet{
                                                         taskIndex,
                                                         taskNote,
                                                         timeTracked);
-                        model.project = projectField.currentText
+                        // changing the header changes both project name and client name
+                        model.header = projectField.currentText
                         model.subtitle = taskField.currentText
                         model.note = noteField.text
                         model.time = timeField.text
