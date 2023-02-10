@@ -72,3 +72,18 @@ QVector<Task *> AddedTasksList::tasks() const {
 
     return lb.value();
 }
+
+void AddedTasksList::startTask(const int index) {
+    Task *pTask = tasks().at(index);
+    pTask->started = true;
+    pTask->shouldAutomaticallyStop = false;
+    harvestHandler->start_task(*pTask);
+}
+
+void AddedTasksList::stopTask(const int index) {
+    Task *pTask = tasks().at(index);
+    pTask->started = false;
+    if (!pTask->shouldAutomaticallyStop) {
+        harvestHandler->stop_task(*pTask);
+    }
+}

@@ -16,6 +16,7 @@ struct Task {
     QTime timeTracked;
     QString note;
     bool started{false};
+    bool shouldAutomaticallyStop{false};
     QDate date{QDate::currentDate()};
 
     // data starting here won't be saved to streams

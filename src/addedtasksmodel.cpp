@@ -25,10 +25,14 @@ QVariant AddedTasksModel::data(const QModelIndex &index, int role) const {
             return {pTask->taskName};
         case NoteRole:
             return {pTask->note};
-        case TimeRole:
+        case TimeLabelRole:
             return {pTask->timeTracked.toString("hh:mm")};
+        case TimeRole:
+            return {pTask->timeTracked};
         case ProjectNameRole:
             return {pTask->projectName};
+        case ShouldAutoStopRole:
+            return {pTask->shouldAutomaticallyStop};
         case StartedRole:
             return {pTask->started};
         default:
@@ -51,14 +55,25 @@ bool AddedTasksModel::setData(const QModelIndex &index, const QVariant &value, i
         case NoteRole:
             task->note = value.toString();
             break;
-        case TimeRole:
+        case TimeLabelRole:
             task->timeTracked = QTime::fromString(value.toString(), "hh:mm");
+            break;
+        case TimeRole:
+            task->timeTracked = value.toTime();
+            emit dataChanged(index, index, {TimeLabelRole});
             break;
         case ProjectNameRole:
             task->projectName = value.toString();
             break;
+        case ShouldAutoStopRole:
+            task->shouldAutomaticallyStop = value.toBool();
+            break;
         case StartedRole:
-            mList->tasks().at(index.row())->started = value.toBool();
+            if (value.toBool()) {
+                mList->startTask(index.row());
+            } else {
+                mList->stopTask(index.row());
+            }
             break;
         default:
             return false;
@@ -78,12 +93,14 @@ Qt::ItemFlags AddedTasksModel::flags(const QModelIndex &index) const {
 
 QHash<int, QByteArray> AddedTasksModel::roleNames() const {
     return {
-            {HeaderRole,      "header"},
-            {SubtitleRole,    "subtitle"},
-            {NoteRole,        "note"},
-            {TimeRole,        "time"},
-            {ProjectNameRole, "project"},
-            {StartedRole,     "started"},
+            {HeaderRole,         "header"},
+            {SubtitleRole,       "subtitle"},
+            {NoteRole,           "note"},
+            {TimeLabelRole,      "timeLabel"},
+            {TimeRole,           "time"},
+            {ProjectNameRole,    "project"},
+            {ShouldAutoStopRole, "shouldAutomaticallyStop"},
+            {StartedRole,        "started"},
     };
 }
 

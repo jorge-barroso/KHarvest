@@ -11,12 +11,17 @@
 
 class AddedTasksList : public QObject {
 Q_OBJECT
+
 public:
     explicit AddedTasksList(QObject *parent = nullptr);
 
     [[nodiscard]] QVector<Task *> tasks() const;
 
     bool taskEdited(int index, const Task *task);
+
+    void stopTask(int index);
+
+    void startTask(int index);
 
 signals:
 
