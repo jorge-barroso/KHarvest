@@ -14,7 +14,6 @@ Kirigami.OverlaySheet{
     property string mode: "add"
 
     property int index: -1
-    property int entryId: -1
     property var model: {}
 
     property alias projectIndex: projectField.currentIndex
@@ -116,7 +115,6 @@ Kirigami.OverlaySheet{
                     }
                     else {
                         KHarvest.TasksManager.taskUpdated(index,
-                                                        entryId,
                                                         projectIndex,
                                                         taskIndex,
                                                         taskNote,

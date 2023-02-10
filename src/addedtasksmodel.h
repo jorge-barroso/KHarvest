@@ -17,7 +17,6 @@ public:
         SubtitleRole,
         NoteRole,
         TimeRole,
-        EntryIdRole,
         ProjectNameRole,
         StartedRole,
     };

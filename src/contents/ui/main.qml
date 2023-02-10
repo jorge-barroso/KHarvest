@@ -74,7 +74,6 @@ Kirigami.ApplicationWindow {
     function openEditTaskSheet(index = -1, model = {}) {
         addEditTaskSheet.mode = "edit"
         addEditTaskSheet.index = index;
-        addEditTaskSheet.entryId = model.entryId;
         addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByName(model.project);
         projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
         addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByName(model.subtitle);
