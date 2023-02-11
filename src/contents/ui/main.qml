@@ -43,7 +43,7 @@ Kirigami.ApplicationWindow {
                     text: "10 February 2023"
                 }
                 id: dateToolBar
-                visible: KHarvest.HarvestHandler.isReady
+                visible: KHarvest.HarvestHandler.isReady && page.isCurrentPage
                 Kirigami.ActionToolBar {
                     alignment: Qt.AlignCenter
                     flat: true
@@ -126,10 +126,6 @@ Kirigami.ApplicationWindow {
 
     contextDrawer: Kirigami.ContextDrawer {
         id: contextDrawer
-    }
-
-    TaskModel {
-        id: taskModel
     }
 
     FavouritesModel {
