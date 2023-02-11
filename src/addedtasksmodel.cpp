@@ -118,7 +118,7 @@ void AddedTasksModel::setList(AddedTasksList *list) {
 
     if (mList != nullptr) {
         connect(mList, &AddedTasksList::preTaskAdded, this, [this]() {
-            const int index = mList->tasks().size();
+            const int index{mList->tasks().size()};
             beginInsertRows(QModelIndex(), index, index);
         });
         connect(mList, &AddedTasksList::postTaskAdded, this, [this]() {

@@ -50,8 +50,7 @@ Kirigami.AbstractCard {
                 Layout.alignment: Qt.AlignRight
                 Layout.columnSpan: 1
                 icon.name: "bookmark-remove"
-                 onClicked: showPassiveNotification(i18n("Unfav clicked"))
-//                onClicked: unfavTask(index)
+                onClicked: favouritesList.favouriteRemoved(currentIndex)
             }
         }
     }

@@ -36,7 +36,6 @@ Kirigami.ScrollablePage {
     Kirigami.CardsListView {
         id: favouritesLayout
         model: KHarvest.FavouritesModel {
-            id: favouritesModel
             list: favouritesList
         }
         delegate: FavouritesDelegate {

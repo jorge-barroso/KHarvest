@@ -29,7 +29,7 @@ public:
     void setList(ProjectsList *list);
 
 private:
-    ProjectsList *m_list;
+    ProjectsList *mList;
 };
 
 #endif // PROJECTSMODEL_H

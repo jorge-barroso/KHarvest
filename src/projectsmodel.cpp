@@ -2,24 +2,23 @@
 #include "projectslist.h"
 
 ProjectsModel::ProjectsModel(QObject *parent)
-    : QAbstractListModel(parent)
-    , m_list(nullptr)
+    : QAbstractListModel(parent), mList(nullptr)
 {}
 
 int ProjectsModel::rowCount(const QModelIndex &parent) const {
     // For list models only the root node (an invalid parent) should return the list's size. For all
     // other (valid) parents, rowCount() should return 0 so that it does not become a tree model.
-    if (parent.isValid() || !m_list)
+    if (parent.isValid() || !mList)
         return 0;
 
-    return m_list->projects().size();
+    return mList->projects().size();
 }
 
 QVariant ProjectsModel::data(const QModelIndex &index, int role) const {
-    if (!index.isValid() || !m_list)
+    if (!index.isValid() || !mList)
         return {};
 
-    const HarvestProject &project = m_list->projects().at(index.row());
+    const HarvestProject &project = mList->projects().at(index.row());
     switch (role) {
         case ProjectNameRole:
             return project.project_name;
@@ -38,19 +37,19 @@ QHash<int, QByteArray> ProjectsModel::roleNames() const {
 }
 
 ProjectsList *ProjectsModel::list() const {
-    return m_list;
+    return mList;
 }
 
 void ProjectsModel::setList(ProjectsList *list) {
     beginResetModel();
 
-    if (m_list)
-        m_list->disconnect(this);
+    if (mList)
+        mList->disconnect(this);
 
-    m_list = list;
+    mList = list;
 
-    if (m_list != nullptr) {
-        connect(m_list, &ProjectsList::projectsUpdated, this, &ProjectsModel::endResetModel);
+    if (mList != nullptr) {
+        connect(mList, &ProjectsList::projectsUpdated, this, &ProjectsModel::endResetModel);
     }
 
     endResetModel();

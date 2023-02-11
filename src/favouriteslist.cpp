@@ -43,5 +43,5 @@ void FavouritesList::favouriteRemoved(int index) {
 
     emit preFavouriteRemoved(index);
     mFavourites.remove(index);
-    emit postFavouriteAdded();
+    emit postFavouriteRemoved();
 }
