@@ -7,35 +7,6 @@
 SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 SPDX-License-Identifier: LGPL-2.0-or-later
 -->
-    <group name="HarvestUserDetails">
-        <entry name="access_token" type="String">
-            <label>The token we need to give the user access to their account</label>
-        </entry>
-        <entry name="refresh_token" type="String">
-            <label>The token we need to reauthenticate the user and fetch a new token once the previous one expires</label>
-        </entry>
-        <entry name="expires_in" type="UInt">
-            <label>How long before we need to refresh the access token</label>
-            <default>0</default>
-        </entry>
-        <entry name="expires_on" type="LongLong">
-            <label>Epoch of the date and time when the access token expires</label>
-            <default>0</default>
-        </entry>
-        <entry name="token_type" type="String">
-            <label>Type of token provided (usually bearer)</label>
-        </entry>
-        <entry name="account_id" type="String">
-            <label>ID of the account in Harvest's system</label>
-        </entry>
-        <entry name="user_id" type="String">
-            <label>Specific ID of the current user</label>
-            <tooltip>This is required because admin users can, by default, see everything that has been reported
-            by anyone under their umbrella. By fetching and saving this user id, we can then add it as an argument
-            when calling Harvest to fetch the user's tasks so that their only able to see those that have actually
-            been reported by themselves</tooltip>
-        </entry>
-    </group>
     <group name="Favourites">
         <entry name="favourites_list" type="StringList">
             <label>A list of Favourite tasks</label>
