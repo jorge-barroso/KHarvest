@@ -20,24 +20,27 @@ struct Task {
     QDate date{QDate::currentDate()};
 
     // data starting here won't be saved to streams
-    bool favourited{false};
-
     static const QString values_separator;
     static const QString end_line_separator;
 
-    friend QTextStream &operator<<(QTextStream &stream, const Task &task) {
-        stream << task.projectId << values_separator << task.taskId << values_separator << task.timeEntryId
-               << values_separator << task.clientName << values_separator << task.projectName << values_separator
-               << task.taskName << values_separator << task.timeTracked.toString() << values_separator << task.note
-               << values_separator << task.started << values_separator
-               << task.date.toString() << end_line_separator;
+    friend QStringList &operator<<(QStringList &stream, const Task *task) {
+        QString str{QString::number(task->projectId) + values_separator
+                    + QString::number(task->taskId) + values_separator
+                    + QString::number(task->timeEntryId) + values_separator
+                    + task->clientName + values_separator
+                    + task->projectName + values_separator
+                    + task->taskName + values_separator
+                    + task->timeTracked.toString() + values_separator
+                    + task->note + values_separator
+                    + QVariant(task->started).toString() + values_separator
+                    + task->date.toString()};
 
+        stream.append(str);
         return stream;
     }
 
-    friend QTextStream &operator>>(QTextStream &stream, Task &task) {
-        QString contents{stream.readLine()};
-        QStringList values{contents.split(values_separator)};
+    friend const QString &operator>>(const QString &taskLine, Task &task) {
+        QStringList values{taskLine.split(values_separator)};
 
         int i{-1};
         task.projectId = values[++i].toLongLong();
@@ -51,7 +54,7 @@ struct Task {
         task.started = QVariant(values[++i]).toBool();
         task.date = QDate::fromString(values[++i]);
 
-        return stream;
+        return taskLine;
     }
 
     bool operator==(const Task &other_task) const {

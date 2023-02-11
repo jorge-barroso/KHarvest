@@ -5,9 +5,8 @@
 
 class ProjectsList;
 
-class ProjectsModel : public QAbstractListModel
-{
-    Q_OBJECT
+class ProjectsModel : public QAbstractListModel {
+Q_OBJECT
     Q_PROPERTY(ProjectsList *list READ list WRITE setList)
 
 public:

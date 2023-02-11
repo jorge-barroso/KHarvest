@@ -25,6 +25,8 @@
 #include "kharvestconfig.h"
 #include "harvesthandler.h"
 #include "tasksmanager.h"
+#include "favouriteslist.h"
+#include "favouritesmodel.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -88,10 +90,13 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     qmlRegisterType<ProjectsModel>("org.kde.kharvest", 1, 0, "ProjectsModel");
     qmlRegisterType<TasksModel>("org.kde.kharvest", 1, 0, "TasksModel");
     qmlRegisterType<AddedTasksModel>("org.kde.kharvest", 1, 0, "AddedTasksModel");
+    qmlRegisterType<FavouritesModel>("org.kde.kharvest", 1, 0, "FavouritesModel");
     qmlRegisterUncreatableType<ProjectsList>("org.kde.kharvest", 1, 0, "ProjectsList",
                                              QStringLiteral("ProjectsList should not be created in QML"));
     qmlRegisterUncreatableType<AddedTasksList>("org.kde.kharvest", 1, 0, "AddedTasksList",
                                                QStringLiteral("AddedTasksList should not be created in QML"));
+    qmlRegisterUncreatableType<FavouritesList>("org.kde.kharvest", 1, 0, "FavouritesList",
+                                               QStringLiteral("FavouritesList should not be created in QML"));
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "HarvestHandler", HarvestHandler::instance());
 
     QQmlApplicationEngine engine;
@@ -109,6 +114,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projectsList);
     AddedTasksList addedTasksList;
     engine.rootContext()->setContextProperty(QStringLiteral("addedTasksList"), &addedTasksList);
+    FavouritesList favouritesList;
+    engine.rootContext()->setContextProperty(QStringLiteral("favouritesList"), &favouritesList);
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 

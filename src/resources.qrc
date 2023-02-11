@@ -7,7 +7,6 @@
         <file alias="About.qml">contents/ui/About.qml</file>
         <file alias="AddEditTask.qml">contents/ui/AddEditTask.qml</file>
         <file alias="FavouritesDelegate.qml">contents/ui/FavouritesDelegate.qml</file>
-        <file alias="FavouritesModel.qml">contents/ui/FavouritesModel.qml</file>
         <file alias="FavouritesPage.qml">contents/ui/FavouritesPage.qml</file>
         <file alias="LoginPage.qml">contents/ui/LoginPage.qml</file>
         <file alias="main.qml">contents/ui/main.qml</file>

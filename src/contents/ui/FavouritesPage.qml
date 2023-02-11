@@ -5,10 +5,10 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
 import org.kde.kirigami 2.19 as Kirigami
-import org.kde.kharvest 1.0
+import org.kde.kharvest 1.0 as KHarvest
 
 Kirigami.ScrollablePage {
-    id: favsPage
+    id: favouritesPage
 
     Layout.fillWidth: true
 
@@ -35,8 +35,13 @@ Kirigami.ScrollablePage {
 
     Kirigami.CardsListView {
         id: favouritesLayout
-        model: favouritesModel
-        delegate: FavouritesDelegate {}
+        model: KHarvest.FavouritesModel {
+            id: favouritesModel
+            list: favouritesList
+        }
+        delegate: FavouritesDelegate {
+            id: favouritesDelegate
+        }
     }
 }
 

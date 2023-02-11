@@ -128,10 +128,6 @@ Kirigami.ApplicationWindow {
         id: contextDrawer
     }
 
-    FavouritesModel {
-        id: favouritesModel
-    }
-
     AddEditTask{
         id: addEditTaskSheet
     }

@@ -15,7 +15,6 @@ Kirigami.AbstractCard {
     property int timeBetweenUpdates: secondsToUpdate * baseUnitToOneSecond
 
     function startCurrent() {
-        console.info(root.runningTask);
         if(root.runningTask !== undefined) {
             root.runningTask.shouldAutomaticallyStop = true;
             root.runningTask.started = false;
@@ -60,10 +59,6 @@ Kirigami.AbstractCard {
                     Layout.fillWidth: true
                     level: 1
                     text: model.header
-                }
-                Kirigami.Separator {
-                    Layout.fillWidth: true
-                    visible: false
                 }
                 Controls.Label {
                     Layout.fillWidth: true

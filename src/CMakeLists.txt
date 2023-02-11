@@ -10,6 +10,10 @@ add_executable(kharvest
         addedtaskslist.h
         app.cpp
         app.h
+        favouriteslist.cpp
+        favouriteslist.h
+        favouritesmodel.cpp
+        favouritesmodel.h
         harvesthandler.cpp
         harvesthandler.h
         harvestproject.h

@@ -8,7 +8,9 @@ import org.kde.kirigami 2.13 as Kirigami
 import org.kde.kharvest 1.0
 
 Kirigami.AbstractCard {
-    id: taskDelegate
+    id: favouritesDelegate
+
+    showClickFeedback: true
 
     contentItem: Item {
         // implicitWidth/Height define the natural width/height of an item if no width or height is specified.
@@ -31,16 +33,12 @@ Kirigami.AbstractCard {
                 Kirigami.Heading {
                     Layout.fillWidth: true
                     level: 1
-                    text: projectName
-                }
-                Kirigami.Separator {
-                    Layout.fillWidth: true
-                    visible: false
+                    text: model.header
                 }
                 Controls.Label {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    text: taskName
+                    text: model.taskName
                     visible: taskName.length > 0
                 }
             }
@@ -52,9 +50,10 @@ Kirigami.AbstractCard {
                 Layout.alignment: Qt.AlignRight
                 Layout.columnSpan: 1
                 icon.name: "bookmark-remove"
-                // onClicked: showPassiveNotification(i18n("Unfav clicked"))
-                onClicked: unfavTask(index)
+                 onClicked: showPassiveNotification(i18n("Unfav clicked"))
+//                onClicked: unfavTask(index)
             }
         }
     }
+    onClicked: showPassiveNotification(i18n("card clicked"))
 }

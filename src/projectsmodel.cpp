@@ -6,8 +6,7 @@ ProjectsModel::ProjectsModel(QObject *parent)
     , m_list(nullptr)
 {}
 
-int ProjectsModel::rowCount(const QModelIndex &parent) const
-{
+int ProjectsModel::rowCount(const QModelIndex &parent) const {
     // For list models only the root node (an invalid parent) should return the list's size. For all
     // other (valid) parents, rowCount() should return 0 so that it does not become a tree model.
     if (parent.isValid() || !m_list)
@@ -16,8 +15,7 @@ int ProjectsModel::rowCount(const QModelIndex &parent) const
     return m_list->projects().size();
 }
 
-QVariant ProjectsModel::data(const QModelIndex &index, int role) const
-{
+QVariant ProjectsModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || !m_list)
         return {};
 

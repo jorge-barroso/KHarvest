@@ -9,10 +9,11 @@ import org.kde.kharvest 1.0 as KHarvest
 
 Kirigami.ScrollablePage {
     id: page
+    title: i18n("Tasks")
 
     Layout.fillWidth: true
 
-    title: i18n("Tasks")
+    Component.onCompleted: addEditTaskSheet.parent = page
 
     actions {
         main: Kirigami.Action {
@@ -36,6 +37,9 @@ Kirigami.ScrollablePage {
         model: KHarvest.AddedTasksModel {
             list: addedTasksList
         }
-        delegate: TaskDelegate {}
+        delegate: TaskDelegate {
+            id: taskDelegate
+        }
     }
+
 }
