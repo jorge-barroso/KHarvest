@@ -598,9 +598,6 @@ QString HarvestHandler::get_http_message(const QString &message) {
     return final_message;
 }
 
-void HarvestHandler::logout_cleanup() {
-}
-
 QString HarvestHandler::get_user_id() {
     QUrl request_url(user_url);
 
@@ -637,5 +634,28 @@ void HarvestHandler::saveData(const bool includeAccount) {
             }
         });
         keyChain.writeKey(HarvestHandler::AccessTokenKey, accessToken);
+    });
+}
+
+void HarvestHandler::logout_cleanup() {
+    QThreadPool::globalInstance()->start([this]() {
+        connect(&keyChain, &KeyChain::keyDeleted, this, [this](const QString &key) {
+            if (key == HarvestHandler::AccessTokenKey) {
+                keyChain.deleteKey(HarvestHandler::RefreshTokenKey);
+            } else if (key == HarvestHandler::RefreshTokenKey) {
+                keyChain.deleteKey(HarvestHandler::ExpiresInKey);
+            } else if (key == HarvestHandler::ExpiresInKey) {
+                keyChain.deleteKey(HarvestHandler::ExpiresOnKey);
+            } else if (key == HarvestHandler::ExpiresOnKey) {
+                keyChain.deleteKey(HarvestHandler::TokenTypeKey);
+            } else if (key == HarvestHandler::TokenTypeKey) {
+                keyChain.deleteKey(HarvestHandler::AccountIdKey);
+            } else if (key == HarvestHandler::AccountIdKey) {
+                keyChain.deleteKey(HarvestHandler::UserIdKey);
+            } else if (key == HarvestHandler::UserIdKey) {
+                keyChain.disconnect();
+            }
+        });
+        keyChain.deleteKey(HarvestHandler::AccessTokenKey);
     });
 }

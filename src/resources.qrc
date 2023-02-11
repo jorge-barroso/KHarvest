@@ -9,10 +9,10 @@
         <file alias="FavouritesDelegate.qml">contents/ui/FavouritesDelegate.qml</file>
         <file alias="FavouritesModel.qml">contents/ui/FavouritesModel.qml</file>
         <file alias="FavouritesPage.qml">contents/ui/FavouritesPage.qml</file>
+        <file alias="LoginPage.qml">contents/ui/LoginPage.qml</file>
         <file alias="main.qml">contents/ui/main.qml</file>
         <file alias="MainPage.qml">contents/ui/MainPage.qml</file>
         <file alias="TaskActionButtons.qml">contents/ui/TaskActionButtons.qml</file>
         <file alias="TaskDelegate.qml">contents/ui/TaskDelegate.qml</file>
-        <file alias="TaskModel.qml">contents/ui/TaskModel.qml</file>
     </qresource>
 </RCC>
