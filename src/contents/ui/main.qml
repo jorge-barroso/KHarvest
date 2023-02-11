@@ -12,7 +12,7 @@ Kirigami.ApplicationWindow {
 
     title: i18n("Harvest Timer")
 
-    minimumWidth: Kirigami.Units.gridUnit * 20
+    minimumWidth: Kirigami.Units.gridUnit * 25
     minimumHeight: Kirigami.Units.gridUnit * 40
 
     onClosing: KHarvest.App.saveWindowGeometry(root)
@@ -68,7 +68,7 @@ Kirigami.ApplicationWindow {
         target: KHarvest.HarvestHandler
 
         function onReady() {
-            applicationWindow().pageStack.replace(page)
+            applicationWindow().pageStack.replace(page);
             dateToolBar.visible = true
         }
     }
@@ -95,21 +95,28 @@ Kirigami.ApplicationWindow {
     }
 
     globalDrawer: Kirigami.GlobalDrawer {
+        id: globalDrawer
         title: i18n("KHarvest")
         titleIcon: "applications-graphics"
         isMenu: !root.isMobile
         actions: [
             Kirigami.Action {
-                text: i18n("Add Task")
-                icon.name: "list-add"
-                onTriggered: openAddTaskSheet()
-            },
-            Kirigami.Action {
+                id: aboutAction
                 text: i18n("About KHarvest")
                 icon.name: "help-about"
                 onTriggered: pageStack.layers.push('qrc:About.qml')
             },
             Kirigami.Action {
+               id: logoutAction
+               text: i18n("Logout")
+               icon.name: "list-remove-user"
+               onTriggered: {
+                   KHarvest.App.logout();
+                   pageStack.replace(loginPage);
+               }
+           },
+           Kirigami.Action {
+                id: quitAction
                 text: i18n("Quit")
                 icon.name: "application-exit"
                 onTriggered: Qt.quit()
@@ -138,12 +145,18 @@ Kirigami.ApplicationWindow {
         Component.onCompleted: addEditTaskSheet.parent = page
     }
 
+    LoginPage {
+        id: loginPage
+    }
+
     Component.onCompleted: {
         KHarvest.App.restoreWindowGeometry(root)
         if (KHarvest.HarvestHandler.isReady) {
+            logoutAction.visible = true
             pageStack.push(page);
         } else {
-            pageStack.push('qrc:/content/ui/LoginPage.qml');
+            logoutAction.visible = false
+            pageStack.push(loginPage);
         }
     }
 }
