@@ -32,6 +32,41 @@ Kirigami.ScrollablePage {
         ]
     }
 
+
+    header: ColumnLayout {
+                id: dateToolBar
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                Kirigami.ActionToolBar {
+                    alignment: Qt.AlignCenter
+                    flat: true
+                    actions: [
+                       Kirigami.Action {
+                           icon.name: "go-previous"
+                           onTriggered: {}
+                       },
+                       Kirigami.Action {
+                           icon.name: "view-calendar"
+                           onTriggered: {}
+                       },
+                       Kirigami.Action {
+                           icon.name: "go-next"
+                           onTriggered: {}
+                       }
+                   ]
+                }
+                Kirigami.Separator {
+                    Layout.fillWidth: true
+                    visible: true
+                    color: 'transparent'
+                }
+                Controls.Label {
+                    id: dateLabel
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    font.bold: true
+                    text: "10 February 2023"
+                }
+            }
+
     Kirigami.CardsListView {
         id: layout
         model: KHarvest.AddedTasksModel {
