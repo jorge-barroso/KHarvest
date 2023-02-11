@@ -68,8 +68,7 @@ sources:
 - Modern C++ compiler ([g++](https://gcc.gnu.org/), [clang](http://clang.org/))
 - [CMake](https://cmake.org/)
 - Qt5 Tools, the package name of which may vary:
-    -
-    Ubuntu: [qt5-tools-dev](https://packages.ubuntu.com/search?keywords=qt5-tools-dev&searchon=names&suite=all&section=all)
+    - Ubuntu: [qt5-tools-dev](https://packages.ubuntu.com/search?keywords=qt5-tools-dev&searchon=names&suite=all&section=all)
     - Fedora: [qt5-qttools](https://src.fedoraproject.org/rpms/qt5-qttools)
     - Arch: [qt5-tools](https://archlinux.org/packages/extra/x86_64/qt5-tools/)
 
@@ -78,13 +77,11 @@ sources:
 ##### Required
 
 - The **Qt5 Base** package, some namings for this, depending on distros, are
-    -
-    Ubuntu: [qtbase5-dev](https://packages.ubuntu.com/search?keywords=qtbase5-dev&searchon=names&suite=all&section=all)
+    - Ubuntu: [qtbase5-dev](https://packages.ubuntu.com/search?keywords=qtbase5-dev&searchon=names&suite=all&section=all)
     - Fedora: [qt5-qtbase](https://src.fedoraproject.org/rpms/qt5-qtbase)
     - Arch: [qt5-base](https://archlinux.org/packages/extra/x86_64/qt5-base/)
 - Similarly, you will need the **Qt5 SVG** package to display icons:
-    -
-    Ubuntu: [libqt5svg5](https://packages.ubuntu.com/search?suite=all&section=all&arch=any&keywords=libqt5svg5&searchon=names)
+    - Ubuntu: [libqt5svg5](https://packages.ubuntu.com/search?suite=all&section=all&arch=any&keywords=libqt5svg5&searchon=names)
     - Fedora: [qt5-qtsvg](https://src.fedoraproject.org/rpms/qt5-qtsvg)
     - Arch: [qt5-svg](https://archlinux.org/packages/extra/x86_64/qt5-svg)
 - A base installation of **KDE Frameworks 5** is required
@@ -93,8 +90,7 @@ sources:
 
 - If you are running Harvest in a wayland system, installing the **Qt5 Wayland** package to allow Qt to interact
   directly with the compositor:
-    -
-    Ubuntu: [qtwayland5](https://packages.ubuntu.com/search?suite=all&section=all&arch=any&keywords=qtwayland5&searchon=names)
+    - Ubuntu: [qtwayland5](https://packages.ubuntu.com/search?suite=all&section=all&arch=any&keywords=qtwayland5&searchon=names)
     - Fedora: [qt5-qtwayland](https://src.fedoraproject.org/rpms/qt5-qtwayland)
     - Arch: [qt5-wayland](https://archlinux.org/packages/extra/x86_64/qt5-wayland)
 
