@@ -112,7 +112,7 @@ Kirigami.ApplicationWindow {
                icon.name: "list-remove-user"
                onTriggered: {
                    KHarvest.App.logout();
-                   pageStack.replace(loginPage);
+                   pageStack.replace('qrc:LoginPage.qml');
                }
            },
            Kirigami.Action {
@@ -145,10 +145,6 @@ Kirigami.ApplicationWindow {
         Component.onCompleted: addEditTaskSheet.parent = page
     }
 
-    LoginPage {
-        id: loginPage
-    }
-
     Component.onCompleted: {
         KHarvest.App.restoreWindowGeometry(root)
         if (KHarvest.HarvestHandler.isReady) {
@@ -156,7 +152,7 @@ Kirigami.ApplicationWindow {
             pageStack.push(page);
         } else {
             logoutAction.visible = false
-            pageStack.push(loginPage);
+            pageStack.push('qrc:LoginPage.qml');
         }
     }
 }
