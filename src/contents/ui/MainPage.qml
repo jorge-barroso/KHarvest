@@ -40,15 +40,21 @@ Kirigami.ScrollablePage {
                     actions: [
                        Kirigami.Action {
                            icon.name: "go-previous"
-                           onTriggered: {}
+                           onTriggered: {
+                                KHarvest.AppDate.addDays(-1);
+                           }
                        },
                        Kirigami.Action {
                            icon.name: "view-calendar"
-                           onTriggered: {}
+                           onTriggered: {
+                                KHarvest.AppDate.date = new Date();
+                           }
                        },
                        Kirigami.Action {
                            icon.name: "go-next"
-                           onTriggered: {}
+                           onTriggered: {
+                                KHarvest.AppDate.addDays(1);
+                           }
                        }
                    ]
                 }
@@ -61,9 +67,10 @@ Kirigami.ScrollablePage {
                     id: dateLabel
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     font.bold: true
-                    text: "10 February 2023"
+                    text: KHarvest.AppDate.date.toLocaleDateString()
                 }
             }
+
 
     Kirigami.CardsListView {
         id: layout

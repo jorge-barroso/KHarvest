@@ -10,6 +10,8 @@ add_executable(kharvest
         addedtaskslist.h
         app.cpp
         app.h
+        appdate.cpp
+        appdate.h
         favouriteslist.cpp
         favouriteslist.h
         favouritesmodel.cpp
