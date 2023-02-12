@@ -55,10 +55,20 @@ Kirigami.ApplicationWindow {
         addEditTaskSheet.open()
     }
 
-    function openAddTaskSheet() {
+    function openAddTaskSheet(favouritesModel = undefined) {
         addEditTaskSheet.mode = "add"
-        addEditTaskSheet.projectIndex = 0;
-        addEditTaskSheet.taskIndex = 0;
+        console.log(favouritesModel)
+        if(favouritesModel !== undefined) {
+            console.log("adding a favourite");
+            addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByHarvestId(favouritesModel.projectId);
+            projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
+            addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByHarvestId(favouritesModel.taskId);
+        } else {
+            console.log("adding a new task");
+            addEditTaskSheet.projectIndex = 0;
+            addEditTaskSheet.taskIndex = 0;
+        }
+
         addEditTaskSheet.taskNote = "";
         addEditTaskSheet.timeTracked = "00:00";
         addEditTaskSheet.open()
@@ -98,13 +108,12 @@ Kirigami.ApplicationWindow {
         id: contextDrawer
     }
 
-    AddEditTask{
+    AddEditTask {
         id: addEditTaskSheet
     }
 
     MainPage {
         id: page
-        Component.onCompleted: addEditTaskSheet.parent = page
     }
 
     Component.onCompleted: {

@@ -19,6 +19,10 @@ public:
 
     [[nodiscard]] QVector<Task *> favourites() const;
 
+    [[nodiscard]] bool isFavourited(qlonglong projectId, qlonglong taskId) const;
+
+    void favouriteRemoved(QVector<Task*>::const_iterator taskReference);
+
 signals:
 
     void preFavouriteAdded();

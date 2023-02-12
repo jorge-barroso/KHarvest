@@ -20,6 +20,8 @@ struct Task {
     QDate date{QDate::currentDate()};
 
     // data starting here won't be saved to streams
+    bool favourited{false};
+
     static const QString values_separator;
     static const QString end_line_separator;
 
@@ -77,7 +79,7 @@ struct Task {
             return projectName;
         }
 
-        return projectName + " (" + clientName + ")";
+        return QString("%1 (%2)").arg(projectName, clientName);
     }
 
     void update_task_from_project_label(const QString &projectLabel) {

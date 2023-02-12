@@ -309,9 +309,9 @@ HarvestHandler::get_projects_data(const QJsonDocument &json_payload, QVector<Har
         }
 
         const HarvestProject project{
-                .project_name = project_assignment["project"]["name"].toString(),
-                .client_name = project_assignment["client"]["name"].toString(),
-                .project_id = project_assignment["project"]["id"].toInt(),
+                .projectName = project_assignment["project"]["name"].toString(),
+                .clientName = project_assignment["client"]["name"].toString(),
+                .projectId = project_assignment["project"]["id"].toInt(),
                 .task = project_tasks_vector
         };
         projects_vector.append(project);
@@ -382,7 +382,7 @@ void HarvestHandler::update_task(const Task *updated_task) {
     const float seconds{static_cast<float>(QTime(0, 0).secsTo(updated_task->timeTracked))};
 
     QJsonObject request_payload;
-    request_payload.insert("project_id", updated_task->projectId);
+    request_payload.insert("projectId", updated_task->projectId);
     request_payload.insert("task_id", updated_task->taskId);
     request_payload.insert("notes", updated_task->note);
     request_payload.insert("hours", seconds / 60 / 60);

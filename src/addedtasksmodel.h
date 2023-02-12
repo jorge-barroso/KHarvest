@@ -14,13 +14,16 @@ public:
 
     enum {
         HeaderRole = Qt::UserRole,
-        SubtitleRole,
+        TaskNameRole,
+        TaskIdRole,
         NoteRole,
         TimeLabelRole,
         TimeRole,
         ProjectNameRole,
+        ProjectIdRole,
         ShouldAutoStopRole,
         StartedRole,
+        FavouritedRole,
     };
 
     // Basic functionality:

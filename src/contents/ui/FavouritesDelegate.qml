@@ -12,7 +12,10 @@ Kirigami.AbstractCard {
 
     showClickFeedback: true
 
+    property var currentModel: {}
+
     contentItem: Item {
+        id: cardItem
         // implicitWidth/Height define the natural width/height of an item if no width or height is specified.
         // The setting below defines a component's preferred size based on its content
         implicitWidth: delegateLayout.implicitWidth
@@ -43,8 +46,13 @@ Kirigami.AbstractCard {
                 }
             }
 
-
-
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    console.log(favouritesDelegate.currentModel)
+                    openAddTaskSheet(favouritesDelegate.currentModel)
+                }
+            }
             Controls.Button {
                 id: unfavButton
                 Layout.alignment: Qt.AlignRight
@@ -53,6 +61,9 @@ Kirigami.AbstractCard {
                 onClicked: favouritesList.favouriteRemoved(currentIndex)
             }
         }
+
+        Component.onCompleted: {
+            favouritesDelegate.currentModel = model
+        }
     }
-    onClicked: showPassiveNotification(i18n("card clicked"))
 }
