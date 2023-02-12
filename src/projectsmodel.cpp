@@ -21,7 +21,7 @@ QVariant ProjectsModel::data(const QModelIndex &index, int role) const {
     const HarvestProject &project = mList->projects().at(index.row());
     switch (role) {
         case ProjectNameRole:
-            return project.project_name;
+            return project.projectName;
         case ProjectLabelRole:
             return project.get_project_label();
         default:

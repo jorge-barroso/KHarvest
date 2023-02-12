@@ -35,10 +35,22 @@ GridLayout {
     // SAVE/REMOVE FAVOURITE TASK
     Controls.Button {
         id: favUnfavButton
+        checkable: true
+        checked: model.favourited
         Layout.alignment: Qt.AlignRight
         Layout.columnSpan: 1
-        icon.name: "bookmark-new"
-        // onClicked: {}
+        icon.name: model.favourited ? "bookmark-remove" : "bookmark-new"
+        onClicked: {
+            if(model.favourited) {
+                // remove from favourites
+                model.favourited = false
+                KHarvest.TasksManager.removeFavouriteFromAddedTask(index);
+            } else {
+                // add to favourites
+                model.favourited = true
+                KHarvest.TasksManager.addFavouriteFromAddedTask(index)
+            }
+        }
     }
 
     // EDIT TASK

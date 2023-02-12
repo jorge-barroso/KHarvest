@@ -14,6 +14,11 @@ Kirigami.ScrollablePage {
 
     title: i18n("Favourites")
 
+    onBackRequested: addEditTaskSheet.parent = page
+    Component.onCompleted: {
+        addEditTaskSheet.parent = favouritesPage
+    }
+
     actions {
         main: Kirigami.Action {
                 id: addFavouriteAction
@@ -28,7 +33,10 @@ Kirigami.ScrollablePage {
                 icon.name: "window-close"
                 text: i18nc("@action:button", "Close Favourites")
                 tooltip: i18n("Close Favourites Section")
-                onTriggered: applicationWindow().pageStack.layers.pop()
+                onTriggered: {
+                    addEditTaskSheet.parent = page
+                    applicationWindow().pageStack.layers.pop()
+                }
             }
         ]
     }

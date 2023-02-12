@@ -11,13 +11,13 @@
 #include "harvesttask.h"
 
 struct HarvestProject {
-    QString project_name;
-    QString client_name;
-    qint64 project_id;
+    QString projectName;
+    QString clientName;
+    qlonglong projectId;
     QVector<HarvestTask> task;
 
     [[nodiscard]] QString get_project_label() const {
-        return project_name + " (" + client_name + ")";
+        return QString("%1 (%2)").arg(projectName, clientName);
     }
 };
 

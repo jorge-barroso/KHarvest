@@ -3,18 +3,10 @@
 #include "maputils.h"
 
 AddedTasksList::AddedTasksList(QObject *parent)
-        : QObject{parent}, current_date{QDate::fromJulianDay(0)}, harvestHandler{HarvestHandler::instance()} {
-
-    connect(harvestHandler, &HarvestHandler::task_added, this, &AddedTasksList::taskAdded);
-    if (harvestHandler->is_ready()) {
-        current_date = QDate::currentDate();
-        harvestHandler->list_tasks(current_date.addDays(-2), current_date.addDays(2));
-    } else {
-        connect(harvestHandler, &HarvestHandler::ready, this, [this] {
-            harvestHandler->list_tasks(current_date.addDays(-2), current_date.addDays(2));
-        });
-    }
-}
+        : QObject{parent}
+        , current_date{QDate::currentDate()}
+        , harvestHandler{HarvestHandler::instance()}
+{}
 
 bool AddedTasksList::taskEdited(const int index, const Task *const task) {
     QMap<QDate, QVector<Task *>>::const_iterator lb{mTasks.constFind(current_date)};

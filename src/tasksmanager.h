@@ -9,18 +9,25 @@
 #include <QObject>
 #include "projectslist.h"
 #include "addedtaskslist.h"
+#include "favouriteslist.h"
 
 class TasksManager : public QObject {
 Q_OBJECT
     Q_PROPERTY(ProjectsList *projectsList READ projectsList)
     Q_PROPERTY(AddedTasksList *tasksList READ addedTasksList)
+    Q_PROPERTY(FavouritesList *favouritesList READ favouritesList)
 
 public:
-    TasksManager(QObject *parent, ProjectsList *projectsList, AddedTasksList *addedTaskList);
+    TasksManager(QObject *parent,
+                 ProjectsList *projectsList,
+                 AddedTasksList *addedTaskList,
+                 FavouritesList *favouritesList);
 
     [[nodiscard]] ProjectsList *projectsList() const;
 
     [[nodiscard]] AddedTasksList *addedTasksList() const;
+
+    [[nodiscard]] FavouritesList *favouritesList() const;
 
 public slots:
 
@@ -32,6 +39,14 @@ public slots:
 
     long taskIndexByName(const QString &taskName);
 
+    long projectIndexByHarvestId(qlonglong projectId);
+
+    long taskIndexByHarvestId(qlonglong taskId);
+
+    void addFavouriteFromAddedTask(int tasksIndex) const;
+
+    void removeFavouriteFromAddedTask(int tasksIndex) const;
+
     void timeForward();
 
     void timeBackwards();
@@ -39,11 +54,17 @@ public slots:
 private:
     ProjectsList *mProjects;
     AddedTasksList *mAddedTasks;
+    FavouritesList *mFavourites;
     HarvestHandler *harvestHandler;
     QDate currentDate;
     QTime zero_time;
 
     void updateCurrentTime(int days);
+
+    void tasksAdded(Task *task);
+
+    void lookupFavouritesFromTask(const Task *addedTask,
+                                  const std::function<void(QVector<Task *>::const_iterator)> &toDo) const;
 
 };
 
