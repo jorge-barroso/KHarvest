@@ -8,12 +8,13 @@
 
 #include "task.h"
 #include "harvesthandler.h"
+#include "appdate.h"
 
 class AddedTasksList : public QObject {
 Q_OBJECT
 
 public:
-    explicit AddedTasksList(QObject *parent = nullptr);
+    explicit AddedTasksList(AppDate *pDate, QObject *parent = nullptr);
 
     [[nodiscard]] QVector<Task *> tasks() const;
 
@@ -33,7 +34,11 @@ signals:
 
     void postTaskRemoved();
 
+    void tasksDateChanged();
+
 public slots:
+
+    void appDateChanged();
 
     void taskAdded(Task *task);
 
@@ -41,7 +46,7 @@ public slots:
 
 private:
     QMap<QDate, QVector<Task *>> mTasks;
-    QDate current_date;
+    AppDate *appDate;
 
     HarvestHandler *const harvestHandler;
 };

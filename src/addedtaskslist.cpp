@@ -2,14 +2,15 @@
 #include "harvesthandler.h"
 #include "maputils.h"
 
-AddedTasksList::AddedTasksList(QObject *parent)
+#include <QDebug>
+AddedTasksList::AddedTasksList(AppDate *pDate, QObject *parent)
         : QObject{parent}
-        , current_date{QDate::currentDate()}
+        , appDate{pDate}
         , harvestHandler{HarvestHandler::instance()}
 {}
 
 bool AddedTasksList::taskEdited(const int index, const Task *const task) {
-    QMap<QDate, QVector<Task *>>::const_iterator lb{mTasks.constFind(current_date)};
+    QMap<QDate, QVector<Task *>>::const_iterator lb{mTasks.constFind(appDate->date())};
     if (lb == mTasks.constEnd()) {
         return false;
     }
@@ -30,17 +31,17 @@ bool AddedTasksList::taskEdited(const int index, const Task *const task) {
 
 void AddedTasksList::taskAdded(Task *task) {
     // TODO favourite status
-    if (task->date == current_date)
+    if (task->date == appDate->date())
             emit preTaskAdded();
 
     MapUtils::map_insert_or_create_vector(mTasks, task->date, task);
 
-    if (task->date == current_date)
+    if (task->date == appDate->date())
             emit postTaskAdded();
 }
 
 void AddedTasksList::taskRemoved(const int index) {
-    QMap<QDate, QVector<Task *>>::iterator lb{mTasks.find(current_date)};
+    QMap<QDate, QVector<Task *>>::iterator lb{mTasks.find(appDate->date())};
     if (lb == mTasks.end()) {
         return;
     }
@@ -50,14 +51,14 @@ void AddedTasksList::taskRemoved(const int index) {
         return;
     }
 
-    HarvestHandler::instance()->delete_task(*tasks.at(index));
     emit preTaskRemoved(index);
+    HarvestHandler::instance()->delete_task(*tasks.at(index));
     tasks.remove(index);
     emit postTaskRemoved();
 }
 
 QVector<Task *> AddedTasksList::tasks() const {
-    QMap<QDate, QVector<Task *>>::const_iterator lb{mTasks.constFind(current_date)};
+    QMap<QDate, QVector<Task *>>::const_iterator lb{mTasks.constFind(appDate->date())};
     if (lb == mTasks.constEnd()) {
         return {};
     }
@@ -78,4 +79,8 @@ void AddedTasksList::stopTask(const int index) {
     if (!pTask->shouldAutomaticallyStop) {
         harvestHandler->stop_task(*pTask);
     }
+}
+
+void AddedTasksList::appDateChanged() {
+    emit tasksDateChanged();
 }

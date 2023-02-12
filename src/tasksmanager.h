@@ -13,9 +13,6 @@
 
 class TasksManager : public QObject {
 Q_OBJECT
-    Q_PROPERTY(ProjectsList *projectsList READ projectsList)
-    Q_PROPERTY(AddedTasksList *tasksList READ addedTasksList)
-    Q_PROPERTY(FavouritesList *favouritesList READ favouritesList)
 
 public:
     TasksManager(QObject *parent,

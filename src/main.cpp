@@ -27,6 +27,7 @@
 #include "tasksmanager.h"
 #include "favouriteslist.h"
 #include "favouritesmodel.h"
+#include "appdate.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -97,6 +98,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
                                                QStringLiteral("AddedTasksList should not be created in QML"));
     qmlRegisterUncreatableType<FavouritesList>("org.kde.kharvest", 1, 0, "FavouritesList",
                                                QStringLiteral("FavouritesList should not be created in QML"));
+
+    AppDate appDate;
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "AppDate", &appDate);
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "HarvestHandler", HarvestHandler::instance());
 
     QQmlApplicationEngine engine;
@@ -112,7 +116,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
 
     ProjectsList projectsList;
     engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projectsList);
-    AddedTasksList addedTasksList;
+    AddedTasksList addedTasksList(&appDate);
     engine.rootContext()->setContextProperty(QStringLiteral("addedTasksList"), &addedTasksList);
     FavouritesList favouritesList;
     engine.rootContext()->setContextProperty(QStringLiteral("favouritesList"), &favouritesList);
@@ -127,6 +131,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "TasksManager", &tasksManager);
 
     QObject::connect(&application, &App::logout, HarvestHandler::instance(), &HarvestHandler::logout_cleanup);
+    QObject::connect(&appDate, &AppDate::dateChanged, &addedTasksList, &AddedTasksList::appDateChanged);
 
     return app.exec();
 }
