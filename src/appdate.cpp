@@ -4,17 +4,15 @@
 
 #include "appdate.h"
 
-#include <utility>
-
 AppDate::AppDate(QObject *parent)
     : QObject(parent)
-    , mDate{QDateTime::currentDateTime()} {}
+    , mDate{QDate::currentDate()} {}
 
-QDateTime AppDate::date() const {
+QDate AppDate::date() const {
     return mDate;
 }
 
-void AppDate::setDate(const QDateTime &newDate) {
+void AppDate::setDate(const QDate &newDate) {
     this->mDate = newDate;
     emit dateChanged();
 }

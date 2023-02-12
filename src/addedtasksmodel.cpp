@@ -142,6 +142,7 @@ void AddedTasksModel::setList(AddedTasksList *list) {
         connect(mList, &AddedTasksList::postTaskRemoved, this, [this]() {
             endRemoveRows();
         });
+       connect(mList, &AddedTasksList::tasksDateChanged, this, &AddedTasksModel::endResetModel);
     }
 
     endResetModel();
