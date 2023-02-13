@@ -5,6 +5,7 @@
 <RCC>
     <qresource prefix="/">
         <file alias="About.qml">contents/ui/About.qml</file>
+        <file alias="AboutMobile.qml">contents/ui/AboutMobile.qml</file>
         <file alias="AddEditTask.qml">contents/ui/AddEditTask.qml</file>
         <file alias="FavouritesDelegate.qml">contents/ui/FavouritesDelegate.qml</file>
         <file alias="FavouritesPage.qml">contents/ui/FavouritesPage.qml</file>
