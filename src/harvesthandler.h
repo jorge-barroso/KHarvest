@@ -10,8 +10,6 @@
 #include <QJsonDocument>
 #include <QEventLoop>
 
-#include <KSharedConfig>
-
 #include <optional>
 #include <KConfigGroup>
 
@@ -20,11 +18,12 @@
 #include "kharvestconfig.h"
 #include "keychain.h"
 
-class HarvestHandler : public QObject
-{
+class HarvestHandler : public QObject {
 Q_OBJECT
     Q_PROPERTY(bool isReady READ is_ready NOTIFY ready)
 
+    using TaskPointer = std::shared_ptr<Task>;
+    using HandlerPointer = std::shared_ptr<HarvestHandler>;
 public slots:
 
     void new_connection();
@@ -32,42 +31,37 @@ public slots:
     void logout_cleanup();
 
 public:
-    static HarvestHandler *instance();
+    // We're taking a singleton approach here so the constructor will remain protected
+    HarvestHandler(); // Prevent construction
+    static HandlerPointer instance();
 
     QVector<HarvestProject> update_user_data();
 
     [[nodiscard]] bool is_ready() const;
 
-    void add_task(Task* task);
+    void add_task(TaskPointer &task);
 
-    void update_task(const Task* updated_task);
+    void update_task(TaskPointer &updatedTask);
 
-    void start_task(const Task& task);
+    void start_task(const Task &task);
 
-    void stop_task(const Task& task);
+    void stop_task(const Task &task);
 
-    void delete_task(const Task& task);
+    void delete_task(const Task &task);
 
-    void list_tasks(const QDate& from_date, const QDate& to_date);
+    void list_tasks(const QDate &from_date, const QDate &to_date);
 
 signals:
 
     void ready();
 
-    void data_ready(std::vector<HarvestProject>);
-
-    void task_added(Task*);
-
-protected:
-    // We're taking a singleton approach here so the constructor will remain protected
-    HarvestHandler(); // Prevent construction
-    ~HarvestHandler() override; // Prevent unwanted destruction
+    void task_added(TaskPointer);
 
 private slots:
 
     void code_received();
 
-    void authentication_received(const QNetworkReply *reply);
+    void authentication_received(QNetworkReply* reply);
 
     void tasks_list_ready();
 
@@ -82,7 +76,7 @@ private slots:
     void delete_task_checks();
 
 private:
-    static HarvestHandler *harvest_handler;
+    static std::shared_ptr<HarvestHandler> harvest_handler;
 
     KeyChain keyChain;
     QString accessToken;
@@ -101,8 +95,8 @@ private:
     static const QString AccountIdKey;
     static const QString UserIdKey;
 
-    QTcpServer *auth_server;
-    QTcpSocket *auth_socket;
+    std::shared_ptr<QTcpServer> auth_server;
+    std::shared_ptr<QTcpSocket> auth_socket;
 
     const QString client_id{"VkKA3WoB2M5cEQGwf82VkeHb"};
     const QString client_secret{
@@ -113,13 +107,13 @@ private:
     // Authentication endpoints
     const QString auth_host{"https://id.getharvest.com"};
     const QString login_url{auth_host + "/oauth2/authorize?client_id=" + client_id + "&response_type=code"};
-    const QString auth_url{ auth_host + "/api/v2/oauth2/token" };
+    const QString auth_url{auth_host + "/api/v2/oauth2/token"};
 
     // Task-related endpoints
-    const QString requests_host{ "https://api.harvestapp.com" };
-    const QString assignments_url{ requests_host + "/v2/users/me/project_assignments" };
-    const QString time_entries_url{ requests_host + "/v2/time_entries" };
-    const QString user_url{ requests_host + "/v2/users/me" };
+    const QString requests_host{"https://api.harvestapp.com"};
+    const QString assignments_url{requests_host + "/v2/users/me/project_assignments"};
+    const QString time_entries_url{requests_host + "/v2/time_entries"};
+    const QString user_url{requests_host + "/v2/users/me"};
 
     QVector<HarvestProject> projects;
 
@@ -129,7 +123,7 @@ private:
 
     QEventLoop loop;
 
-    const QString pagination_records{ "100" };
+    const QString pagination_records{"100"};
 
     void login();
 
@@ -137,29 +131,29 @@ private:
 
     [[maybe_unused]]  bool json_auth_is_safely_active() const;
 
-    static std::map<QString, QString> parse_query_string(QString& query_string);
+    static std::map<QString, QString> parse_query_string(QString &query_string);
 
     void getAuthDetails(const QJsonDocument &json_auth);
 
-    void authenticate_request(QString* auth_code, QString* refresh_token);
+    void authenticate_request(const std::optional<QString> &auth_code, const std::optional<QString> &refresh_token);
 
     void getUserDetails(const QString &scope);
 
-    QNetworkReply* do_request_with_auth(const QUrl& url, bool sync_request, const QByteArray& verb,
-                                        const std::optional<QJsonDocument>& payload = std::nullopt);
+    QNetworkReply*  do_request_with_auth(const QUrl &url, bool sync_request, const QByteArray &verb,
+                                                        const std::optional<QJsonDocument> &payload = std::nullopt);
 
     static void get_projects_data(const QJsonDocument &json_payload, QVector<HarvestProject> &projects_vector);
 
     static QJsonDocument read_close_reply(QNetworkReply* reply);
 
-    static bool default_error_check(QNetworkReply* reply, const QString& base_error_title,
-                                    const QString& base_error_body);
+    static bool default_error_check(QNetworkReply* reply, const QString &base_error_title,
+                                    const QString &base_error_body);
 
     void check_authenticate();
 
     static QString get_http_message(const QString &message);
 
-    std::unordered_map<size_t, Task *> tasks_queue;
+    std::unordered_map<size_t, TaskPointer> tasksQueue;
 
     static const int request_timeout_constant;
 

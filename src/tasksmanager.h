@@ -13,18 +13,18 @@
 
 class TasksManager : public QObject {
 Q_OBJECT
-
+    using  TaskPointer = std::shared_ptr<Task>;
 public:
     TasksManager(QObject *parent,
-                 ProjectsList *projectsList,
-                 AddedTasksList *addedTaskList,
-                 FavouritesList *favouritesList);
+                 ProjectsList &projectsList,
+                 AddedTasksList &addedTaskList,
+                 FavouritesList &favouritesList);
 
-    [[nodiscard]] ProjectsList *projectsList() const;
+    [[nodiscard]] ProjectsList & projectsList() const;
 
-    [[nodiscard]] AddedTasksList *addedTasksList() const;
+    [[nodiscard]] AddedTasksList & addedTasksList() const;
 
-    [[nodiscard]] FavouritesList *favouritesList() const;
+    [[nodiscard]] FavouritesList & favouritesList() const;
 
 public slots:
 
@@ -44,24 +44,18 @@ public slots:
 
     void removeFavouriteFromAddedTask(int tasksIndex) const;
 
-    void timeForward();
-
-    void timeBackwards();
-
 private:
-    ProjectsList *mProjects;
-    AddedTasksList *mAddedTasks;
-    FavouritesList *mFavourites;
-    HarvestHandler *harvestHandler;
+    ProjectsList& mProjects;
+    AddedTasksList& mAddedTasks;
+    FavouritesList& mFavourites;
+    std::shared_ptr<HarvestHandler> harvestHandler;
     QDate currentDate;
     QTime zero_time;
 
-    void updateCurrentTime(int days);
+    void tasksAdded(const TaskPointer& task);
 
-    void tasksAdded(Task *task);
-
-    void lookupFavouritesFromTask(const Task *addedTask,
-                                  const std::function<void(QVector<Task *>::const_iterator)> &toDo) const;
+    void lookupFavouritesFromTask(const TaskPointer& addedTask,
+                                  const std::function<void(QVector<TaskPointer>::const_iterator)> &toDo) const;
 
 };
 

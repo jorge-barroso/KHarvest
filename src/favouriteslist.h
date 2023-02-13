@@ -7,9 +7,11 @@
 
 
 #include <QObject>
+#include <memory>
 #include "task.h"
 
 class FavouritesList : public QObject {
+    using TaskPointer = std::shared_ptr<Task>;
 Q_OBJECT
 
 public:
@@ -17,11 +19,11 @@ public:
 
     ~FavouritesList() override;
 
-    [[nodiscard]] QVector<Task *> favourites() const;
+    [[nodiscard]] QVector<TaskPointer> favourites() const;
 
     [[nodiscard]] bool isFavourited(qlonglong projectId, qlonglong taskId) const;
 
-    void favouriteRemoved(QVector<Task*>::const_iterator taskReference);
+    void favouriteRemoved(const QVector<TaskPointer>::const_iterator &taskReference);
 
 signals:
 
@@ -35,12 +37,12 @@ signals:
 
 public slots:
 
-    void favouriteAdded(Task *task);
+    void favouriteAdded(const TaskPointer& task);
 
     void favouriteRemoved(int index);
 
 private:
-    QVector<Task *> mFavourites;
+    QVector<TaskPointer> mFavourites;
 };
 
 
