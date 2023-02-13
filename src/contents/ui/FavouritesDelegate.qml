@@ -32,33 +32,34 @@ Kirigami.AbstractCard {
             columnSpacing: Kirigami.Units.largeSpacing
             columns: 2
 
-            ColumnLayout {
-                Kirigami.Heading {
-                    Layout.fillWidth: true
-                    level: 1
-                    text: model.header
+            RowLayout {
+                ColumnLayout {
+                    Kirigami.Heading {
+                        Layout.fillWidth: true
+                        level: 1
+                        text: model.header
+                    }
+                    Controls.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: model.taskName
+                        visible: taskName.length > 0
+                    }
                 }
-                Controls.Label {
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    text: model.taskName
-                    visible: taskName.length > 0
-                }
-            }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log(favouritesDelegate.currentModel)
-                    openAddTaskSheet(favouritesDelegate.currentModel)
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        openAddTaskSheet(favouritesDelegate.currentModel)
+                    }
                 }
-            }
-            Controls.Button {
-                id: unfavButton
-                Layout.alignment: Qt.AlignRight
-                Layout.columnSpan: 1
-                icon.name: "bookmark-remove"
-                onClicked: favouritesList.favouriteRemoved(currentIndex)
+                Controls.Button {
+                    id: unfavButton
+                    Layout.alignment: Qt.AlignRight
+                    Layout.columnSpan: 1
+                    icon.name: "bookmark-remove"
+                    onClicked: favouritesList.favouriteRemoved(currentIndex)
+                }
             }
         }
 
