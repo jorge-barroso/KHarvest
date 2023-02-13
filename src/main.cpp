@@ -101,7 +101,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     aboutData.setDesktopFileName(QByteArray("org.kde.kharvest"));
     aboutData.setProgramLogo(QIcon::fromTheme("org.kde.kharvest"));
 
-    aboutData.setHomepage(QStringLiteral("https://github.com/jorge-barroso/kharvest"));
+    aboutData.setHomepage(QStringLiteral("https://invent.kde.org/jorgebarroso/KHarvest"));
 
     KAboutData::setApplicationData(aboutData);
 
