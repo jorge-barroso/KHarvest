@@ -103,7 +103,7 @@ Kirigami.ApplicationWindow {
                 id: aboutAction
                 text: i18n("About KHarvest")
                 icon.name: "help-about"
-                onTriggered: pageStack.layers.push(isMobile ? 'qrc:AboutMobile.qml' : 'qrc:About.qml')
+                onTriggered: pageStack.layers.push(root.isMobile ? 'qrc:AboutMobile.qml' : 'qrc:About.qml')
             },
            Kirigami.Action {
                 id: quitAction
