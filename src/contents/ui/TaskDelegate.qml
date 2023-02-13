@@ -15,7 +15,7 @@ Kirigami.AbstractCard {
     property int timeBetweenUpdates: secondsToUpdate * baseUnitToOneSecond
 
     function startCurrent() {
-        if(root.runningTask !== undefined) {
+        if(root.runningTask !== null && root.runningTask !== undefined) {
             root.runningTask.shouldAutomaticallyStop = true;
             root.runningTask.started = false;
         }

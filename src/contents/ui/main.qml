@@ -4,7 +4,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
 import QtQuick.Layouts 1.15
-import org.kde.kirigami 2.19 as Kirigami
+import org.kde.kirigami 2.20 as Kirigami
 import org.kde.kharvest 1.0 as KHarvest
 
 Kirigami.ApplicationWindow {
@@ -91,12 +91,6 @@ Kirigami.ApplicationWindow {
         isMenu: !root.isMobile
         actions: [
             Kirigami.Action {
-                id: aboutAction
-                text: i18n("About KHarvest")
-                icon.name: "help-about"
-                onTriggered: pageStack.layers.push('qrc:About.qml')
-            },
-            Kirigami.Action {
                id: logoutAction
                text: i18n("Logout")
                icon.name: "list-remove-user"
@@ -105,9 +99,16 @@ Kirigami.ApplicationWindow {
                    pageStack.replace('qrc:LoginPage.qml');
                }
            },
+            Kirigami.Action {
+                id: aboutAction
+                text: i18n("About KHarvest")
+                icon.name: "help-about"
+                onTriggered: pageStack.layers.push(root.isMobile ? 'qrc:AboutMobile.qml' : 'qrc:About.qml')
+            },
            Kirigami.Action {
                 id: quitAction
                 text: i18n("Quit")
+				shortcut: StandardKey.Quit
                 icon.name: "application-exit"
                 onTriggered: Qt.quit()
             }
