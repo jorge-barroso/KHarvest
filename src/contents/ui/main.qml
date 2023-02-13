@@ -40,6 +40,17 @@ Kirigami.ApplicationWindow {
         function onReady() {
             applicationWindow().pageStack.replace(page);
         }
+
+        function onHarvestError(errorText = "") {
+            errorMessage.text = errorText
+            errorMessage.visible = true
+        }
+
+        function onHarvestWarning(warningText = "") {
+            console.log("warning received");
+            warningMessage.text = warningText
+            warningMessage.visible = true
+        }
     }
 
     function openEditTaskSheet(index = -1, model = {}) {
@@ -101,6 +112,23 @@ Kirigami.ApplicationWindow {
                 onTriggered: Qt.quit()
             }
         ]
+    }
+
+    footer: ColumnLayout {
+        Kirigami.InlineMessage {
+            id: errorMessage
+            Layout.fillWidth: true
+            showCloseButton: true
+            visible: false
+            type: Kirigami.MessageType.Error
+        }
+        Kirigami.InlineMessage {
+            id: warningMessage
+            Layout.fillWidth: true
+            showCloseButton: true
+            visible: false
+            type: Kirigami.MessageType.Warning
+        }
     }
 
     contextDrawer: Kirigami.ContextDrawer {
