@@ -3,9 +3,9 @@
 #include "maputils.h"
 
 #include <QDebug>
-AddedTasksList::AddedTasksList(AppDate *pDate, QObject *parent)
+AddedTasksList::AddedTasksList(QObject *parent)
         : QObject{parent}
-        , appDate{pDate}
+        , appDate{AppDate::instance()}
         , harvestHandler{HarvestHandler::instance()}
 {}
 

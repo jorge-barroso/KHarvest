@@ -4,6 +4,12 @@
 
 #include "appdate.h"
 
+AppDate::AppDatePtr AppDate::instance() {
+    static AppDatePtr appDate(new AppDate);
+
+    return appDate;
+}
+
 AppDate::AppDate(QObject *parent)
     : QObject(parent)
     , mDate{QDate::currentDate()} {}

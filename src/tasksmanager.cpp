@@ -13,14 +13,14 @@ TasksManager::TasksManager(QObject *parent,
         , mAddedTasks{addedTaskList}
         , mFavourites{favouritesList}
         , harvestHandler{HarvestHandler::instance()}
-        , currentDate{QDate::currentDate()}
-        , zero_time{QTime(0, 0)} {
+        , zero_time{QTime(0, 0)}
+        , appDate{AppDate::instance()} {
     connect(harvestHandler.get(), &HarvestHandler::task_added, this, &TasksManager::tasksAdded);
     if (harvestHandler->is_ready()) {
-        harvestHandler->list_tasks(currentDate.addDays(-2), currentDate.addDays(2));
+        harvestHandler->list_tasks(appDate->date().addDays(-2), appDate->date().addDays(2));
     } else {
         connect(harvestHandler.get(), &HarvestHandler::ready, this, [this] {
-            harvestHandler->list_tasks(currentDate.addDays(-2), currentDate.addDays(2));
+            harvestHandler->list_tasks(appDate->date().addDays(-2), appDate->date().addDays(2));
         });
     }
 }
@@ -67,7 +67,7 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
             .timeTracked=timeTracked,
             .note=note,
             .started=zero_time.secsTo(timeTracked) == 0,
-            .date=currentDate,
+            .date=appDate->date(),
             .favourited=mFavourites.isFavourited(project.projectId, task.task_id)
     })};
     harvestHandler->add_task(newTask);

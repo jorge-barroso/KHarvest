@@ -36,7 +36,6 @@ public slots:
 
 public:
     // We're taking a singleton approach here so the constructor will remain protected
-    HarvestHandler(); // Prevent construction
     static HandlerPointer instance();
 
     QVector<HarvestProject> update_user_data();
@@ -87,6 +86,8 @@ private slots:
     void delete_task_checks();
 
 private:
+    HarvestHandler(); // Prevent construction
+
     static std::shared_ptr<HarvestHandler> harvest_handler;
 
     KeyChain keyChain;

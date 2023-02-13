@@ -67,7 +67,6 @@ Kirigami.ApplicationWindow {
 
     function openAddTaskSheet(favouritesModel = undefined) {
         addEditTaskSheet.mode = "add"
-        console.log(favouritesModel)
         if(favouritesModel !== undefined) {
             console.log("adding a favourite");
             addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByHarvestId(favouritesModel.projectId);

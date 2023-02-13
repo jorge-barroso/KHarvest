@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QDateTime>
+#include <memory>
 
 class AppDate : public QObject {
 Q_OBJECT
@@ -11,8 +12,9 @@ Q_OBJECT
                        READ date
                        WRITE setDate
                        NOTIFY dateChanged)
+    using AppDatePtr = std::shared_ptr<AppDate>;
 public:
-    explicit AppDate(QObject *parent = nullptr);
+    static AppDatePtr instance();
 
     [[nodiscard]] QDate date() const;
 
@@ -27,6 +29,7 @@ public slots:
     void addDays(int days);
 
 private:
+    explicit AppDate(QObject *parent = nullptr);
     QDate mDate;
 };
 
