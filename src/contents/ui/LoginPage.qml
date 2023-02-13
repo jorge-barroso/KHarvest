@@ -20,7 +20,7 @@ Kirigami.ScrollablePage {
             id: backgroundImage
             height: parent.height*3/8
             sourceSize: Qt.size(width, height)
-            source: "qrc:/outline-logo.svg"
+            source: "qrc:/icons/outline-logo.svg"
             fillMode: Image.PreserveAspectFit
             anchors.left: parent.left
             anchors.right: parent.right

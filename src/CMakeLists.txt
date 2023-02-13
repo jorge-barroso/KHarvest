@@ -28,17 +28,17 @@ add_executable(kharvest
         projectslist.h
         projectsmodel.cpp
         projectsmodel.h
-        settingsmanager.cpp
-        settingsmanager.h
         task.cpp
         task.h
         tasksmanager.cpp
         tasksmanager.h
         tasksmodel.cpp
         tasksmodel.h
+        windowcontroller.cpp
+        windowcontroller.h
         resources.qrc)
 
-target_link_libraries(kharvest
+target_link_libraries(kharvest PUBLIC
         Qt::Core
         Qt::Gui
         Qt::Qml
@@ -46,14 +46,23 @@ target_link_libraries(kharvest
         Qt::QuickControls2
         Qt::Svg
         Qt::Network
+        KF5::Kirigami2
+        KF5::Notifications
         KF5::I18n
         KF5::CoreAddons
         KF5::ConfigCore
         KF5::ConfigGui
-        KF5::Wallet
         ${QTKEYCHAIN_LIBRARIES})
 
-if (ANDROID)
+if (NOT ANDROID)
+    if (NOT WIN32 AND NOT APPLE)
+        target_sources(kharvest PRIVATE trayicon_sni.h trayicon_sni.cpp)
+    else ()
+        target_sources(kharvest PRIVATE trayicon.h trayicon.cpp)
+    endif ()
+    target_link_libraries(kharvest PUBLIC KF5::WindowSystem)
+    target_compile_definitions(kharvest PUBLIC -DHAVE_WINDOWSYSTEM)
+else ()
     kirigami_package_breeze_icons(ICONS
             list-add
             help-about

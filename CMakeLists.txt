@@ -31,7 +31,7 @@ ecm_setup_version(${PROJECT_VERSION}
 )
 
 find_package(Qt${QT_MAJOR_VERSION} ${QT5_MIN_VERSION} REQUIRED COMPONENTS Core Gui Qml QuickControls2 Svg)
-find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Kirigami2 CoreAddons Config I18n Wallet)
+find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Kirigami2 Notifications CoreAddons Config I18n WindowSystem)
 
 if (ANDROID)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/android/version.gradle.in ${CMAKE_BINARY_DIR}/version.gradle)
@@ -48,5 +48,7 @@ add_subdirectory(src)
 install(PROGRAMS org.kde.kharvest.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES org.kde.kharvest.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
 install(FILES org.kde.kharvest.svg DESTINATION ${KDE_INSTALL_FULL_ICONDIR}/hicolor/scalable/apps)
+install(FILES org.kde.kharvest.tray.light.svg DESTINATION ${KDE_INSTALL_FULL_ICONDIR}/hicolor/scalable/apps)
+install(FILES org.kde.kharvest.tray.dark.svg DESTINATION ${KDE_INSTALL_FULL_ICONDIR}/hicolor/scalable/apps)
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)

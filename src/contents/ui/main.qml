@@ -15,7 +15,7 @@ Kirigami.ApplicationWindow {
     minimumWidth: Kirigami.Units.gridUnit * 25
     minimumHeight: Kirigami.Units.gridUnit * 40
 
-    onClosing: KHarvest.App.saveWindowGeometry(root)
+    onClosing: KHarvest.WindowController.saveWindowGeometry(root)
 
     onWidthChanged: saveWindowGeometryTimer.restart()
     onHeightChanged: saveWindowGeometryTimer.restart()
@@ -29,7 +29,7 @@ Kirigami.ApplicationWindow {
     Timer {
         id: saveWindowGeometryTimer
         interval: 1000
-        onTriggered: KHarvest.App.saveWindowGeometry(root)
+        onTriggered: KHarvest.WindowController.saveWindowGeometry(root)
     }
 
     property var runningTask: undefined
@@ -149,7 +149,7 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        KHarvest.App.restoreWindowGeometry(root)
+        KHarvest.WindowController.restoreWindowGeometry(root)
         if (KHarvest.HarvestHandler.isReady) {
             logoutAction.visible = true
             pageStack.push(page);
