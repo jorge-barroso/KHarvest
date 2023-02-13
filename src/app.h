@@ -5,19 +5,28 @@
 
 #include <QObject>
 
-class QQuickWindow;
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+#include "trayicon.h"
+#elif !defined(Q_OS_ANDROID)
+#include "trayicon_sni.h"
+#endif
+
+#include "windowcontroller.h"
+
+class QWindow;
 
 class App : public QObject {
 Q_OBJECT
 
 public:
-    // Restore current window geometry
-    Q_INVOKABLE void restoreWindowGeometry(QQuickWindow *window, const QString &group = QStringLiteral("main")) const;
-    // Save current window geometry
-    Q_INVOKABLE void saveWindowGeometry(QQuickWindow *window, const QString &group = QStringLiteral("main")) const;
+    explicit App(QObject *parent = nullptr);
 
 signals:
 
     // Logout
     void logout();
+
+private:
+    TrayIcon trayIcon;
+    WindowController &windowController;
 };

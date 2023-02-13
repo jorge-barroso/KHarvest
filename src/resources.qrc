@@ -13,6 +13,8 @@
         <file alias="MainPage.qml">contents/ui/MainPage.qml</file>
         <file alias="TaskActionButtons.qml">contents/ui/TaskActionButtons.qml</file>
         <file alias="TaskDelegate.qml">contents/ui/TaskDelegate.qml</file>
+    </qresource>
+    <qresource prefix="/icons/">
         <file alias="outline-logo.svg">contents/outline-logo.svg</file>
     </qresource>
 </RCC>

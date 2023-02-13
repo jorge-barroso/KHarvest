@@ -3,12 +3,19 @@
     SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 */
 
-#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QUrl>
 #include <QtQml>
 #include <QQuickStyle>
 #include <QStringLiteral>
+#include <QObject>
+#include <QQuickWindow>
+
+#ifdef Q_OS_ANDROID
+#include <QGuiApplication>
+#else
+#include <QApplication>
+#endif
 
 #include <KAboutData>
 #include <KLocalizedContext>
@@ -28,6 +35,14 @@
 #include "favouriteslist.h"
 #include "favouritesmodel.h"
 #include "appdate.h"
+
+static QQuickWindow* windowFromEngine(QQmlApplicationEngine *engine)
+{
+    const auto rootObjects = engine->rootObjects();
+    auto *window(qobject_cast<QQuickWindow *>(rootObjects.first()));
+    Q_ASSERT(window);
+    return window;
+}
 
 Q_DECL_EXPORT int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -114,6 +129,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     App application;
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "App", &application);
 
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "WindowController", &WindowController::instance());
+
     ProjectsList projectsList;
     engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projectsList);
     AddedTasksList addedTasksList(&appDate);
@@ -126,6 +143,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     if (engine.rootObjects().isEmpty()) {
         return -1;
     }
+
+    QWindow *window = windowFromEngine(&engine);
+    WindowController::instance().setWindow(window);
 
     TasksManager tasksManager(nullptr, projectsList, addedTasksList, favouritesList);
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "TasksManager", &tasksManager);
