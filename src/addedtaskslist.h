@@ -16,7 +16,7 @@ class AddedTasksList : public QObject {
 Q_OBJECT
     using TaskPointer = std::shared_ptr<Task>;
 public:
-    explicit AddedTasksList(AppDate *pDate, QObject *parent = nullptr);
+    explicit AddedTasksList(QObject *parent = nullptr);
 
     [[nodiscard]] QVector<TaskPointer> tasks() const;
 
@@ -48,7 +48,7 @@ public slots:
 
 private:
     QMap<QDate, QVector<TaskPointer>> mTasks;
-    AppDate *appDate;
+    std::shared_ptr<AppDate> appDate;
 
     std::shared_ptr<HarvestHandler> harvestHandler;
 };

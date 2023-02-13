@@ -463,9 +463,6 @@ void HarvestHandler::add_task_checks() {
     }
 
     // if we could find a task, let's fetch it and remove it from the queue map
-    qDebug() << (taskElement == nullptr);
-    qDebug() << (taskElement->second == nullptr);
-    qDebug() << taskElement->second->timeEntryId;
     taskElement->second->timeEntryId = addTaskResponse["id"].toInt();
     emit task_added(taskElement->second);
     tasksQueue.erase(taskElement);

@@ -49,14 +49,15 @@ private:
     AddedTasksList& mAddedTasks;
     FavouritesList& mFavourites;
     std::shared_ptr<HarvestHandler> harvestHandler;
-    QDate currentDate;
     QTime zero_time;
+
 
     void tasksAdded(const TaskPointer& task);
 
     void lookupFavouritesFromTask(const TaskPointer& addedTask,
                                   const std::function<void(QVector<TaskPointer>::const_iterator)> &toDo) const;
 
+    std::shared_ptr<AppDate> appDate;
 };
 
 
