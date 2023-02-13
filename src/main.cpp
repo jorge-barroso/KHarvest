@@ -99,6 +99,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     aboutData.setBugAddress("https://bugs.kde.org/describecomponents.cgi?product=kharvest");
     aboutData.setProductName(QByteArray("KHarvest"));
     aboutData.setDesktopFileName(QByteArray("org.kde.kharvest"));
+    aboutData.setProgramLogo(QIcon::fromTheme("org.kde.kharvest"));
 
     aboutData.setHomepage(QStringLiteral("https://github.com/jorge-barroso/kharvest"));
 
