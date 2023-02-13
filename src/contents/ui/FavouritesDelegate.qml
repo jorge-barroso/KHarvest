@@ -58,7 +58,7 @@ Kirigami.AbstractCard {
                     Layout.alignment: Qt.AlignRight
                     Layout.columnSpan: 1
                     icon.name: "bookmark-remove"
-                    onClicked: favouritesList.favouriteRemoved(currentIndex)
+                    onClicked: favouritesList.favouriteRemoved(index)
                 }
             }
         }
