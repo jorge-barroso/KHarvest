@@ -15,7 +15,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QMessageBox>
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
 
@@ -76,10 +75,11 @@ void HarvestHandler::login() {
     auth_server = std::make_shared<QTcpServer>();
 
     if (!auth_server->listen(QHostAddress::Any, 23456)) {
-        const QString error_string{
+        const QString &warningHeader = QApplication::translate("HarvestHandler", "Error");
+        const QString warningBody{
                 QApplication::translate("HarvestHandler", "Error while waiting for Harvest authorization")};
-        QMessageBox::information(nullptr, QApplication::translate("HarvestHandler", "Error"), error_string);
-        QApplication::quit();
+        emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
+        return;
     }
 
     connect(auth_server.get(), &QTcpServer::newConnection, this, &HarvestHandler::new_connection);
@@ -130,20 +130,19 @@ void HarvestHandler::code_received() {
         auth_socket->flush();
         auth_socket->close();
         auth_server->close();
-//        auth_socket->deleteLater();
-//        auth_server->deleteLater();
 
         for (QString &token: tokens) {
             if (token.contains("?")) {
                 std::map<QString, QString> query_map{parse_query_string(token)};
                 if (!query_map.contains("code") || !query_map.contains("scope")) {
-                    QString error_string{
+                    const QString &warningHeader = QApplication::translate("HarvestHandler", "Incomplete Details");
+                    QString warningBody{
                             QApplication::translate("HarvestHandler",
                                                     "The details received from Harvest did not contain the minimum details required")};
-                    QMessageBox::information(nullptr, QApplication::translate("HarvestHandler", "Incomplete Details"),
-                                             error_string);
-                    QApplication::quit();
+                    emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
+                    return;
                 }
+
                 authenticate_request(query_map["code"], {});
                 getUserDetails(query_map["scope"]);
             }
@@ -172,12 +171,11 @@ void HarvestHandler::authentication_received(QNetworkReply* reply) {
         qDebug() << "received error: " << reply->error();
         qDebug() << "with error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << "and error message: " << error_report;
-        const QString error_string{
-                QApplication::translate("HarvestHandler", "Error while authenticating with Harvest services: ") +
-                reply->errorString()};
-        QMessageBox::information(nullptr, QApplication::translate("HarvestHandler", "Error authenticating"),
-                                 error_string);
-        QApplication::quit();
+        const QString &warningHeader = QApplication::translate("HarvestHandler", "Error authenticating");
+        const QString &baseWarningBody = QApplication::translate("HarvestHandler",
+                                                                 "Error while authenticating with Harvest services:");
+        const QString warningBody{QString("%1 %2").arg(baseWarningBody, reply->errorString())};
+        emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
         return;
     }
 
@@ -218,9 +216,9 @@ void HarvestHandler::getUserDetails(const QString &scope) {
 
 void HarvestHandler::authenticate_request(const std::optional<QString> &auth_code, const std::optional<QString> &refresh_token) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        const QString warningHeader{QApplication::translate("HarvestHandler", "Network Unreachable")};
+        const QString warningBody{QApplication::translate("HarvestHandler", "Network Unreachable")};
+        emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
         return;
     }
 
@@ -254,10 +252,7 @@ void HarvestHandler::authenticate_request(const std::optional<QString> &auth_cod
 
 QVector<HarvestProject> HarvestHandler::update_user_data() {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr,
-                             QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return projects;
     }
 
@@ -286,8 +281,7 @@ QVector<HarvestProject> HarvestHandler::update_user_data() {
     return projects;
 }
 
-void
-HarvestHandler::get_projects_data(const QJsonDocument &json_payload, QVector<HarvestProject> &projects_vector) {
+void HarvestHandler::get_projects_data(const QJsonDocument &json_payload, QVector<HarvestProject> &projects_vector) {
     for (const QJsonValue project_assignment: json_payload["project_assignments"].toArray()) {
         const QString client_name{project_assignment["client"]["name"].toString()};
         QVector<HarvestTask> project_tasks_vector;
@@ -320,9 +314,7 @@ bool HarvestHandler::is_ready() const {
 // It is used to preload our TaskScrollArea with the tasks the user had previously added
 void HarvestHandler::list_tasks(const QDate &from_date, const QDate &to_date) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return;
     }
 
@@ -339,9 +331,7 @@ void HarvestHandler::list_tasks(const QDate &from_date, const QDate &to_date) {
 
 void HarvestHandler::add_task(TaskPointer &task) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return;
     }
 
@@ -366,10 +356,7 @@ void HarvestHandler::add_task(TaskPointer &task) {
 
 void HarvestHandler::update_task(TaskPointer &updatedTask) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr,
-                             QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return;
     }
 
@@ -393,9 +380,7 @@ void HarvestHandler::update_task(TaskPointer &updatedTask) {
 
 void HarvestHandler::start_task(const Task &task) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return;
     }
 
@@ -406,9 +391,7 @@ void HarvestHandler::start_task(const Task &task) {
 
 void HarvestHandler::stop_task(const Task &task) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return;
     }
 
@@ -419,9 +402,7 @@ void HarvestHandler::stop_task(const Task &task) {
 
 void HarvestHandler::delete_task(const Task &task) {
     if (!is_network_reachable) {
-        QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
-                             QApplication::translate("HarvestHandler",
-                                                     "You are currently not connected to the internet, please reconnect and try again"));
+        networkUnreachableError();
         return;
     }
 
@@ -561,11 +542,11 @@ void HarvestHandler::delete_task_checks() {
 }
 
 bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString &base_error_title,
-                                         const QString &base_error_body) {
+                                         const QString &base_error_body) const {
     if (reply->error() == QNetworkReply::NetworkError::TimeoutError) {
         const QString error_string{
                 base_error_body + QApplication::translate("HarvestHandler", "the request timed out.")};
-        QMessageBox::information(nullptr, base_error_title, error_string);
+        emit harvestError(buildErrorMessage(base_error_title, error_string));
 
     }
     if (reply->error() != QNetworkReply::NetworkError::NoError) {
@@ -577,7 +558,7 @@ bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString &ba
         const QString error_string{(error_report["error"].isNull() ?
                                     error_report["error"] :
                                     error_report["message"]).toString()};
-        QMessageBox::information(nullptr, base_error_title, error_string);
+        emit harvestError(buildErrorMessage(base_error_title, error_string));
         return true;
     }
     return false;
@@ -655,4 +636,15 @@ void HarvestHandler::logout_cleanup() {
         });
         keyChain.deleteKey(HarvestHandler::AccessTokenKey);
     });
+}
+
+void HarvestHandler::networkUnreachableError() const {
+    const QString warningHeader{QApplication::translate("HarvestHandler", "Network Unreachable")};
+    const QString warningBody{QApplication::translate("HarvestHandler",
+                                                      "You are currently not connected to the internet, please reconnect and try again")};
+    emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
+}
+
+QString HarvestHandler::buildErrorMessage(const QString &header, const QString &body) {
+    return QString("%1: %2").arg(header, body);
 }

@@ -21,6 +21,8 @@
 class HarvestHandler : public QObject {
 Q_OBJECT
     Q_PROPERTY(bool isReady READ is_ready NOTIFY ready)
+    Q_PROPERTY(bool error NOTIFY harvestError)
+    Q_PROPERTY(bool warning NOTIFY harvestWarning)
 
     using TaskPointer = std::shared_ptr<Task>;
     using HandlerPointer = std::shared_ptr<HarvestHandler>;
@@ -54,6 +56,10 @@ public:
 signals:
 
     void ready();
+
+    void harvestError(const QString& errorMessage) const;
+
+    void harvestWarning(const QString& warningMessage) const;
 
     void task_added(TaskPointer);
 
@@ -146,8 +152,8 @@ private:
 
     static QJsonDocument read_close_reply(QNetworkReply* reply);
 
-    static bool default_error_check(QNetworkReply* reply, const QString &base_error_title,
-                                    const QString &base_error_body);
+    bool default_error_check(QNetworkReply* reply, const QString &base_error_title,
+                                    const QString &base_error_body) const;
 
     void check_authenticate();
 
@@ -162,6 +168,10 @@ private:
     QString get_user_id();
 
     void saveData(bool includeAccount);
+
+    static QString buildErrorMessage(const QString& header, const QString& body);
+
+    void networkUnreachableError() const;
 };
 
 #endif // HARVESTHANDLER_H

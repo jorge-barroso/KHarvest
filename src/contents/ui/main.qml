@@ -39,7 +39,17 @@ Kirigami.ApplicationWindow {
 
         function onReady() {
             applicationWindow().pageStack.replace(page);
-            dateToolBar.visible = true
+        }
+
+        function onHarvestError(errorText = "") {
+            errorMessage.text = errorText
+            errorMessage.visible = true
+        }
+
+        function onHarvestWarning(warningText = "") {
+            console.log("warning received");
+            warningMessage.text = warningText
+            warningMessage.visible = true
         }
     }
 
@@ -102,6 +112,23 @@ Kirigami.ApplicationWindow {
                 onTriggered: Qt.quit()
             }
         ]
+    }
+
+    footer: ColumnLayout {
+        Kirigami.InlineMessage {
+            id: errorMessage
+            Layout.fillWidth: true
+            showCloseButton: true
+            visible: false
+            type: Kirigami.MessageType.Error
+        }
+        Kirigami.InlineMessage {
+            id: warningMessage
+            Layout.fillWidth: true
+            showCloseButton: true
+            visible: false
+            type: Kirigami.MessageType.Warning
+        }
     }
 
     contextDrawer: Kirigami.ContextDrawer {
