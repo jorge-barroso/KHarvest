@@ -12,6 +12,7 @@
 
 #include <optional>
 #include <KConfigGroup>
+#include <QNetworkConfigurationManager>
 
 #include "harvestproject.h"
 #include "task.h"
@@ -23,6 +24,7 @@ Q_OBJECT
     Q_PROPERTY(bool isReady READ is_ready NOTIFY ready)
     Q_PROPERTY(bool error NOTIFY harvestError)
     Q_PROPERTY(bool warning NOTIFY harvestWarning)
+    Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
 
     using TaskPointer = std::shared_ptr<Task>;
     using HandlerPointer = std::shared_ptr<HarvestHandler>;
@@ -53,6 +55,7 @@ public:
 
     void list_tasks(const QDate &from_date, const QDate &to_date);
 
+    bool isOnline() const;
 signals:
 
     void ready();
@@ -62,6 +65,8 @@ signals:
     void harvestWarning(const QString& warningMessage) const;
 
     void task_added(TaskPointer);
+
+    void isOnlineChanged(bool isOnline) const;
 
 private slots:
 
@@ -152,8 +157,8 @@ private:
 
     static QJsonDocument read_close_reply(QNetworkReply* reply);
 
-    bool default_error_check(QNetworkReply* reply, const QString &base_error_title,
-                                    const QString &base_error_body) const;
+    bool default_error_check(QNetworkReply* reply, const QString &errorHeader,
+                                    const QString &baseErrorBody);
 
     void check_authenticate();
 
@@ -162,16 +167,13 @@ private:
     std::unordered_map<size_t, TaskPointer> tasksQueue;
 
     static const int request_timeout_constant;
-
-    bool is_network_reachable;
+    bool mIsOnline;
 
     QString get_user_id();
 
     void saveData(bool includeAccount);
 
     static QString buildErrorMessage(const QString& header, const QString& body);
-
-    void networkUnreachableError() const;
 };
 
 #endif // HARVESTHANDLER_H

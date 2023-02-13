@@ -129,6 +129,11 @@ Kirigami.ApplicationWindow {
             visible: false
             type: Kirigami.MessageType.Warning
         }
+        Kirigami.InlineMessage {
+            Layout.fillWidth: true
+            text: i18n("KHarvest is offline. Please check your network connection.")
+            visible: !KHarvest.HarvestHandler.isOnline
+        }
     }
 
     contextDrawer: Kirigami.ContextDrawer {
