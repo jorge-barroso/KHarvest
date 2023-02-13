@@ -39,7 +39,6 @@ Kirigami.ApplicationWindow {
 
         function onReady() {
             applicationWindow().pageStack.replace(page);
-            dateToolBar.visible = true
         }
     }
 
