@@ -5,6 +5,7 @@
 #include <QTime>
 #include <QTextStream>
 #include <ostream>
+#include <memory>
 
 struct Task {
     long long projectId;
@@ -25,7 +26,7 @@ struct Task {
     static const QString values_separator;
     static const QString end_line_separator;
 
-    friend QStringList &operator<<(QStringList &stream, const Task *task) {
+    friend QStringList &operator<<(QStringList &stream, const std::shared_ptr<Task>& task) {
         QString str{QString::number(task->projectId) + values_separator
                     + QString::number(task->taskId) + values_separator
                     + QString::number(task->timeEntryId) + values_separator
@@ -41,20 +42,20 @@ struct Task {
         return stream;
     }
 
-    friend const QString &operator>>(const QString &taskLine, Task &task) {
+    friend const QString &operator>>(const QString &taskLine, std::shared_ptr<Task> &task) {
         QStringList values{taskLine.split(values_separator)};
 
         int i{-1};
-        task.projectId = values[++i].toLongLong();
-        task.taskId = values[++i].toLongLong();
-        task.timeEntryId = values[++i].toLongLong();
-        task.clientName = values[++i];
-        task.projectName = values[++i];
-        task.taskName = values[++i];
-        task.timeTracked = QTime::fromString(values[++i]);
-        task.note = values[++i];
-        task.started = QVariant(values[++i]).toBool();
-        task.date = QDate::fromString(values[++i]);
+        task->projectId = values[++i].toLongLong();
+        task->taskId = values[++i].toLongLong();
+        task->timeEntryId = values[++i].toLongLong();
+        task->clientName = values[++i];
+        task->projectName = values[++i];
+        task->taskName = values[++i];
+        task->timeTracked = QTime::fromString(values[++i]);
+        task->note = values[++i];
+        task->started = QVariant(values[++i]).toBool();
+        task->date = QDate::fromString(values[++i]);
 
         return taskLine;
     }

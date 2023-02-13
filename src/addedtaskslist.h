@@ -6,19 +6,21 @@
 #include <QDate>
 #include <QObject>
 
+#include <memory>
+
 #include "task.h"
 #include "harvesthandler.h"
 #include "appdate.h"
 
 class AddedTasksList : public QObject {
 Q_OBJECT
-
+    using TaskPointer = std::shared_ptr<Task>;
 public:
     explicit AddedTasksList(AppDate *pDate, QObject *parent = nullptr);
 
-    [[nodiscard]] QVector<Task *> tasks() const;
+    [[nodiscard]] QVector<TaskPointer> tasks() const;
 
-    bool taskEdited(int index, const Task *task);
+    bool taskEdited(int index, const TaskPointer& task);
 
     void stopTask(int index);
 
@@ -40,15 +42,15 @@ public slots:
 
     void appDateChanged();
 
-    void taskAdded(Task *task);
+    void taskAdded(const TaskPointer& task);
 
     void taskRemoved(int index);
 
 private:
-    QMap<QDate, QVector<Task *>> mTasks;
+    QMap<QDate, QVector<TaskPointer>> mTasks;
     AppDate *appDate;
 
-    HarvestHandler *const harvestHandler;
+    std::shared_ptr<HarvestHandler> harvestHandler;
 };
 
 #endif // ADDEDTASKSLIST_H

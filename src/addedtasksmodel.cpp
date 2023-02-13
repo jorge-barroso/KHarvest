@@ -17,7 +17,7 @@ QVariant AddedTasksModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || !mList)
         return {};
 
-    Task *const pTask = mList->tasks().at(index.row());
+    TaskPtrRef pTask = mList->tasks().at(index.row());
     switch (role) {
         case HeaderRole:
             return {pTask->get_project_label()};
@@ -50,7 +50,7 @@ bool AddedTasksModel::setData(const QModelIndex &index, const QVariant &value, i
     if (!mList)
         return false;
 
-    Task *task{mList->tasks().at(index.row())};
+    TaskPtrRef task{mList->tasks().at(index.row())};
     switch (role) {
         case HeaderRole:
             task->update_task_from_project_label(value.toString());

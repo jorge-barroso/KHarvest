@@ -17,11 +17,10 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QDebug>
-
-#include <cmath>
 #include <QtConcurrent/QtConcurrent>
 
-HarvestHandler *HarvestHandler::harvest_handler{nullptr};
+#include <cmath>
+
 const QString HarvestHandler::default_grant_type{"authorization_code"};
 const QString HarvestHandler::refresh_grant_type{"refresh_token"};
 const int HarvestHandler::request_timeout_constant{10 * 1000};
@@ -35,17 +34,19 @@ const QString HarvestHandler::AccountIdKey{"account_id"};
 const QString HarvestHandler::UserIdKey{"user_id"};
 
 
-HarvestHandler *HarvestHandler::instance() {
-    if (harvest_handler == nullptr) {
-        harvest_handler = new HarvestHandler();
-    }
+HarvestHandler::HandlerPointer HarvestHandler::instance() {
+    static HandlerPointer harvest_handler(new HarvestHandler);
 
     return harvest_handler;
 }
 
 HarvestHandler::HarvestHandler()
-        : keyChain(), auth_server{nullptr}, auth_socket{nullptr}, network_manager(this), loop(),
-          is_network_reachable{true} {
+        : keyChain()
+        , auth_server{nullptr}
+        , auth_socket{nullptr}
+        , network_manager(this)
+        , loop()
+        , is_network_reachable{true} {
 
     network_manager.setAutoDeleteReplies(true);
 
@@ -60,18 +61,11 @@ HarvestHandler::HarvestHandler()
     }
 }
 
-HarvestHandler::~HarvestHandler() {
-    delete auth_server;
-    delete auth_socket;
-
-    // https://stackoverflow.com/questions/19157946/does-stdmap-destructor-call-key-destructors-as-well-as-value-destructors
-}
-
 // this is an additional check that validates whether there's at least one more day of validity in the auth
 // token or we need to refresh it before any requests can be performed
 void HarvestHandler::check_authenticate() {
     if (!json_auth_is_safely_active()) {
-        authenticate_request(nullptr, &refreshToken);
+        authenticate_request({}, refreshToken);
         saveData(false);
     }
 }
@@ -79,7 +73,7 @@ void HarvestHandler::check_authenticate() {
 void HarvestHandler::login() {
     QDesktopServices::openUrl(login_url);
 
-    auth_server = new QTcpServer();
+    auth_server = std::make_shared<QTcpServer>();
 
     if (!auth_server->listen(QHostAddress::Any, 23456)) {
         const QString error_string{
@@ -88,7 +82,7 @@ void HarvestHandler::login() {
         QApplication::quit();
     }
 
-    connect(auth_server, &QTcpServer::newConnection, this, &HarvestHandler::new_connection);
+    connect(auth_server.get(), &QTcpServer::newConnection, this, &HarvestHandler::new_connection);
 }
 
 bool HarvestHandler::json_auth_is_complete() {
@@ -120,9 +114,9 @@ bool HarvestHandler::json_auth_is_safely_active() const {
 }
 
 void HarvestHandler::new_connection() {
-    auth_socket = auth_server->nextPendingConnection();
+    auth_socket = std::shared_ptr<QTcpSocket>(auth_server->nextPendingConnection());
 
-    connect(auth_socket, &QTcpSocket::readyRead, this, &HarvestHandler::code_received);
+    connect(auth_socket.get(), &QTcpSocket::readyRead, this, &HarvestHandler::code_received);
 }
 
 void HarvestHandler::code_received() {
@@ -136,8 +130,8 @@ void HarvestHandler::code_received() {
         auth_socket->flush();
         auth_socket->close();
         auth_server->close();
-        auth_socket->deleteLater();
-        auth_server->deleteLater();
+//        auth_socket->deleteLater();
+//        auth_server->deleteLater();
 
         for (QString &token: tokens) {
             if (token.contains("?")) {
@@ -150,7 +144,7 @@ void HarvestHandler::code_received() {
                                              error_string);
                     QApplication::quit();
                 }
-                authenticate_request(&query_map["code"], nullptr);
+                authenticate_request(query_map["code"], {});
                 getUserDetails(query_map["scope"]);
             }
         }
@@ -172,9 +166,9 @@ std::map<QString, QString> HarvestHandler::parse_query_string(QString &query_str
     return query_map;
 }
 
-void HarvestHandler::authentication_received(const QNetworkReply *reply) {
+void HarvestHandler::authentication_received(QNetworkReply* reply) {
     if (reply->error() != QNetworkReply::NetworkError::NoError) {
-        const QJsonDocument error_report{read_close_reply(const_cast<QNetworkReply *>(reply))};
+        const QJsonDocument error_report{read_close_reply(reply)};
         qDebug() << "received error: " << reply->error();
         qDebug() << "with error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << "and error message: " << error_report;
@@ -189,7 +183,7 @@ void HarvestHandler::authentication_received(const QNetworkReply *reply) {
 
     // reply is originally non-const so this cast should be safe while allowing to use it
     // as const in the previous error handling
-    QJsonDocument json_auth{read_close_reply(const_cast<QNetworkReply *>(reply))};
+    QJsonDocument json_auth{read_close_reply(reply)};
     QJsonObject json_object{json_auth.object()};
     qint64 seconds{json_object[HarvestHandler::ExpiresInKey].toInt()};
     json_object.insert(HarvestHandler::ExpiresOnKey, QDateTime::currentDateTime().addSecs(seconds).toMSecsSinceEpoch());
@@ -198,7 +192,7 @@ void HarvestHandler::authentication_received(const QNetworkReply *reply) {
     getAuthDetails(json_auth);
 }
 
-QJsonDocument HarvestHandler::read_close_reply(QNetworkReply *reply) {
+QJsonDocument HarvestHandler::read_close_reply(QNetworkReply* reply) {
     QByteArray response_body{static_cast<QString>(reply->readAll()).toUtf8()};
     reply->deleteLater();
     return QJsonDocument::fromJson(response_body);
@@ -222,7 +216,7 @@ void HarvestHandler::getUserDetails(const QString &scope) {
 }
 
 
-void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_token) {
+void HarvestHandler::authenticate_request(const std::optional<QString> &auth_code, const std::optional<QString> &refresh_token) {
     if (!is_network_reachable) {
         QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
                              QApplication::translate("HarvestHandler",
@@ -241,16 +235,16 @@ void HarvestHandler::authenticate_request(QString *auth_code, QString *refresh_t
     url_query.addQueryItem("client_secret", client_secret);
 
     QString grant_type;
-    if (auth_code != nullptr) {
-        url_query.addQueryItem("code", *auth_code);
+    if (auth_code.has_value()) {
+        url_query.addQueryItem("code", auth_code.value());
         grant_type = HarvestHandler::default_grant_type;
-    } else if (refresh_token != nullptr) {
-        url_query.addQueryItem(HarvestHandler::RefreshTokenKey, *refresh_token);
+    } else if (refresh_token.has_value()) {
+        url_query.addQueryItem(HarvestHandler::RefreshTokenKey, refresh_token.value());
         grant_type = HarvestHandler::refresh_grant_type;
     }
     url_query.addQueryItem("grant_type", grant_type);
 
-    QNetworkReply *reply{network_manager.post(request, url_query.toString().toUtf8())};
+    QNetworkReply* reply{network_manager.post(request, url_query.toString().toUtf8())};
 
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
@@ -339,11 +333,11 @@ void HarvestHandler::list_tasks(const QDate &from_date, const QDate &to_date) {
     url_query.addQueryItem(HarvestHandler::UserIdKey, userId);
     request_url.setQuery(url_query);
 
-    QNetworkReply *reply{do_request_with_auth(request_url, false, "GET")};
+    QNetworkReply* reply{do_request_with_auth(request_url, false, "GET")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::tasks_list_ready);
 }
 
-void HarvestHandler::add_task(Task *task) {
+void HarvestHandler::add_task(TaskPointer &task) {
     if (!is_network_reachable) {
         QMessageBox::warning(nullptr, QApplication::translate("HarvestHandler", "Network Unreachable"),
                              QApplication::translate("HarvestHandler",
@@ -364,13 +358,13 @@ void HarvestHandler::add_task(Task *task) {
 
     // We save our task in a map so that we can retrieve it later when the response comes
     size_t key{qHash(QString::number(task->projectId).append(QString::number(task->taskId)))};
-    tasks_queue.insert({key, task});
+    tasksQueue.insert({key, task});
 
-    QNetworkReply *reply{do_request_with_auth(time_entries_url, false, "POST", QJsonDocument(request_payload))};
+    QNetworkReply* reply{do_request_with_auth(time_entries_url, false, "POST", QJsonDocument(request_payload))};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::add_task_checks);
 }
 
-void HarvestHandler::update_task(const Task *updated_task) {
+void HarvestHandler::update_task(TaskPointer &updatedTask) {
     if (!is_network_reachable) {
         QMessageBox::warning(nullptr,
                              QApplication::translate("HarvestHandler", "Network Unreachable"),
@@ -379,20 +373,20 @@ void HarvestHandler::update_task(const Task *updated_task) {
         return;
     }
 
-    const float seconds{static_cast<float>(QTime(0, 0).secsTo(updated_task->timeTracked))};
+    const float seconds{static_cast<float>(QTime(0, 0).secsTo(updatedTask->timeTracked))};
 
     QJsonObject request_payload;
-    request_payload.insert("projectId", updated_task->projectId);
-    request_payload.insert("task_id", updated_task->taskId);
-    request_payload.insert("notes", updated_task->note);
+    request_payload.insert("projectId", updatedTask->projectId);
+    request_payload.insert("task_id", updatedTask->taskId);
+    request_payload.insert("notes", updatedTask->note);
     request_payload.insert("hours", seconds / 60 / 60);
 
     // We save our task in a map so that we can retrieve it later when the response comes
-    size_t key{qHash(QString::number(updated_task->projectId).append(QString::number(updated_task->taskId)))};
-    tasks_queue.insert({key, const_cast<Task *>(updated_task)});
+    size_t key{qHash(QString::number(updatedTask->projectId).append(QString::number(updatedTask->taskId)))};
+    tasksQueue.insert({key, updatedTask});
 
-    QString update_url{time_entries_url + "/" + QString::number(updated_task->timeEntryId)};
-    QNetworkReply *reply{do_request_with_auth(update_url, false, "PATCH", QJsonDocument(request_payload))};
+    QString update_url{time_entries_url + "/" + QString::number(updatedTask->timeEntryId)};
+    QNetworkReply* reply{do_request_with_auth(update_url, false, "PATCH", QJsonDocument(request_payload))};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::update_task_checks);
 }
 
@@ -406,7 +400,7 @@ void HarvestHandler::start_task(const Task &task) {
     }
 
     const QUrl url{time_entries_url + "/" + QString::number(task.timeEntryId) + "/restart"};
-    QNetworkReply *reply{do_request_with_auth(url, false, "PATCH")};
+    QNetworkReply* reply{do_request_with_auth(url, false, "PATCH")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::start_task_checks);
 }
 
@@ -419,7 +413,7 @@ void HarvestHandler::stop_task(const Task &task) {
     }
 
     const QUrl url{time_entries_url + "/" + QString::number(task.timeEntryId) + "/stop"};
-    QNetworkReply *reply{do_request_with_auth(url, false, "PATCH")};
+    QNetworkReply* reply{do_request_with_auth(url, false, "PATCH")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::stop_task_checks);
 }
 
@@ -432,12 +426,12 @@ void HarvestHandler::delete_task(const Task &task) {
     }
 
     const QUrl url{time_entries_url + "/" + QString::number(task.timeEntryId)};
-    QNetworkReply *reply{do_request_with_auth(url, false, "DELETE")};
+    QNetworkReply* reply{do_request_with_auth(url, false, "DELETE")};
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::delete_task_checks);
 }
 
-QNetworkReply *HarvestHandler::do_request_with_auth(const QUrl &url, const bool sync_request, const QByteArray &verb,
-                                                    const std::optional<QJsonDocument> &payload) {
+QNetworkReply* HarvestHandler::do_request_with_auth(const QUrl &url, const bool sync_request, const QByteArray &verb,
+                                                                    const std::optional<QJsonDocument> &payload) {
     check_authenticate();
 
     QNetworkRequest request(url);
@@ -445,13 +439,15 @@ QNetworkReply *HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
     request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
     request.setRawHeader("Harvest-Account-Id", accountId.toUtf8());
 
-    QNetworkReply *reply;
+    QByteArray requestBody;
     if (payload.has_value()) {
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-        reply = network_manager.sendCustomRequest(request, verb, payload->toJson(QJsonDocument::JsonFormat::Compact));
+        requestBody = payload->toJson(QJsonDocument::JsonFormat::Compact);
     } else {
-        reply = network_manager.sendCustomRequest(request, verb, "");
+        requestBody = "";
     }
+
+    QNetworkReply* reply{network_manager.sendCustomRequest(request, verb, requestBody)};
     if (sync_request) {
         // Execute the event loop here, now we will wait here until readyRead() signal is emitted
         // which in turn will trigger event loop quit.
@@ -463,7 +459,7 @@ QNetworkReply *HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
 }
 
 void HarvestHandler::tasks_list_ready() {
-    QNetworkReply *reply{dynamic_cast<QNetworkReply *>(sender())};
+    QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
     if (default_error_check(reply, QApplication::translate("HarvestHandler", "Error Loading Tasks"),
                             QApplication::translate("HarvestHandler", "Could not load your tasks: "))) {
         return;
@@ -491,7 +487,7 @@ void HarvestHandler::tasks_list_ready() {
         const bool started{!task_object["started_time"].toString().isEmpty()};
         const QDate task_date{QDate::fromString(task_object["spent_date"].toString(), Qt::DateFormat::ISODate)};
 
-        Task *task = new Task{
+        TaskPointer task = std::make_shared<Task>(Task{
                 .projectId = project_id,
                 .taskId = task_id,
                 .timeEntryId = task_entry_id,
@@ -502,68 +498,69 @@ void HarvestHandler::tasks_list_ready() {
                 .note = note,
                 .started = started,
                 .date = task_date,
-        };
+        });
         emit task_added(task);
     }
 }
 
 //
 void HarvestHandler::add_task_checks() {
-    QNetworkReply *reply{dynamic_cast<QNetworkReply *>(sender())};
+    QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
     if (default_error_check(reply, QApplication::translate("HarvestHandler", "Error Adding Task"),
                             QApplication::translate("HarvestHandler", "Could not add your task: "))) {
         return;
     }
 
     // Get response from the reply object
-    const QJsonDocument add_task_response{read_close_reply(reply)};
+    const QJsonDocument addTaskResponse{read_close_reply(reply)};
 
-    const long long int project_id{add_task_response["project"]["id"].toInt()};
-    const long long int task_id{add_task_response["task"]["id"].toInt()};
-    const size_t key{qHash(QString::number(project_id).append(QString::number(task_id)))};
+    const long long int projectId{addTaskResponse["project"]["id"].toInt()};
+    const long long int taskId{addTaskResponse["task"]["id"].toInt()};
+    const size_t key{qHash(QString::number(projectId).append(QString::number(taskId)))};
 
-    const auto task_element = tasks_queue.find(key);
-    if (task_element == tasks_queue.end()) {
+    const auto taskElement = tasksQueue.find(key);
+    if (taskElement == tasksQueue.end()) {
         return;
     }
 
     // if we could find a task, let's fetch it and remove it from the queue map
-    Task *task = task_element->second;
-    tasks_queue.erase(task_element);
-    task->timeEntryId = add_task_response["id"].toInt();
-
-    emit task_added(task);
+    qDebug() << (taskElement == nullptr);
+    qDebug() << (taskElement->second == nullptr);
+    qDebug() << taskElement->second->timeEntryId;
+    taskElement->second->timeEntryId = addTaskResponse["id"].toInt();
+    emit task_added(taskElement->second);
+    tasksQueue.erase(taskElement);
 }
 
 void HarvestHandler::update_task_checks() {
-    auto *reply{dynamic_cast<QNetworkReply *>(sender())};
+    QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
     default_error_check(reply, QApplication::translate("HarvestHandler", "Error Updating Task"),
                         QApplication::translate("HarvestHandler", "Could not update this task: "));
     reply->deleteLater();
 }
 
 void HarvestHandler::start_task_checks() {
-    auto *reply{dynamic_cast<QNetworkReply *>(sender())};
+    QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
     default_error_check(reply, QApplication::translate("HarvestHandler", "Error Starting Task"),
                         QApplication::translate("HarvestHandler", "Could not start this task: "));
     reply->deleteLater();
 }
 
 void HarvestHandler::stop_task_checks() {
-    auto *reply{dynamic_cast<QNetworkReply *>(sender())};
+    QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
     default_error_check(reply, QApplication::translate("HarvestHandler", "Error Stopping Task"),
                         QApplication::translate("HarvestHandler", "Could not stop this task: "));
     reply->deleteLater();
 }
 
 void HarvestHandler::delete_task_checks() {
-    auto *reply{dynamic_cast<QNetworkReply *>(sender())};
+    QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
     default_error_check(reply, QApplication::translate("HarvestHandler", "Error Deleting Task"),
                         QApplication::translate("HarvestHandler", "Could not delete this task: "));
     reply->deleteLater();
 }
 
-bool HarvestHandler::default_error_check(QNetworkReply *reply, const QString &base_error_title,
+bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString &base_error_title,
                                          const QString &base_error_body) {
     if (reply->error() == QNetworkReply::NetworkError::TimeoutError) {
         const QString error_string{
@@ -572,7 +569,7 @@ bool HarvestHandler::default_error_check(QNetworkReply *reply, const QString &ba
 
     }
     if (reply->error() != QNetworkReply::NetworkError::NoError) {
-        const QJsonDocument error_report{read_close_reply(const_cast<QNetworkReply *>(reply))};
+        const QJsonDocument error_report{read_close_reply(reply)};
         qDebug() << "received error: " << reply->error();
         qDebug() << "with error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << "and error message: " << error_report;
@@ -601,7 +598,7 @@ QString HarvestHandler::get_http_message(const QString &message) {
 QString HarvestHandler::get_user_id() {
     QUrl request_url(user_url);
 
-    QNetworkReply *reply{do_request_with_auth(request_url, true, "GET")};
+    QNetworkReply* reply{do_request_with_auth(request_url, true, "GET")};
     if (reply->error() != QNetworkReply::NoError) {
         qDebug() << reply->error();
     }

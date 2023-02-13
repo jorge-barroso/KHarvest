@@ -2,13 +2,15 @@
 #define ADDEDTASKSMODEL_H
 
 #include <QAbstractListModel>
+#include <memory>
+#include "task.h"
 
 class AddedTasksList;
 
 class AddedTasksModel : public QAbstractListModel {
 Q_OBJECT
     Q_PROPERTY(AddedTasksList *list READ list WRITE setList)
-
+    using TaskPtrRef = const std::shared_ptr<Task>&;
 public:
     explicit AddedTasksModel(QObject *parent = nullptr);
 

@@ -5,9 +5,9 @@
 #include "tasksmanager.h"
 
 TasksManager::TasksManager(QObject *parent,
-                           ProjectsList *projectsList,
-                           AddedTasksList *addedTaskList,
-                           FavouritesList *favouritesList)
+                           ProjectsList &projectsList,
+                           AddedTasksList &addedTaskList,
+                           FavouritesList &favouritesList)
         : QObject(parent)
         , mProjects{projectsList}
         , mAddedTasks{addedTaskList}
@@ -15,49 +15,49 @@ TasksManager::TasksManager(QObject *parent,
         , harvestHandler{HarvestHandler::instance()}
         , currentDate{QDate::currentDate()}
         , zero_time{QTime(0, 0)} {
-    QObject::connect(harvestHandler, &HarvestHandler::task_added, this, &TasksManager::tasksAdded);
+    connect(harvestHandler.get(), &HarvestHandler::task_added, this, &TasksManager::tasksAdded);
     if (harvestHandler->is_ready()) {
         harvestHandler->list_tasks(currentDate.addDays(-2), currentDate.addDays(2));
     } else {
-        connect(harvestHandler, &HarvestHandler::ready, this, [this] {
+        connect(harvestHandler.get(), &HarvestHandler::ready, this, [this] {
             harvestHandler->list_tasks(currentDate.addDays(-2), currentDate.addDays(2));
         });
     }
 }
 
-ProjectsList *TasksManager::projectsList() const {
+ProjectsList &TasksManager::projectsList() const {
     return mProjects;
 }
 
-AddedTasksList *TasksManager::addedTasksList() const {
+AddedTasksList &TasksManager::addedTasksList() const {
     return mAddedTasks;
 }
 
-FavouritesList *TasksManager::favouritesList() const {
+FavouritesList &TasksManager::favouritesList() const {
     return mFavourites;
 }
 
-void TasksManager::tasksAdded(Task* task) {
+void TasksManager::tasksAdded(const TaskPointer& task) {
     // Flag task as favourite if it's in our favourites list
-    lookupFavouritesFromTask(task, [task](QVector<Task *>::const_iterator) {
+    lookupFavouritesFromTask(task, [task](QVector<TaskPointer>::const_iterator) {
         task->favourited = true;
     });
 
-    mAddedTasks->taskAdded(task);
+    mAddedTasks.taskAdded(task);
 }
 
 void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &note, const QString &time) {
-    if (projectIndex < 0 || projectIndex >= mProjects->projects().size())
+    if (projectIndex < 0 || projectIndex >= mProjects.projects().size())
         return;
 
-    const HarvestProject project{mProjects->projects().at(projectIndex)};
+    const HarvestProject project{mProjects.projects().at(projectIndex)};
     if (taskIndex < 0 || taskIndex >= project.task.size())
         return;
 
     const HarvestTask task{project.task.at(taskIndex)};
 
     const QTime timeTracked{QTime::fromString(time, "HH:mm")};
-    Task *newTask{new Task{
+    TaskPointer newTask{std::make_shared<Task>(Task{
             .projectId=project.projectId,
             .taskId=task.task_id,
             .timeEntryId=0,
@@ -68,23 +68,23 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
             .note=note,
             .started=zero_time.secsTo(timeTracked) == 0,
             .date=currentDate,
-            .favourited=mFavourites->isFavourited(project.projectId, task.task_id)
-    }};
+            .favourited=mFavourites.isFavourited(project.projectId, task.task_id)
+    })};
     harvestHandler->add_task(newTask);
 }
 
 void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
                                const QString &note, const QString &time) {
-    if (projectIndex < 0 || projectIndex >= mProjects->projects().size())
+    if (projectIndex < 0 || projectIndex >= mProjects.projects().size())
         return;
-    const HarvestProject project{mProjects->projects().at(projectIndex)};
+    const HarvestProject project{mProjects.projects().at(projectIndex)};
 
     if (taskIndex < 0 || taskIndex >= project.task.size())
         return;
     const HarvestTask task{project.task.at(taskIndex)};
 
     const QTime timeTracked{QTime::fromString(time, "HH:mm")};
-    Task *editedTask{mAddedTasks->tasks().at(index)};
+    TaskPointer editedTask{mAddedTasks.tasks().at(index)};
     editedTask->projectId = project.projectId;
     editedTask->taskId = task.task_id;
     editedTask->clientName = task.client_name;
@@ -96,7 +96,7 @@ void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
 }
 
 long TasksManager::projectIndexByName(const QString &projectLabel) {
-    const QVector<HarvestProject> &harvestProjects{mProjects->projects()};
+    const QVector<HarvestProject> &harvestProjects{mProjects.projects()};
     const HarvestProject *project = std::find_if(harvestProjects.begin(), harvestProjects.end(),
                                                  [&projectLabel](const HarvestProject &project) {
                                                      return project.get_project_label() == projectLabel;
@@ -107,7 +107,7 @@ long TasksManager::projectIndexByName(const QString &projectLabel) {
 }
 
 long TasksManager::taskIndexByName(const QString &taskName) {
-    const QVector<HarvestTask> &harvestTasks{mProjects->tasks()};
+    const QVector<HarvestTask> &harvestTasks{mProjects.tasks()};
     const HarvestTask *task = std::find_if(harvestTasks.begin(), harvestTasks.end(),
                                            [taskName](const HarvestTask &task) {
                                                return task.task_name == taskName;
@@ -117,7 +117,7 @@ long TasksManager::taskIndexByName(const QString &taskName) {
 }
 
 long TasksManager::projectIndexByHarvestId(const qlonglong projectId) {
-    const QVector<HarvestProject> &harvestProjects{mProjects->projects()};
+    const QVector<HarvestProject> &harvestProjects{mProjects.projects()};
     const HarvestProject *project = std::find_if(harvestProjects.begin(), harvestProjects.end(),
                                                  [projectId](const HarvestProject &project) {
                                                      return project.projectId == projectId;
@@ -128,7 +128,7 @@ long TasksManager::projectIndexByHarvestId(const qlonglong projectId) {
 }
 
 long TasksManager::taskIndexByHarvestId(const qlonglong taskId) {
-    const QVector<HarvestTask> &harvestTasks{mProjects->tasks()};
+    const QVector<HarvestTask> &harvestTasks{mProjects.tasks()};
     const HarvestTask *task = std::find_if(harvestTasks.begin(), harvestTasks.end(),
                                            [taskId](const HarvestTask &task) {
                                                return task.task_id == taskId;
@@ -137,39 +137,26 @@ long TasksManager::taskIndexByHarvestId(const qlonglong taskId) {
     return index;
 }
 
-void TasksManager::timeForward() {
-    updateCurrentTime(1);
-}
-
-void TasksManager::timeBackwards() {
-    updateCurrentTime(-1);
-}
-
-void TasksManager::updateCurrentTime(int days) {
-    currentDate = currentDate.addDays(days);
-    //TODO update projectsList
-}
-
 void TasksManager::addFavouriteFromAddedTask(const int tasksIndex) const {
-    Task *task{mAddedTasks->tasks().at(tasksIndex)};
+    const TaskPointer& task {mAddedTasks.tasks().at(tasksIndex)};
 
-    mFavourites->favouriteAdded(task);
+    mFavourites.favouriteAdded(task);
 }
 
 void TasksManager::removeFavouriteFromAddedTask(const int tasksIndex) const {
-    Task *addedTask{mAddedTasks->tasks().at(tasksIndex)};
+    const TaskPointer& addedTask{mAddedTasks.tasks().at(tasksIndex)};
 
-    lookupFavouritesFromTask(addedTask, [this](QVector<Task *>::const_iterator favouriteFound) {
-        mFavourites->favouriteRemoved(favouriteFound);
+    lookupFavouritesFromTask(addedTask, [this](QVector<TaskPointer>::const_iterator favouriteFound) {
+        mFavourites.favouriteRemoved(favouriteFound);
     });
 }
 
-void TasksManager::lookupFavouritesFromTask(const Task *addedTask,
-                                            const std::function<void(QVector<Task *>::const_iterator)> &toDo) const {
-    QVector<Task *> addedFavouritesList{mFavourites->favourites()};
-    QVector<Task *>::const_iterator favouriteFound{
+void TasksManager::lookupFavouritesFromTask(const TaskPointer& addedTask,
+                                            const std::function<void(QVector<TaskPointer>::const_iterator)> &toDo) const {
+    QVector<TaskPointer> addedFavouritesList{mFavourites.favourites()};
+    QVector<TaskPointer>::const_iterator favouriteFound{
             std::find_if(addedFavouritesList.constBegin(), addedFavouritesList.constEnd(),
-                         [addedTask](const Task *task) {
+                         [addedTask](const TaskPointer& task) {
                              return addedTask->projectId == task->projectId && addedTask->taskId == task->taskId;
                          })
     };

@@ -4,12 +4,12 @@
 ProjectsList::ProjectsList(QObject *parent)
         : QObject{parent}, current_index{-1} {
 
-    auto *harvest_handler{HarvestHandler::instance()};
+    const std::shared_ptr<HarvestHandler>& harvest_handler{HarvestHandler::instance()};
     if (harvest_handler->is_ready()) {
         current_index = INITIAL_INDEX;
         m_projects = harvest_handler->update_user_data();
     } else {
-        connect(harvest_handler, &HarvestHandler::ready, this, [this, harvest_handler] {
+        connect(harvest_handler.get(), &HarvestHandler::ready, this, [this, harvest_handler] {
             m_projects = harvest_handler->update_user_data();
             emit projectsUpdated();
             setTasksFromProject(INITIAL_INDEX);

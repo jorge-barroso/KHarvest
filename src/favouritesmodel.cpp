@@ -17,7 +17,7 @@ QVariant FavouritesModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || !mList)
         return {};
 
-    const Task *task{mList->favourites().at(index.row())};
+    const std::shared_ptr<Task>& task{mList->favourites().at(index.row())};
     switch (role) {
         case HeaderRole:
             return {task->get_project_label()};

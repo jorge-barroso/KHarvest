@@ -101,7 +101,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
 
     AppDate appDate;
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "AppDate", &appDate);
-    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "HarvestHandler", HarvestHandler::instance());
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "HarvestHandler", HarvestHandler::instance().get());
 
     QQmlApplicationEngine engine;
 
@@ -127,10 +127,10 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
         return -1;
     }
 
-    TasksManager tasksManager(nullptr, &projectsList, &addedTasksList, &favouritesList);
+    TasksManager tasksManager(nullptr, projectsList, addedTasksList, favouritesList);
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "TasksManager", &tasksManager);
 
-    QObject::connect(&application, &App::logout, HarvestHandler::instance(), &HarvestHandler::logout_cleanup);
+    QObject::connect(&application, &App::logout, HarvestHandler::instance().get(), &HarvestHandler::logout_cleanup);
     QObject::connect(&appDate, &AppDate::dateChanged, &addedTasksList, &AddedTasksList::appDateChanged);
 
     return app.exec();
