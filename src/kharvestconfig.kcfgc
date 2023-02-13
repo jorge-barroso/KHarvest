@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
-# SPDX-License-Identifier: LGPL-2.0-or-later
+# SPDX-License-Identifier: LGPL-3.0-only
 
 File=kharvestconfig.kcfg
 ClassName=KHarvestConfig
