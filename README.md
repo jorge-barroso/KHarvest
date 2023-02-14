@@ -31,8 +31,7 @@ system language) the app will load your data and open up ready to use
 
 ### System Tray Icon
 
-[//]: # (![System Tray]&#40;/assets/systray_icon.png?raw=true "the app giving you quick access "&#41;)
-~Coming Soon~
+![System Tray](/assets/system_tray.png?raw=true "a simple systray icon for quick access to the application ")
 
 ## Installation
 
