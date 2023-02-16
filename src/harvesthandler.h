@@ -12,7 +12,6 @@
 
 #include <optional>
 #include <KConfigGroup>
-#include <QNetworkConfigurationManager>
 
 #include "harvestproject.h"
 #include "task.h"
@@ -66,6 +65,9 @@ signals:
     void task_added(TaskPointer);
 
     void isOnlineChanged(bool isOnline) const;
+
+public slots:
+    void login();
 
 private slots:
 
@@ -136,8 +138,6 @@ private:
     QEventLoop loop;
 
     const QString pagination_records{"100"};
-
-    void login();
 
     bool json_auth_is_complete();
 
