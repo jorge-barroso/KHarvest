@@ -1,6 +1,5 @@
-//
-// Created by jorge on 10/02/23.
-//
+// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 
 #ifndef KHARVEST_KEYCHAIN_H
 #define KHARVEST_KEYCHAIN_H

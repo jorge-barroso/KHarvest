@@ -1,6 +1,5 @@
-//
-// Created by jorge on 17/02/2022.
-//
+// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 
 #ifndef HARVESTTIMER_QT_CMAKE_HARVESTPROJECT_H
 #define HARVESTTIMER_QT_CMAKE_HARVESTPROJECT_H
