@@ -46,6 +46,7 @@ target_link_libraries(kharvest PUBLIC
         Qt::QuickControls2
         Qt::Svg
         Qt::Network
+        Qt::Concurrent
         KF5::Kirigami2
         KF5::Notifications
         KF5::I18n

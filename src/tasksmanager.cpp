@@ -116,14 +116,7 @@ long TasksManager::taskIndexByName(const QString &taskName) {
 }
 
 long TasksManager::projectIndexByHarvestId(const qlonglong projectId) {
-    const QVector<HarvestProject> &harvestProjects{mProjects.projects()};
-    const HarvestProject *project = std::find_if(harvestProjects.begin(), harvestProjects.end(),
-                                                 [projectId](const HarvestProject &project) {
-                                                     return project.projectId == projectId;
-                                                 });
-    const long index{std::distance(harvestProjects.begin(), project)};
-
-    return index;
+    return mProjects.projectIndexById(projectId);
 }
 
 long TasksManager::taskIndexByHarvestId(const qlonglong taskId) {

@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <vector>
+#include <QMap>
 #include "harvestproject.h"
 
 static const int INITIAL_INDEX = 0;
@@ -16,6 +17,8 @@ public:
     explicit ProjectsList(QObject *parent = nullptr);
 
     [[nodiscard]] QVector<HarvestProject> projects() const;
+
+    [[nodiscard]] long projectIndexById(qlonglong projectId) const;
 
     [[nodiscard]] QVector<HarvestTask> tasks() const;
 
@@ -34,7 +37,11 @@ public slots:
 private:
     QVector<HarvestProject> m_projects;
     QVector<HarvestTask> m_tasks;
+    QMap<qlonglong, long> cachedProjects;
+    QMap<qlonglong, int> cachedTasks;
     int current_index;
+
+    void loadProjects();
 };
 
 #endif // PROJECTSLIST_H
