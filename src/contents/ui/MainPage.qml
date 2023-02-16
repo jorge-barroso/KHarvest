@@ -13,6 +13,8 @@ Kirigami.ScrollablePage {
 
     Layout.fillWidth: true
 
+    Component.onCompleted: addEditTaskSheet.parent = page
+
     actions {
         main: Kirigami.Action {
             id: addTaskAction
