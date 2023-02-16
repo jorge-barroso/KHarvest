@@ -98,6 +98,8 @@ Kirigami.OverlaySheet{
     }
 
     footer: RowLayout {
+            id: footerLayout
+            readonly property bool buttonsEnabled: projectField.count > 0 && taskField.count > 0
             anchors {
                 left: parent.left
                 right: parent.right
@@ -107,7 +109,7 @@ Kirigami.OverlaySheet{
                 Layout.fillWidth: true
                 flat: true
                 text: i18nc("@action:button", "Done")
-                enabled: projectField.text.length > 0 && taskField.text.length > 0
+                enabled: footerLayout.buttonsEnabled
                 onClicked: {
                     if(mode === "add") {
                         KHarvest.TasksManager.newTaskAdded(projectIndex,
@@ -146,6 +148,7 @@ Kirigami.OverlaySheet{
                 Layout.fillWidth: true
                 flat: true
                 text: i18nc("@action:button", "Favourites")
+                enabled: footerLayout.buttonsEnabled
                 visible: mode === "add"
                 onClicked: {
                     addEditTaskSheet.favourited(index,
