@@ -12,7 +12,7 @@
 
 class TasksManager : public QObject {
 Q_OBJECT
-    using  TaskPointer = std::shared_ptr<Task>;
+    typedef std::shared_ptr<Task> TaskPointer;
 public:
     TasksManager(QObject *parent,
                  ProjectsList &projectsList,

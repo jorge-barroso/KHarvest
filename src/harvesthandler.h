@@ -28,8 +28,8 @@ Q_OBJECT
     Q_PROPERTY(bool warning NOTIFY harvestWarning)
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
 
-    using TaskPointer = std::shared_ptr<Task>;
-    using HandlerPointer = std::shared_ptr<HarvestHandler>;
+    typedef std::shared_ptr<Task> TaskPointer;
+    typedef std::shared_ptr<HarvestHandler> HandlerPointer;
 public slots:
 
     void new_connection();

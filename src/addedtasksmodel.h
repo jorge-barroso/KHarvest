@@ -10,7 +10,7 @@ class AddedTasksList;
 class AddedTasksModel : public QAbstractListModel {
 Q_OBJECT
     Q_PROPERTY(AddedTasksList *list READ list WRITE setList)
-    using TaskPtrRef = const std::shared_ptr<Task>&;
+    typedef const std::shared_ptr<Task>& TaskPtrRef;
 public:
     explicit AddedTasksModel(QObject *parent = nullptr);
 

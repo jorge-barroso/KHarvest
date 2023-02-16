@@ -10,7 +10,7 @@
 #include "task.h"
 
 class FavouritesList : public QObject {
-    using TaskPointer = std::shared_ptr<Task>;
+    typedef std::shared_ptr<Task> TaskPointer;
 Q_OBJECT
 
 public:

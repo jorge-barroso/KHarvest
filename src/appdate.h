@@ -15,7 +15,7 @@ Q_OBJECT
                        READ date
                        WRITE setDate
                        NOTIFY dateChanged)
-    using AppDatePtr = std::shared_ptr<AppDate>;
+    typedef std::shared_ptr<AppDate> AppDatePtr;
 public:
     static AppDatePtr instance();
 
