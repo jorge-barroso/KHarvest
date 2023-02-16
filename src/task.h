@@ -6,9 +6,11 @@
 
 #include <QString>
 #include <QTime>
-#include <QTextStream>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include <ostream>
 #include <memory>
+#include <QJsonObject>
 
 struct Task {
     long long projectId;
@@ -29,38 +31,36 @@ struct Task {
     static const QString values_separator;
     static const QString end_line_separator;
 
-    friend QStringList &operator<<(QStringList &stream, const std::shared_ptr<Task>& task) {
-        QString str{QString::number(task->projectId) + values_separator
-                    + QString::number(task->taskId) + values_separator
-                    + QString::number(task->timeEntryId) + values_separator
-                    + task->clientName + values_separator
-                    + task->projectName + values_separator
-                    + task->taskName + values_separator
-                    + task->timeTracked.toString() + values_separator
-                    + task->note + values_separator
-                    + QVariant(task->started).toString() + values_separator
-                    + task->date.toString()};
+    friend QJsonArray &operator<<(QJsonArray& json, const std::shared_ptr<Task>& task) {
+        QJsonObject newObject;
+        newObject[PROJECT_ID_KEY] = task->projectId;
+        newObject[TASK_ID_KEY] = task->taskId;
+        newObject[TIME_ENTRY_ID_KEY] = static_cast<int>(task->timeEntryId);
+        newObject[CLIENT_NAME_KEY] = task->clientName;
+        newObject[PROJECT_NAME_KEY] = task->projectName;
+        newObject[TASK_NAME_KEY] = task->taskName;
+        newObject[TIME_TRACKED_KEY] = task->timeTracked.msecsSinceStartOfDay();
+        newObject[NOTE_KEY] = task->note;
+        newObject[STARTED_KEY] = task->started;
+        newObject[DATE_KEY] = task->date.toJulianDay();
 
-        stream.append(str);
-        return stream;
+        json.append(newObject);
+        return json;
     }
 
-    friend const QString &operator>>(const QString &taskLine, std::shared_ptr<Task> &task) {
-        QStringList values{taskLine.split(values_separator)};
+    friend const QJsonObject &operator>>(const QJsonObject &taskJson, std::shared_ptr<Task> &task) {
+        task->projectId = taskJson[PROJECT_ID_KEY].toInt();
+        task->taskId = taskJson[TASK_ID_KEY].toInt();
+        task->timeEntryId = taskJson[TIME_ENTRY_ID_KEY].toInt();
+        task->clientName = taskJson[CLIENT_NAME_KEY].toString();
+        task->projectName = taskJson[PROJECT_NAME_KEY].toString();
+        task->taskName = taskJson[TASK_NAME_KEY].toString();
+        task->timeTracked = QTime::fromMSecsSinceStartOfDay(taskJson[TIME_TRACKED_KEY].toInt());
+        task->note = taskJson[NOTE_KEY].toString();
+        task->started = taskJson[STARTED_KEY].toBool();
+        task->date = QDate::fromJulianDay(taskJson[DATE_KEY].toInt());
 
-        int i{-1};
-        task->projectId = values[++i].toLongLong();
-        task->taskId = values[++i].toLongLong();
-        task->timeEntryId = values[++i].toLongLong();
-        task->clientName = values[++i];
-        task->projectName = values[++i];
-        task->taskName = values[++i];
-        task->timeTracked = QTime::fromString(values[++i]);
-        task->note = values[++i];
-        task->started = QVariant(values[++i]).toBool();
-        task->date = QDate::fromString(values[++i]);
-
-        return taskLine;
+        return taskJson;
     }
 
     bool operator==(const Task &other_task) const {
@@ -94,6 +94,18 @@ struct Task {
             this->clientName = clientNameLabel.left(clientNameLabel.lastIndexOf(")"));
         }
     }
+
+private:
+    static const QString PROJECT_ID_KEY;
+    static const QString TASK_ID_KEY;
+    static const QString TIME_ENTRY_ID_KEY;
+    static const QString CLIENT_NAME_KEY;
+    static const QString PROJECT_NAME_KEY;
+    static const QString TASK_NAME_KEY;
+    static const QString TIME_TRACKED_KEY;
+    static const QString NOTE_KEY;
+    static const QString STARTED_KEY;
+    static const QString DATE_KEY;
 };
 
 #endif // TASK_H

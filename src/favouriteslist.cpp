@@ -7,21 +7,21 @@
 FavouritesList::FavouritesList(QObject *parent)
         : QObject(parent)
         , mFavourites() {
-    mFavourites.reserve(KHarvestConfig::favourites_list().size());
-    const QStringList favourites{KHarvestConfig::favourites_list()};
-    std::for_each(favourites.begin(), favourites.end(), [this](const QString &favouriteString) {
+    const QJsonArray& favouritesArray{QJsonDocument::fromJson(KHarvestConfig::favourites_list().toUtf8()).array()};
+    mFavourites.reserve(favouritesArray.size());
+    std::for_each(favouritesArray.begin(), favouritesArray.end(), [this](const QJsonValue &favouriteString) {
         TaskPointer task = std::make_shared<Task>();
-        favouriteString >> task;
+        favouriteString.toObject() >> task;
         this->favouriteAdded(task);
     });
 }
 
 FavouritesList::~FavouritesList() {
-    QStringList favouritesList;
+    QJsonArray newFavouritesArray;
     for (const TaskPointer &task: mFavourites) {
-        favouritesList << task;
+        newFavouritesArray << task;
     }
-    KHarvestConfig::setFavourites_list(favouritesList);
+    KHarvestConfig::setFavourites_list(QJsonDocument(newFavouritesArray).toJson(QJsonDocument::JsonFormat::Compact));
     KHarvestConfig::self()->save();
 }
 
