@@ -19,12 +19,6 @@ public:
                  AddedTasksList &addedTaskList,
                  FavouritesList &favouritesList);
 
-    [[nodiscard]] ProjectsList & projectsList() const;
-
-    [[nodiscard]] AddedTasksList & addedTasksList() const;
-
-    [[nodiscard]] FavouritesList & favouritesList() const;
-
 public slots:
 
     void newTaskAdded(int projectIndex, int taskIndex, const QString &note, const QString &time);

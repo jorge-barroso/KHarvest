@@ -24,19 +24,7 @@ TasksManager::TasksManager(QObject *parent,
     }
 }
 
-ProjectsList &TasksManager::projectsList() const {
-    return mProjects;
-}
-
-AddedTasksList &TasksManager::addedTasksList() const {
-    return mAddedTasks;
-}
-
-FavouritesList &TasksManager::favouritesList() const {
-    return mFavourites;
-}
-
-void TasksManager::tasksAdded(const TaskPointer& task) {
+void TasksManager::tasksAdded(const TaskPtr& task) {
     // Flag task as favourite if it's in our favourites list
     lookupFavouritesFromTask(task, [task](QVector<TaskPtr>::const_iterator) {
         task->favourited = true;
