@@ -28,7 +28,7 @@ Q_OBJECT
     Q_PROPERTY(bool warning NOTIFY harvestWarning)
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
 
-    typedef std::shared_ptr<Task> TaskPointer;
+    typedef std::shared_ptr<Task> TaskPtr;
     typedef std::shared_ptr<HarvestHandler> HandlerPointer;
 public slots:
 
@@ -44,9 +44,9 @@ public:
 
     [[nodiscard]] bool is_ready() const;
 
-    void add_task(TaskPointer &task);
+    void add_task(TaskPtr &task);
 
-    void update_task(TaskPointer &updatedTask);
+    void update_task(TaskPtr &updatedTask);
 
     void start_task(const Task &task);
 
@@ -65,7 +65,7 @@ signals:
 
     void harvestWarning(const QString& warningMessage) const;
 
-    void task_added(TaskPointer);
+    void task_added(TaskPtr);
 
     void isOnlineChanged(bool isOnline) const;
 
@@ -168,7 +168,7 @@ private:
 
     static QString get_http_message(const QString &message);
 
-    std::unordered_map<size_t, TaskPointer> tasksQueue;
+    std::unordered_map<size_t, TaskPtr> tasksQueue;
 
     static const int request_timeout_constant;
     bool mIsOnline;

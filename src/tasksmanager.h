@@ -12,7 +12,7 @@
 
 class TasksManager : public QObject {
 Q_OBJECT
-    typedef std::shared_ptr<Task> TaskPointer;
+    typedef std::shared_ptr<Task> TaskPtr;
 public:
     TasksManager(QObject *parent,
                  ProjectsList &projectsList,
@@ -43,10 +43,10 @@ private:
     QTime zero_time;
 
 
-    void tasksAdded(const TaskPointer& task);
+    void tasksAdded(const TaskPtr& task);
 
-    void lookupFavouritesFromTask(const TaskPointer& addedTask,
-                                  const std::function<void(QVector<TaskPointer>::const_iterator)> &toDo) const;
+    void lookupFavouritesFromTask(const TaskPtr& addedTask,
+                                  const std::function<void(QVector<TaskPtr>::const_iterator)> &toDo) const;
 
     std::shared_ptr<AppDate> appDate;
 };

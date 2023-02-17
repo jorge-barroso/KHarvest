@@ -38,7 +38,7 @@ FavouritesList &TasksManager::favouritesList() const {
 
 void TasksManager::tasksAdded(const TaskPointer& task) {
     // Flag task as favourite if it's in our favourites list
-    lookupFavouritesFromTask(task, [task](QVector<TaskPointer>::const_iterator) {
+    lookupFavouritesFromTask(task, [task](QVector<TaskPtr>::const_iterator) {
         task->favourited = true;
     });
 
@@ -56,7 +56,7 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
     const HarvestTask task{project.task.at(taskIndex)};
 
     const QTime timeTracked{QTime::fromString(time, "HH:mm")};
-    TaskPointer newTask{std::make_shared<Task>(Task{
+    TaskPtr newTask{std::make_shared<Task>(Task{
             .projectId=project.projectId,
             .taskId=task.task_id,
             .timeEntryId=0,
@@ -83,7 +83,7 @@ void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
     const HarvestTask task{project.task.at(taskIndex)};
 
     const QTime timeTracked{QTime::fromString(time, "HH:mm")};
-    TaskPointer editedTask{mAddedTasks.tasks().at(index)};
+    TaskPtr editedTask{mAddedTasks.tasks().at(index)};
     editedTask->projectId = project.projectId;
     editedTask->taskId = task.task_id;
     editedTask->clientName = task.client_name;
@@ -95,25 +95,25 @@ void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
 }
 
 void TasksManager::addFavouriteFromAddedTask(const int tasksIndex) const {
-    const TaskPointer& task {mAddedTasks.tasks().at(tasksIndex)};
+    const TaskPtr& task {mAddedTasks.tasks().at(tasksIndex)};
 
     mFavourites.favouriteAdded(task);
 }
 
 void TasksManager::removeFavouriteFromAddedTask(const int tasksIndex) const {
-    const TaskPointer& addedTask{mAddedTasks.tasks().at(tasksIndex)};
+    const TaskPtr& addedTask{mAddedTasks.tasks().at(tasksIndex)};
 
-    lookupFavouritesFromTask(addedTask, [this](QVector<TaskPointer>::const_iterator favouriteFound) {
+    lookupFavouritesFromTask(addedTask, [this](QVector<TaskPtr>::const_iterator favouriteFound) {
         mFavourites.favouriteRemoved(favouriteFound);
     });
 }
 
-void TasksManager::lookupFavouritesFromTask(const TaskPointer& addedTask,
-                                            const std::function<void(QVector<TaskPointer>::const_iterator)> &toDo) const {
-    QVector<TaskPointer> addedFavouritesList{mFavourites.favourites()};
-    QVector<TaskPointer>::const_iterator favouriteFound{
+void TasksManager::lookupFavouritesFromTask(const TaskPtr& addedTask,
+                                            const std::function<void(QVector<TaskPtr>::const_iterator)> &toDo) const {
+    QVector<TaskPtr> addedFavouritesList{mFavourites.favourites()};
+    QVector<TaskPtr>::const_iterator favouriteFound{
             std::find_if(addedFavouritesList.constBegin(), addedFavouritesList.constEnd(),
-                         [addedTask](const TaskPointer& task) {
+                         [addedTask](const TaskPtr& task) {
                              return addedTask->projectId == task->projectId && addedTask->taskId == task->taskId;
                          })
     };

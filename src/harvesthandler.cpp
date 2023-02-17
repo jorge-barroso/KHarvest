@@ -316,7 +316,7 @@ void HarvestHandler::list_tasks(const QDate &from_date, const QDate &to_date) {
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::tasks_list_ready);
 }
 
-void HarvestHandler::add_task(TaskPointer &task) {
+void HarvestHandler::add_task(TaskPtr &task) {
     const QString spent_date{task->date.toString(Qt::ISODate)};
     const float seconds{static_cast<float>(QTime(0, 0).secsTo(task->timeTracked))};
 
@@ -336,7 +336,7 @@ void HarvestHandler::add_task(TaskPointer &task) {
     connect(reply, &QNetworkReply::finished, this, &HarvestHandler::add_task_checks);
 }
 
-void HarvestHandler::update_task(TaskPointer &updatedTask) {
+void HarvestHandler::update_task(TaskPtr &updatedTask) {
     const float seconds{static_cast<float>(QTime(0, 0).secsTo(updatedTask->timeTracked))};
 
     QJsonObject request_payload;
@@ -429,7 +429,7 @@ void HarvestHandler::tasks_list_ready() {
         const bool started{!task_object["started_time"].toString().isEmpty()};
         const QDate task_date{QDate::fromString(task_object["spent_date"].toString(), Qt::DateFormat::ISODate)};
 
-        TaskPointer task = std::make_shared<Task>(Task{
+        TaskPtr task = std::make_shared<Task>(Task{
                 .projectId = project_id,
                 .taskId = task_id,
                 .timeEntryId = task_entry_id,
