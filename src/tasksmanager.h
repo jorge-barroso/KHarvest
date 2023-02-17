@@ -31,14 +31,6 @@ public slots:
 
     void taskUpdated(int index, int projectIndex, int taskIndex, const QString &note, const QString &time);
 
-    long projectIndexByName(const QString &projectLabel);
-
-    long taskIndexByName(const QString &taskName);
-
-    long projectIndexByHarvestId(qlonglong projectId);
-
-    long taskIndexByHarvestId(qlonglong taskId);
-
     void addFavouriteFromAddedTask(int tasksIndex) const;
 
     void removeFavouriteFromAddedTask(int tasksIndex) const;

@@ -56,9 +56,9 @@ Kirigami.ApplicationWindow {
     function openEditTaskSheet(index = -1, model = {}) {
         addEditTaskSheet.mode = "edit"
         addEditTaskSheet.index = index;
-        addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByName(model.header);
+        addEditTaskSheet.projectIndex = projectsList.projectIndexByName(model.header);
         projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
-        addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByName(model.subtitle);
+        addEditTaskSheet.taskIndex = projectsList.taskIndexByName(model.subtitle);
         addEditTaskSheet.taskNote = model.note;
         addEditTaskSheet.timeTracked = model.timeLabel;
         addEditTaskSheet.model = model;
@@ -69,9 +69,9 @@ Kirigami.ApplicationWindow {
         addEditTaskSheet.mode = "add"
         if(favouritesModel !== undefined) {
             console.log("adding a favourite");
-            addEditTaskSheet.projectIndex = KHarvest.TasksManager.projectIndexByHarvestId(favouritesModel.projectId);
+            addEditTaskSheet.projectIndex = projectsList.projectIndexByHarvestId(favouritesModel.projectId);
             projectsList.setTasksFromProject(addEditTaskSheet.projectIndex);
-            addEditTaskSheet.taskIndex = KHarvest.TasksManager.taskIndexByHarvestId(favouritesModel.taskId);
+            addEditTaskSheet.taskIndex = projectsList.taskIndexByHarvestId(favouritesModel.taskId);
         } else {
             console.log("adding a new task");
             addEditTaskSheet.projectIndex = 0;

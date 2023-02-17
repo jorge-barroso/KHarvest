@@ -94,22 +94,6 @@ void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
     harvestHandler->update_task(editedTask);
 }
 
-long TasksManager::projectIndexByName(const QString &projectLabel) {
-    return mProjects.projectIndexByLabel(projectLabel);
-}
-
-long TasksManager::taskIndexByName(const QString &taskName) {
-    return mProjects.taskIndexByName(taskName);
-}
-
-long TasksManager::projectIndexByHarvestId(const qlonglong projectId) {
-    return mProjects.projectIndexById(projectId);
-}
-
-long TasksManager::taskIndexByHarvestId(const qlonglong taskId) {
-    return mProjects.taskIndexById(taskId);
-}
-
 void TasksManager::addFavouriteFromAddedTask(const int tasksIndex) const {
     const TaskPointer& task {mAddedTasks.tasks().at(tasksIndex)};
 
