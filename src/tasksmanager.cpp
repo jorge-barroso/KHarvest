@@ -95,24 +95,11 @@ void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,
 }
 
 long TasksManager::projectIndexByName(const QString &projectLabel) {
-    const QVector<HarvestProject> &harvestProjects{mProjects.projects()};
-    const HarvestProject *project = std::find_if(harvestProjects.begin(), harvestProjects.end(),
-                                                 [&projectLabel](const HarvestProject &project) {
-                                                     return project.get_project_label() == projectLabel;
-                                                 });
-    const long index{std::distance(harvestProjects.begin(), project)};
-
-    return index;
+    return mProjects.projectIndexByLabel(projectLabel);
 }
 
 long TasksManager::taskIndexByName(const QString &taskName) {
-    const QVector<HarvestTask> &harvestTasks{mProjects.tasks()};
-    const HarvestTask *task = std::find_if(harvestTasks.begin(), harvestTasks.end(),
-                                           [taskName](const HarvestTask &task) {
-                                               return task.task_name == taskName;
-                                           });
-    const long index{std::distance(harvestTasks.begin(), task)};
-    return index;
+    return mProjects.taskIndexByName(taskName);
 }
 
 long TasksManager::projectIndexByHarvestId(const qlonglong projectId) {
@@ -120,13 +107,7 @@ long TasksManager::projectIndexByHarvestId(const qlonglong projectId) {
 }
 
 long TasksManager::taskIndexByHarvestId(const qlonglong taskId) {
-    const QVector<HarvestTask> &harvestTasks{mProjects.tasks()};
-    const HarvestTask *task = std::find_if(harvestTasks.begin(), harvestTasks.end(),
-                                           [taskId](const HarvestTask &task) {
-                                               return task.task_id == taskId;
-                                           });
-    const long index{std::distance(harvestTasks.begin(), task)};
-    return index;
+    return mProjects.taskIndexById(taskId);
 }
 
 void TasksManager::addFavouriteFromAddedTask(const int tasksIndex) const {

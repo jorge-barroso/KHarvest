@@ -13,12 +13,21 @@ static const int INITIAL_INDEX = 0;
 
 class ProjectsList : public QObject {
 Q_OBJECT
+
+    typedef QMap<qlonglong, long> IndexesByIdMap;
+    typedef QMap<QString, long> IndexesByNameMap;
 public:
     explicit ProjectsList(QObject *parent = nullptr);
 
     [[nodiscard]] QVector<HarvestProject> projects() const;
 
     [[nodiscard]] long projectIndexById(qlonglong projectId) const;
+
+    [[nodiscard]] long projectIndexByLabel(const QString &projectLabel);
+
+    [[nodiscard]] long taskIndexById(qlonglong taskId) const;
+
+    [[nodiscard]] long taskIndexByName(const QString &taskName) const;
 
     [[nodiscard]] QVector<HarvestTask> tasks() const;
 
@@ -37,8 +46,10 @@ public slots:
 private:
     QVector<HarvestProject> m_projects;
     QVector<HarvestTask> m_tasks;
-    QMap<qlonglong, long> cachedProjects;
-    QMap<qlonglong, int> cachedTasks;
+    IndexesByIdMap cachedProjectsById;
+    IndexesByIdMap cachedTasksById;
+    IndexesByNameMap cachedProjectsByLabel;
+    QVector<IndexesByNameMap> cachedTasksByName;
     int current_index;
 
     void loadProjects();

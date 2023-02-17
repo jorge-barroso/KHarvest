@@ -4,6 +4,7 @@
 #include <QtConcurrent>
 #include "projectslist.h"
 #include "harvesthandler.h"
+#include "maputils.h"
 
 ProjectsList::ProjectsList(QObject *parent)
         : QObject{parent}
@@ -20,8 +21,18 @@ ProjectsList::ProjectsList(QObject *parent)
 void ProjectsList::loadProjects() {
     m_projects = HarvestHandler::instance()->update_user_data();
     QtConcurrent::run([this]{
+        cachedTasksByName.reserve(m_projects.size());
         for(int i = 0; i < m_projects.size(); ++i) {
-            cachedProjects.insert(m_projects.at(i).projectId, static_cast<long>(i));
+            const HarvestProject &currentProject{m_projects.at(i)};
+            cachedProjectsById.insert(currentProject.projectId, static_cast<long>(i));
+            cachedProjectsByLabel.insert(currentProject.get_project_label(), static_cast<long>(i));
+            QMap<QString, long> tasksByNameMap;
+            for(int j = 0; j < currentProject.task.size(); ++j) {
+                HarvestTask task{currentProject.task.at(j)};
+                cachedTasksById.insert(task.task_id, j);
+                tasksByNameMap.insert(task.task_name, j);
+            }
+            cachedTasksByName.append(tasksByNameMap);
         }
     });
 
@@ -55,16 +66,64 @@ void ProjectsList::setTasksFromProject(const int index) {
 }
 
 long ProjectsList::projectIndexById(qlonglong projectId) const {
-    const auto projectIt{cachedProjects.constFind(projectId)};
-    if(projectIt == cachedProjects.constEnd()) {
+    const auto projectIt{cachedProjectsById.constFind(projectId)};
+    if(projectIt == cachedProjectsById.constEnd()) {
         // It's not in the cache (too quick after startup?) so we'll do a linear search
-        const HarvestProject *project = std::find_if(m_projects.begin(), m_projects.end(),
+        const HarvestProject *project = std::find_if(m_projects.constBegin(), m_projects.constBegin(),
                                                      [projectId](const HarvestProject &project) {
                                                          return project.projectId == projectId;
                                                      });
-        const long index{std::distance(m_projects.begin(), project)};
+        const long index{std::distance(m_projects.constBegin(), project)};
 
         return index;
     }
     return projectIt.value();
+}
+
+long ProjectsList::taskIndexById(qlonglong taskId) const {
+    const auto taskIt{cachedTasksById.constFind(taskId)};
+    if(taskIt == cachedTasksById.constEnd()) {
+        // It's not in the cache (too quick after startup?) so we'll do a linear search
+        const HarvestTask *task = std::find_if(m_tasks.constBegin(), m_tasks.constEnd(),
+                                                     [taskId](const HarvestTask &task) {
+                                                         return task.task_id == taskId;
+                                                     });
+        const long index{std::distance(m_tasks.constBegin(), task)};
+
+        return index;
+    }
+    return taskIt.value();
+}
+
+long ProjectsList::projectIndexByLabel(const QString &projectLabel) {
+    const auto projectIt{cachedProjectsByLabel.constFind(projectLabel)};
+    if(projectIt == cachedProjectsByLabel.constEnd()) {
+        // It's not in the cache (too quick after startup?) so we'll do a linear search
+        const HarvestProject *project = std::find_if(m_projects.constBegin(), m_projects.constBegin(),
+                                                     [projectLabel](const HarvestProject &project) {
+                                                         return project.get_project_label() == projectLabel;
+                                                     });
+        const long index{std::distance(m_projects.constBegin(), project)};
+
+        return index;
+    }
+    return projectIt.value();
+}
+
+
+
+long ProjectsList::taskIndexByName(const QString& taskName) const {
+    const IndexesByNameMap &tasksMap = cachedTasksByName.at(current_index);
+    const auto taskIt{tasksMap.constFind(taskName)};
+    if(taskIt == tasksMap.constEnd()) {
+        // It's not in the cache (too quick after startup?) so we'll do a linear search
+        const HarvestTask *task = std::find_if(m_tasks.constBegin(), m_tasks.constEnd(),
+                                               [taskName](const HarvestTask &task) {
+                                                   return task.task_name == taskName;
+                                               });
+        const long index{std::distance(m_tasks.constBegin(), task)};
+
+        return index;
+    }
+    return taskIt.value();
 }
