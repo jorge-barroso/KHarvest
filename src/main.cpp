@@ -152,6 +152,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "TasksManager", &tasksManager);
 
     QObject::connect(&application, &App::logout, HarvestHandler::instance().get(), &HarvestHandler::logout_cleanup);
+    QObject::connect(AppDate::instance().get(), &AppDate::dateChanged, HarvestHandler::instance().get(), []() {
+        HarvestHandler::instance()->list_tasks(AppDate::instance()->date().addDays(-2), AppDate::instance()->date().addDays(2));
+    });
     QObject::connect(AppDate::instance().get(), &AppDate::dateChanged, &addedTasksList, &AddedTasksList::appDateChanged);
 
     return app.exec();

@@ -52,6 +52,7 @@ public slots:
 
 private:
     QMap<QDate, QVector<TaskPtrRef>> mTasks;
+    QMap<QDate, QSet<qlonglong>> mTasksCache;
     std::shared_ptr<AppDate> appDate;
 
     std::shared_ptr<HarvestHandler> harvestHandler;

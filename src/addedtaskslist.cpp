@@ -30,14 +30,15 @@ bool AddedTasksList::taskEdited(const int index, const TaskPtrRef& task) {
 }
 
 void AddedTasksList::taskAdded(const TaskPtrRef& task) {
-    // TODO favourite status
-    if (task->date == appDate->date())
-            emit preTaskAdded();
+    if(MapUtils::map_insert_or_create_set(mTasksCache, task->date, task->taskId)) {
+        if (task->date == appDate->date())
+                emit preTaskAdded();
 
-    MapUtils::map_insert_or_create_vector(mTasks, task->date, task);
+        MapUtils::map_insert_or_create_vector(mTasks, task->date, task);
 
-    if (task->date == appDate->date())
-            emit postTaskAdded();
+        if (task->date == appDate->date())
+                emit postTaskAdded();
+    }
 }
 
 void AddedTasksList::taskRemoved(const int index) {
@@ -53,6 +54,7 @@ void AddedTasksList::taskRemoved(const int index) {
 
     emit preTaskRemoved(index);
     HarvestHandler::instance()->delete_task(*tasks.at(index));
+    mTasksCache[appDate->date()].remove(tasks.at(index)->taskId);
     tasks.remove(index);
     emit postTaskRemoved();
 }

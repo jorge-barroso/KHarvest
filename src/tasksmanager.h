@@ -38,7 +38,6 @@ private:
     std::shared_ptr<HarvestHandler> harvestHandler;
     QTime zero_time;
 
-
     void tasksAdded(const TaskPtr& task);
 
     void lookupFavouritesFromTask(const TaskPtr& addedTask,
