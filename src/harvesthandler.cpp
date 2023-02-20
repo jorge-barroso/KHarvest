@@ -142,7 +142,7 @@ void HarvestHandler::code_received() {
                     const QString &warningHeader = i18nc("Header for missing details received Harvest API after user logs in", "Incomplete Details");
                     QString warningBody{
                             i18nc("We are missing a few details that Harvest should've sent us back",
-                                                    "The details received from Harvest did not contain the minimum details required")};
+                                  "The details received from Harvest did not contain the minimum details required")};
                     emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
                     return;
                 }
@@ -177,7 +177,7 @@ void HarvestHandler::authentication_received(QNetworkReply* reply) {
         qDebug() << "and error message: " << error_report;
         const QString &warningHeader = i18nc("Header of wrong auth details for Harvest API", "Error authenticating");
         const QString &baseWarningBody = i18nc("Wrong auth details for Harvest API",
-                                                                 "Error while authenticating with Harvest services:");
+                                               "Error while authenticating with Harvest services:");
         const QString warningBody{QString("%1 %2").arg(baseWarningBody, reply->errorString())};
         emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
         return;
@@ -403,8 +403,9 @@ QNetworkReply* HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
 
 void HarvestHandler::tasks_list_ready() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    if (default_error_check(reply, i18nc("Header for errors while loading the user's list of tasks", "Error Loading Tasks"),
-                            i18nc("Explanation that we couldn't download the user's tasks", "Could not load your tasks:"))) {
+    if (default_error_check(reply,
+                            i18nc("Explanation that we couldn't download the user's tasks",
+                                  "Could not load your tasks:"))) {
         return;
     }
 
@@ -449,7 +450,7 @@ void HarvestHandler::tasks_list_ready() {
 //
 void HarvestHandler::add_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    if (default_error_check(reply, i18nc("Header for errors while adding the requested task", "Error Adding Task"),
+    if (default_error_check(reply,
                             i18nc("Explanation that we couldn't add the user's task", "Could not add your task:"))) {
         return;
     }
@@ -474,44 +475,37 @@ void HarvestHandler::add_task_checks() {
 
 void HarvestHandler::update_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, i18nc("Header, could not update a task in Harvest's system", "Error Updating Task"),
-                        i18nc("Body, could not update a task in Harvest's system", "Could not update this task:"));
+    default_error_check(reply, i18nc("Could not update a task in Harvest's system", "Could not update this task:"));
     reply->deleteLater();
 }
 
 void HarvestHandler::start_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, i18nc("Header, could not start a task in Harvest's system", "Error Starting Task"),
-                        i18nc("Body, could not start a task in Harvest's system", "Could not start this task:"));
+    default_error_check(reply, i18nc("Could not start a task in Harvest's system", "Could not start this task:"));
     reply->deleteLater();
 }
 
 void HarvestHandler::stop_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, i18nc("Header, could not stop a task in Harvest's system", "Error Stopping Task"),
-                        i18nc("Body, could not stop a task in Harvest's system", "Could not stop this task:"));
+    default_error_check(reply, i18nc("Could not stop a task in Harvest's system", "Could not stop this task:"));
     reply->deleteLater();
 }
 
 void HarvestHandler::delete_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, i18nc("Header, could not delete a task in Harvest's system", "Error Deleting Task"),
-                        i18nc("Body, could not delete a task in Harvest's system", "Could not delete this task:"));
+    default_error_check(reply, i18nc("Could not delete a task in Harvest's system", "Could not delete this task:"));
     reply->deleteLater();
 }
 
-bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString &errorHeader,
-                                         const QString &baseErrorBody) {
+bool HarvestHandler::default_error_check(QNetworkReply *reply, const QString &baseErrorBody) {
     if (reply->error() == QNetworkReply::NetworkError::TimeoutError ||
         reply->error() == QNetworkReply::NetworkError::OperationCanceledError) {
         const QString &timeoutMessage = i18nc("Timeout requesting to Harvest", "the request timed out.");
-        const QString &errorString{QString("%1 %2").arg(baseErrorBody, timeoutMessage)};
-        emit harvestError(buildErrorMessage(errorHeader, errorString));
+        emit harvestError(buildErrorMessage(baseErrorBody, timeoutMessage));
         return true;
     } else if (reply->error() == QNetworkReply::NetworkError::UnknownNetworkError) {
         const QString &timeoutMessage = i18nc("Unknown network error requesting to Harvest", "unknown network error.");
-        const QString &errorString{QString("%1 %2").arg(baseErrorBody, timeoutMessage)};
-        emit harvestError(buildErrorMessage(errorHeader, errorString));
+        emit harvestError(buildErrorMessage(baseErrorBody, timeoutMessage));
         return true;
     } else if (reply->error() == QNetworkReply::NetworkError::HostNotFoundError ||
                reply->error() == QNetworkReply::NetworkError::NetworkSessionFailedError) {
@@ -534,7 +528,7 @@ bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString &er
         const QString error_string{(error_report["error"].isNull() ?
                                     error_report["error"] :
                                     error_report["message"]).toString()};
-        emit harvestError(buildErrorMessage(errorHeader, error_string));
+        emit harvestError(buildErrorMessage(baseErrorBody, error_string));
         return true;
     }
     return false;

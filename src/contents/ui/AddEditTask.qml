@@ -147,7 +147,7 @@ Kirigami.OverlaySheet{
                 id: toFavouritesButton
                 Layout.fillWidth: true
                 flat: true
-                text: i18nc("@action:button", "Favourites")
+                text: i18nc("@action:button", "Favorites")
                 enabled: footerLayout.buttonsEnabled
                 visible: mode === "add"
                 onClicked: {

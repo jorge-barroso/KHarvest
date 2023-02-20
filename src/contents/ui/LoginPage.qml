@@ -41,7 +41,7 @@ Kirigami.Page {
             }
             contentItem: Controls.Label {
                 wrapMode: Text.WordWrap
-                text: i18nc("@label:login", "Please complete logging in from your browser, the application will automatically load your data once you've complete this step")
+                text: i18nc("@label:login", "Please complete logging in from your browser, the application will automatically load your data once this step is complete")
             }
         }
         Controls.Button {

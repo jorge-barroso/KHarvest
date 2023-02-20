@@ -161,8 +161,7 @@ private:
 
     static QJsonDocument read_close_reply(QNetworkReply* reply);
 
-    bool default_error_check(QNetworkReply* reply, const QString &errorHeader,
-                                    const QString &baseErrorBody);
+    bool default_error_check(QNetworkReply *reply, const QString &baseErrorBody);
 
     void check_authenticate();
 

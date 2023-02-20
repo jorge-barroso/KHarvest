@@ -90,9 +90,18 @@ Kirigami.ApplicationWindow {
         isMenu: !root.isMobile
         actions: [
             Kirigami.Action {
-               id: logoutAction
-               text: i18n("Logout")
-               icon.name: "list-remove-user"
+               id: reloadUserDataAction
+               text: i18nc("@action:inmenu", "Reload User Data")
+               icon.name: "view-refresh"
+               onTriggered: {
+                   KHarvest.App.logout();
+                   pageStack.replace('qrc:LoginPage.qml');
+               }
+           },
+            Kirigami.Action {
+               id: reloadTasksAction
+               text: i18nc("@action:inmenu", "Reload Tasks")
+               icon.name: "view-refresh"
                onTriggered: {
                    KHarvest.App.logout();
                    pageStack.replace('qrc:LoginPage.qml');
@@ -100,13 +109,22 @@ Kirigami.ApplicationWindow {
            },
             Kirigami.Action {
                 id: aboutAction
-                text: i18n("About KHarvest")
+                text: i18nc("@action:inmenu", "About KHarvest")
                 icon.name: "help-about"
                 onTriggered: pageStack.layers.push(root.isMobile ? 'qrc:AboutMobile.qml' : 'qrc:About.qml')
             },
+            Kirigami.Action {
+               id: logoutAction
+               text: i18nc("@action:inmenu", "Logout")
+               icon.name: "list-remove-user"
+               onTriggered: {
+                   KHarvest.App.logout();
+                   pageStack.replace('qrc:LoginPage.qml');
+               }
+           },
            Kirigami.Action {
                 id: quitAction
-                text: i18n("Quit")
+                text: i18nc("@action:inmenu", "Quit")
 				shortcut: StandardKey.Quit
                 icon.name: "application-exit"
                 onTriggered: Qt.quit()
@@ -131,7 +149,8 @@ Kirigami.ApplicationWindow {
         }
         Kirigami.InlineMessage {
             Layout.fillWidth: true
-            text: i18n("KHarvest is offline. Please check your network connection.")
+            text: i18nc("InlineMessage when the system is offline",
+                        "KHarvest is offline. Please check your network connection.")
             visible: !KHarvest.HarvestHandler.isOnline
         }
     }

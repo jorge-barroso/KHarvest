@@ -25,7 +25,7 @@ Kirigami.ScrollablePage {
         }
         contextualActions: [
             Kirigami.Action {
-                text: i18nc("@action:button", "Favourites")
+                text: i18nc("@action:button", "Favorites")
                 icon.name: "bookmarks"
                 onTriggered: applicationWindow().pageStack.layers.push("qrc:/FavouritesPage.qml")
             }
