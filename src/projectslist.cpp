@@ -21,18 +21,16 @@ ProjectsList::ProjectsList(QObject *parent)
 void ProjectsList::loadProjects() {
     m_projects = HarvestHandler::instance()->update_user_data();
     QtConcurrent::run([this]{
-        cachedTasksByName.reserve(m_projects.size());
+        cachedTasksByName.resize(m_projects.size());
         for(int i = 0; i < m_projects.size(); ++i) {
             const HarvestProject &currentProject{m_projects.at(i)};
             cachedProjectsById.insert(currentProject.projectId, static_cast<long>(i));
             cachedProjectsByLabel.insert(currentProject.get_project_label(), static_cast<long>(i));
-            QMap<QString, long> tasksByNameMap;
             for(int j = 0; j < currentProject.task.size(); ++j) {
                 HarvestTask task{currentProject.task.at(j)};
                 cachedTasksById.insert(task.task_id, j);
-                tasksByNameMap.insert(task.task_name, j);
+                cachedTasksByName[i].insert(task.task_name, j);
             }
-            cachedTasksByName.append(tasksByNameMap);
         }
     });
 

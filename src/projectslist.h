@@ -44,6 +44,8 @@ public slots:
 
     [[nodiscard]] long taskIndexByName(const QString &taskName) const;
 
+    void loadProjects();
+
 private:
     QVector<HarvestProject> m_projects;
     QVector<HarvestTask> m_tasks;
@@ -52,8 +54,6 @@ private:
     IndexesByNameMap cachedProjectsByLabel;
     QVector<IndexesByNameMap> cachedTasksByName;
     int current_index;
-
-    void loadProjects();
 };
 
 #endif // PROJECTSLIST_H

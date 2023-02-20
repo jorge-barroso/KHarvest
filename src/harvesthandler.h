@@ -132,8 +132,6 @@ private:
     const QString time_entries_url{requests_host + "/v2/time_entries"};
     const QString user_url{requests_host + "/v2/users/me"};
 
-    QVector<HarvestProject> projects;
-
     QNetworkAccessManager network_manager;
 
     bool auth_found;

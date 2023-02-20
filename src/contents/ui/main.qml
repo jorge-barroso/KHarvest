@@ -93,17 +93,13 @@ Kirigami.ApplicationWindow {
                id: reloadUserDataAction
                text: i18nc("@action:inmenu", "Reload User Data")
                icon.name: "view-refresh"
-               onTriggered: {
-
-               }
+               onTriggered: projectsList.loadProjects();
            },
             Kirigami.Action {
                id: reloadTasksAction
                text: i18nc("@action:inmenu", "Reload Tasks")
                icon.name: "view-refresh"
-               onTriggered: {
-                addedTasksList.reload();
-               }
+               onTriggered: addedTasksList.reload();
            },
             Kirigami.Action {
                 id: aboutAction

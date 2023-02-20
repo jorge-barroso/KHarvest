@@ -252,6 +252,7 @@ QVector<HarvestProject> HarvestHandler::update_user_data() {
     QUrl request_url(assignments_url);
 
     int total_pages = -1;
+    QVector<HarvestProject> projects;
     for (int page = 1; total_pages == -1 || page <= total_pages; ++page) {
         QUrlQuery url_query;
         url_query.addQueryItem("page", QString::number(page));
