@@ -67,47 +67,50 @@ void ProjectsList::setTasksFromProject(const int index) {
 
 long ProjectsList::projectIndexById(qlonglong projectId) const {
     const auto projectIt{cachedProjectsById.constFind(projectId)};
-    if(projectIt == cachedProjectsById.constEnd()) {
-        // It's not in the cache (too quick after startup?) so we'll do a linear search
-        const HarvestProject *project = std::find_if(m_projects.constBegin(), m_projects.constBegin(),
-                                                     [projectId](const HarvestProject &project) {
-                                                         return project.projectId == projectId;
-                                                     });
-        const long index{std::distance(m_projects.constBegin(), project)};
-
-        return index;
+    if(projectIt != cachedProjectsById.constEnd()) {
+        return projectIt.value();
     }
-    return projectIt.value();
+
+    // It's not in the cache (too quick after startup?) so we'll do a linear search
+    const HarvestProject *project = std::find_if(m_projects.constBegin(), m_projects.constBegin(),
+                                                 [projectId](const HarvestProject &project) {
+                                                     return project.projectId == projectId;
+                                                 });
+    const long index{std::distance(m_projects.constBegin(), project)};
+
+    return index;
 }
 
 long ProjectsList::taskIndexById(qlonglong taskId) const {
     const auto taskIt{cachedTasksById.constFind(taskId)};
-    if(taskIt == cachedTasksById.constEnd()) {
-        // It's not in the cache (too quick after startup?) so we'll do a linear search
-        const HarvestTask *task = std::find_if(m_tasks.constBegin(), m_tasks.constEnd(),
-                                                     [taskId](const HarvestTask &task) {
-                                                         return task.task_id == taskId;
-                                                     });
-        const long index{std::distance(m_tasks.constBegin(), task)};
-
-        return index;
+    if(taskIt != cachedTasksById.constEnd()) {
+        return taskIt.value();
     }
-    return taskIt.value();
+
+    // It's not in the cache (too quick after startup?) so we'll do a linear search
+    const HarvestTask *task = std::find_if(m_tasks.constBegin(), m_tasks.constEnd(),
+                                           [taskId](const HarvestTask &task) {
+                                               return task.task_id == taskId;
+                                           });
+    const long index{std::distance(m_tasks.constBegin(), task)};
+
+    return index;
 }
 
 long ProjectsList::projectIndexByLabel(const QString &projectLabel) {
     const auto projectIt{cachedProjectsByLabel.constFind(projectLabel)};
-    if(projectIt == cachedProjectsByLabel.constEnd()) {
-        // It's not in the cache (too quick after startup?) so we'll do a linear search
-        const HarvestProject *project = std::find_if(m_projects.constBegin(), m_projects.constBegin(),
-                                                     [projectLabel](const HarvestProject &project) {
-                                                         return project.get_project_label() == projectLabel;
-                                                     });
-        const long index{std::distance(m_projects.constBegin(), project)};
-
-        return index;
+    if(projectIt != cachedProjectsByLabel.constEnd()) {
+        return projectIt.value();
     }
-    return projectIt.value();
+
+    // It's not in the cache (too quick after startup?) so we'll do a linear search
+    const HarvestProject *project = std::find_if(m_projects.constBegin(), m_projects.constBegin(),
+                                                 [projectLabel](const HarvestProject &project) {
+                                                     return project.get_project_label() == projectLabel;
+                                                 });
+    const long index{std::distance(m_projects.constBegin(), project)};
+
+    return index;
 }
 
 
@@ -115,15 +118,16 @@ long ProjectsList::projectIndexByLabel(const QString &projectLabel) {
 long ProjectsList::taskIndexByName(const QString& taskName) const {
     const IndexesByNameMap &tasksMap = cachedTasksByName.at(current_index);
     const auto taskIt{tasksMap.constFind(taskName)};
-    if(taskIt == tasksMap.constEnd()) {
-        // It's not in the cache (too quick after startup?) so we'll do a linear search
-        const HarvestTask *task = std::find_if(m_tasks.constBegin(), m_tasks.constEnd(),
-                                               [taskName](const HarvestTask &task) {
-                                                   return task.task_name == taskName;
-                                               });
-        const long index{std::distance(m_tasks.constBegin(), task)};
-
-        return index;
+    if(taskIt != tasksMap.constEnd()) {
+        return taskIt.value();
     }
-    return taskIt.value();
+
+    // It's not in the cache (too quick after startup?) so we'll do a linear search
+    const HarvestTask *task = std::find_if(m_tasks.constBegin(), m_tasks.constEnd(),
+                                           [taskName](const HarvestTask &task) {
+                                               return task.task_name == taskName;
+                                           });
+    const long index{std::distance(m_tasks.constBegin(), task)};
+
+    return index;
 }

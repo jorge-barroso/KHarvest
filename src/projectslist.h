@@ -21,13 +21,6 @@ public:
 
     [[nodiscard]] QVector<HarvestProject> projects() const;
 
-    [[nodiscard]] long projectIndexById(qlonglong projectId) const;
-
-    [[nodiscard]] long projectIndexByLabel(const QString &projectLabel);
-
-    [[nodiscard]] long taskIndexById(qlonglong taskId) const;
-
-    [[nodiscard]] long taskIndexByName(const QString &taskName) const;
 
     [[nodiscard]] QVector<HarvestTask> tasks() const;
 
@@ -42,6 +35,14 @@ signals:
 public slots:
 
     void setTasksFromProject(int index);
+
+    [[nodiscard]] long projectIndexById(qlonglong projectId) const;
+
+    [[nodiscard]] long projectIndexByLabel(const QString &projectLabel);
+
+    [[nodiscard]] long taskIndexById(qlonglong taskId) const;
+
+    [[nodiscard]] long taskIndexByName(const QString &taskName) const;
 
 private:
     QVector<HarvestProject> m_projects;
