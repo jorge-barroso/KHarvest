@@ -5,7 +5,7 @@ import QtQuick 2.6
 import QtQuick.Controls 2.0 as Controls
 import QtQuick.Layouts 1.2
 import org.kde.kirigami 2.13 as Kirigami
-import org.kde.kharvest 1.0
+import org.kde.kharvest 1.0 as KHarvest
 
 Kirigami.AbstractCard {
     id: favouritesDelegate
@@ -58,7 +58,7 @@ Kirigami.AbstractCard {
                     Layout.alignment: Qt.AlignRight
                     Layout.columnSpan: 1
                     icon.name: "bookmark-remove"
-                    onClicked: favouritesList.favouriteRemoved(index)
+                    onClicked: KHarvest.TasksManager.unfavouritedFromFavouritesPage(index)
                 }
             }
         }

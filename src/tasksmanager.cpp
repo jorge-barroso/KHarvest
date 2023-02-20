@@ -96,15 +96,25 @@ void TasksManager::removeFavouriteFromAddedTask(const int tasksIndex) const {
     });
 }
 
+void TasksManager::unfavouritedFromFavouritesPage(const int favIndex) const {
+    const TaskPtr& addedTask{mFavourites.favourites().at(favIndex)};
+
+    lookupFavouritesFromTask(addedTask, [this, addedTask](QVector<TaskPtr>::const_iterator favouriteFound) {
+        mFavourites.favouriteRemoved(favouriteFound);
+        mAddedTasks.unfavouritedTask(addedTask);
+    });
+}
+
 void TasksManager::lookupFavouritesFromTask(const TaskPtr& addedTask,
                                             const std::function<void(QVector<TaskPtr>::const_iterator)> &toDo) const {
-    QVector<TaskPtr> addedFavouritesList{mFavourites.favourites()};
-    QVector<TaskPtr>::const_iterator favouriteFound{
+    const QVector<TaskPtr> addedFavouritesList{mFavourites.favourites()};
+    const QVector<TaskPtr>::const_iterator favouriteFound{
             std::find_if(addedFavouritesList.constBegin(), addedFavouritesList.constEnd(),
                          [addedTask](const TaskPtr& task) {
                              return addedTask->projectId == task->projectId && addedTask->taskId == task->taskId;
                          })
     };
+
     if(favouriteFound == addedFavouritesList.constEnd()) {
         return;
     }

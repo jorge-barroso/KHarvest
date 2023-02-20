@@ -14,17 +14,19 @@
 
 class AddedTasksList : public QObject {
 Q_OBJECT
-    typedef std::shared_ptr<Task> TaskPtr;
+    typedef std::shared_ptr<Task> TaskPtrRef;
 public:
     explicit AddedTasksList(QObject *parent = nullptr);
 
-    [[nodiscard]] QVector<TaskPtr> tasks() const;
+    [[nodiscard]] QVector<TaskPtrRef> tasks() const;
 
-    bool taskEdited(int index, const TaskPtr& task);
+    bool taskEdited(int index, const TaskPtrRef &task);
 
     void stopTask(int index);
 
     void startTask(int index);
+
+    void unfavouritedTask(const TaskPtrRef &unfavouritedTask);
 
 signals:
 
@@ -38,16 +40,18 @@ signals:
 
     void tasksDateChanged();
 
+    void favouritesChanged();
+
 public slots:
 
     void appDateChanged();
 
-    void taskAdded(const TaskPtr& task);
+    void taskAdded(const TaskPtrRef &task);
 
     void taskRemoved(int index);
 
 private:
-    QMap<QDate, QVector<TaskPtr>> mTasks;
+    QMap<QDate, QVector<TaskPtrRef>> mTasks;
     std::shared_ptr<AppDate> appDate;
 
     std::shared_ptr<HarvestHandler> harvestHandler;

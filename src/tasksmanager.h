@@ -29,6 +29,8 @@ public slots:
 
     void removeFavouriteFromAddedTask(int tasksIndex) const;
 
+    void unfavouritedFromFavouritesPage(int favIndex) const;
+
 private:
     ProjectsList& mProjects;
     AddedTasksList& mAddedTasks;

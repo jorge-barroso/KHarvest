@@ -9,18 +9,18 @@ AddedTasksList::AddedTasksList(QObject *parent)
         , harvestHandler{HarvestHandler::instance()}
 {}
 
-bool AddedTasksList::taskEdited(const int index, const TaskPtr& task) {
-    QMap<QDate, QVector<TaskPtr>>::const_iterator lb{mTasks.constFind(appDate->date())};
+bool AddedTasksList::taskEdited(const int index, const TaskPtrRef& task) {
+    QMap<QDate, QVector<TaskPtrRef>>::const_iterator lb{mTasks.constFind(appDate->date())};
     if (lb == mTasks.constEnd()) {
         return false;
     }
 
-    QVector<TaskPtr> tasks{lb.value()};
+    QVector<TaskPtrRef> tasks{lb.value()};
     if (index < 0 || index >= tasks.size()) {
         return false;
     }
 
-    TaskPtr old_task{tasks.value(index)};
+    TaskPtrRef old_task{tasks.value(index)};
     if (*old_task == *task) {
         return false;
     }
@@ -29,7 +29,7 @@ bool AddedTasksList::taskEdited(const int index, const TaskPtr& task) {
     return true;
 }
 
-void AddedTasksList::taskAdded(const TaskPtr& task) {
+void AddedTasksList::taskAdded(const TaskPtrRef& task) {
     // TODO favourite status
     if (task->date == appDate->date())
             emit preTaskAdded();
@@ -41,12 +41,12 @@ void AddedTasksList::taskAdded(const TaskPtr& task) {
 }
 
 void AddedTasksList::taskRemoved(const int index) {
-    QMap<QDate, QVector<TaskPtr>>::iterator lb{mTasks.find(appDate->date())};
+    QMap<QDate, QVector<TaskPtrRef>>::iterator lb{mTasks.find(appDate->date())};
     if (lb == mTasks.end()) {
         return;
     }
 
-    QVector<TaskPtr> &tasks{lb.value()};
+    QVector<TaskPtrRef> &tasks{lb.value()};
     if (index < 0 || index >= tasks.size()) {
         return;
     }
@@ -57,8 +57,8 @@ void AddedTasksList::taskRemoved(const int index) {
     emit postTaskRemoved();
 }
 
-QVector<AddedTasksList::TaskPtr> AddedTasksList::tasks() const {
-    QMap<QDate, QVector<TaskPtr>>::const_iterator lb{mTasks.constFind(appDate->date())};
+QVector<AddedTasksList::TaskPtrRef> AddedTasksList::tasks() const {
+    QMap<QDate, QVector<TaskPtrRef>>::const_iterator lb{mTasks.constFind(appDate->date())};
     if (lb == mTasks.constEnd()) {
         return {};
     }
@@ -67,14 +67,14 @@ QVector<AddedTasksList::TaskPtr> AddedTasksList::tasks() const {
 }
 
 void AddedTasksList::startTask(const int index) {
-    const TaskPtr& pTask = tasks().at(index);
+    const TaskPtrRef & pTask = tasks().at(index);
     pTask->started = true;
     pTask->shouldAutomaticallyStop = false;
     harvestHandler->start_task(*pTask);
 }
 
 void AddedTasksList::stopTask(const int index) {
-    const TaskPtr& pTask = tasks().at(index);
+    const TaskPtrRef & pTask = tasks().at(index);
     pTask->started = false;
     if (!pTask->shouldAutomaticallyStop) {
         harvestHandler->stop_task(*pTask);
@@ -83,4 +83,15 @@ void AddedTasksList::stopTask(const int index) {
 
 void AddedTasksList::appDateChanged() {
     emit tasksDateChanged();
+}
+
+void AddedTasksList::unfavouritedTask(const TaskPtrRef &unfavouritedTask) {
+    for(const auto& tasksVector : mTasks) {
+        for(auto& task : tasksVector) {
+            if(task->projectId == unfavouritedTask->projectId && task->taskId == unfavouritedTask->taskId) {
+                task->favourited = false;
+            }
+        }
+    }
+    emit favouritesChanged();
 }
