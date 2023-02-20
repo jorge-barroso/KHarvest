@@ -19,28 +19,6 @@ Kirigami.ScrollablePage {
         addEditTaskSheet.parent = favouritesPage
     }
 
-    actions {
-        main: Kirigami.Action {
-                id: addFavouriteAction
-                icon.name: "bookmark-new"
-                text: i18nc("@action:button", "Add Favourite")
-                tooltip: i18n("Add a task to favourites")
-                onTriggered: showPassiveNotification(i18n("Add fav clicked"))
-            }
-        contextualActions: [
-            Kirigami.Action {
-                id: closeFavouritesAction
-                icon.name: "window-close"
-                text: i18nc("@action:button", "Close Favourites")
-                tooltip: i18n("Close Favourites Section")
-                onTriggered: {
-                    addEditTaskSheet.parent = page
-                    applicationWindow().pageStack.layers.pop()
-                }
-            }
-        ]
-    }
-
     Kirigami.CardsListView {
         id: favouritesLayout
         model: KHarvest.FavouritesModel {
