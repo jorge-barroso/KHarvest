@@ -21,6 +21,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include <cmath>
+#include <KLocalizedString>
 
 const QString HarvestHandler::default_grant_type{"authorization_code"};
 const QString HarvestHandler::refresh_grant_type{"refresh_token"};
@@ -78,9 +79,9 @@ void HarvestHandler::login() {
     auth_server = std::make_shared<QTcpServer>();
 
     if (!auth_server->listen(QHostAddress::Any, 23456)) {
-        const QString &warningHeader = QApplication::translate("HarvestHandler", "Error");
-        const QString warningBody{
-                QApplication::translate("HarvestHandler", "Error while waiting for Harvest authorization")};
+        const QString &warningHeader = i18nc("Harvest API error title, like 'Error: something something'", "Error");
+        const QString warningBody{i18nc("Harvest API error description",
+                                        "Error while waiting for Harvest authorization")};
         emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
         return;
     }
@@ -126,7 +127,7 @@ void HarvestHandler::code_received() {
     if (auth_socket->canReadLine()) {
         QStringList tokens = QString(auth_socket->readLine()).split(QRegularExpression("[ \r\n][ \r\n]*"));
 
-        const QString message_string{QApplication::translate("HarvestHandler",
+        const QString message_string{i18nc("Successfully logged in",
                                                              "Authentication successful, you may now close this tab")};
         const QString final_message = get_http_message(message_string);
         auth_socket->write(final_message.toUtf8());
@@ -138,9 +139,9 @@ void HarvestHandler::code_received() {
             if (token.contains("?")) {
                 std::map<QString, QString> query_map{parse_query_string(token)};
                 if (!query_map.contains("code") || !query_map.contains("scope")) {
-                    const QString &warningHeader = QApplication::translate("HarvestHandler", "Incomplete Details");
+                    const QString &warningHeader = i18nc("Header for missing details received Harvest API after user logs in", "Incomplete Details");
                     QString warningBody{
-                            QApplication::translate("HarvestHandler",
+                            i18nc("We are missing a few details that Harvest should've sent us back",
                                                     "The details received from Harvest did not contain the minimum details required")};
                     emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
                     return;
@@ -174,8 +175,8 @@ void HarvestHandler::authentication_received(QNetworkReply* reply) {
         qDebug() << "received error: " << reply->error();
         qDebug() << "with error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << "and error message: " << error_report;
-        const QString &warningHeader = QApplication::translate("HarvestHandler", "Error authenticating");
-        const QString &baseWarningBody = QApplication::translate("HarvestHandler",
+        const QString &warningHeader = i18nc("Header of wrong auth details for Harvest API", "Error authenticating");
+        const QString &baseWarningBody = i18nc("Wrong auth details for Harvest API",
                                                                  "Error while authenticating with Harvest services:");
         const QString warningBody{QString("%1 %2").arg(baseWarningBody, reply->errorString())};
         emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
@@ -402,8 +403,8 @@ QNetworkReply* HarvestHandler::do_request_with_auth(const QUrl &url, const bool 
 
 void HarvestHandler::tasks_list_ready() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    if (default_error_check(reply, QApplication::translate("HarvestHandler", "Error Loading Tasks"),
-                            QApplication::translate("HarvestHandler", "Could not load your tasks:"))) {
+    if (default_error_check(reply, i18nc("Header for errors while loading the user's list of tasks", "Error Loading Tasks"),
+                            i18nc("Explanation that we couldn't download the user's tasks", "Could not load your tasks:"))) {
         return;
     }
 
@@ -448,8 +449,8 @@ void HarvestHandler::tasks_list_ready() {
 //
 void HarvestHandler::add_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    if (default_error_check(reply, QApplication::translate("HarvestHandler", "Error Adding Task"),
-                            QApplication::translate("HarvestHandler", "Could not add your task:"))) {
+    if (default_error_check(reply, i18nc("Header for errors while adding the requested task", "Error Adding Task"),
+                            i18nc("Explanation that we couldn't add the user's task", "Could not add your task:"))) {
         return;
     }
 
@@ -473,29 +474,29 @@ void HarvestHandler::add_task_checks() {
 
 void HarvestHandler::update_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, QApplication::translate("HarvestHandler", "Error Updating Task"),
-                        QApplication::translate("HarvestHandler", "Could not update this task:"));
+    default_error_check(reply, i18nc("Header, could not update a task in Harvest's system", "Error Updating Task"),
+                        i18nc("Body, could not update a task in Harvest's system", "Could not update this task:"));
     reply->deleteLater();
 }
 
 void HarvestHandler::start_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, QApplication::translate("HarvestHandler", "Error Starting Task"),
-                        QApplication::translate("HarvestHandler", "Could not start this task:"));
+    default_error_check(reply, i18nc("Header, could not start a task in Harvest's system", "Error Starting Task"),
+                        i18nc("Body, could not start a task in Harvest's system", "Could not start this task:"));
     reply->deleteLater();
 }
 
 void HarvestHandler::stop_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, QApplication::translate("HarvestHandler", "Error Stopping Task"),
-                        QApplication::translate("HarvestHandler", "Could not stop this task:"));
+    default_error_check(reply, i18nc("Header, could not stop a task in Harvest's system", "Error Stopping Task"),
+                        i18nc("Body, could not stop a task in Harvest's system", "Could not stop this task:"));
     reply->deleteLater();
 }
 
 void HarvestHandler::delete_task_checks() {
     QNetworkReply* reply{dynamic_cast<QNetworkReply *>(sender())};
-    default_error_check(reply, QApplication::translate("HarvestHandler", "Error Deleting Task"),
-                        QApplication::translate("HarvestHandler", "Could not delete this task:"));
+    default_error_check(reply, i18nc("Header, could not delete a task in Harvest's system", "Error Deleting Task"),
+                        i18nc("Body, could not delete a task in Harvest's system", "Could not delete this task:"));
     reply->deleteLater();
 }
 
@@ -503,12 +504,12 @@ bool HarvestHandler::default_error_check(QNetworkReply* reply, const QString &er
                                          const QString &baseErrorBody) {
     if (reply->error() == QNetworkReply::NetworkError::TimeoutError ||
         reply->error() == QNetworkReply::NetworkError::OperationCanceledError) {
-        const QString &timeoutMessage = QApplication::translate("HarvestHandler", "the request timed out.");
+        const QString &timeoutMessage = i18nc("Timeout requesting to Harvest", "the request timed out.");
         const QString &errorString{QString("%1 %2").arg(baseErrorBody, timeoutMessage)};
         emit harvestError(buildErrorMessage(errorHeader, errorString));
         return true;
     } else if (reply->error() == QNetworkReply::NetworkError::UnknownNetworkError) {
-        const QString &timeoutMessage = QApplication::translate("HarvestHandler", "unknown network error.");
+        const QString &timeoutMessage = i18nc("Unknown network error requesting to Harvest", "unknown network error.");
         const QString &errorString{QString("%1 %2").arg(baseErrorBody, timeoutMessage)};
         emit harvestError(buildErrorMessage(errorHeader, errorString));
         return true;
@@ -612,13 +613,6 @@ void HarvestHandler::logout_cleanup() {
         keyChain.deleteKey(HarvestHandler::AccessTokenKey);
     });
 }
-
-//void HarvestHandler::networkUnreachableError() const {
-//    const QString warningHeader{QApplication::translate("HarvestHandler", "Network Unreachable")};
-//    const QString warningBody{QApplication::translate("HarvestHandler",
-//                                                      "You are currently not connected to the internet, please reconnect and try again")};
-//    emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
-//}
 
 QString HarvestHandler::buildErrorMessage(const QString &header, const QString &body) {
     return QString("%1: %2").arg(header, body);
