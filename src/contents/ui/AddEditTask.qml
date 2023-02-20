@@ -77,9 +77,9 @@ Kirigami.OverlaySheet{
                 left: parent.left
                 right: parent.right
                 top: taskField.bottom
-                topMargin: 10
+                topMargin: Kirigami.Units.largeSpacing
                 bottom: timeField.top
-                bottomMargin: 10
+                bottomMargin: Kirigami.Units.largeSpacing
             }
             Layout.minimumHeight: Kirigami.Units.gridUnit * 10
             text: mode === "add" ? "" : taskNote
