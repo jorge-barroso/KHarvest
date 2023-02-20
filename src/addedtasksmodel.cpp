@@ -144,6 +144,7 @@ void AddedTasksModel::setList(AddedTasksList *list) {
         });
        connect(mList, &AddedTasksList::tasksDateChanged, this, &AddedTasksModel::endResetModel);
        connect(mList, &AddedTasksList::favouritesChanged, this, &AddedTasksModel::endResetModel);
+       connect(mList, &AddedTasksList::tasksReloaded, this, &AddedTasksModel::endResetModel);
     }
 
     endResetModel();

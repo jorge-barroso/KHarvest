@@ -94,8 +94,7 @@ Kirigami.ApplicationWindow {
                text: i18nc("@action:inmenu", "Reload User Data")
                icon.name: "view-refresh"
                onTriggered: {
-                   KHarvest.App.logout();
-                   pageStack.replace('qrc:LoginPage.qml');
+
                }
            },
             Kirigami.Action {
@@ -103,8 +102,7 @@ Kirigami.ApplicationWindow {
                text: i18nc("@action:inmenu", "Reload Tasks")
                icon.name: "view-refresh"
                onTriggered: {
-                   KHarvest.App.logout();
-                   pageStack.replace('qrc:LoginPage.qml');
+                addedTasksList.reload();
                }
            },
             Kirigami.Action {

@@ -42,6 +42,8 @@ signals:
 
     void favouritesChanged();
 
+    void tasksReloaded();
+
 public slots:
 
     void appDateChanged();
@@ -49,6 +51,8 @@ public slots:
     void taskAdded(const TaskPtrRef &task);
 
     void taskRemoved(int index);
+
+    void reload();
 
 private:
     QMap<QDate, QVector<TaskPtrRef>> mTasks;

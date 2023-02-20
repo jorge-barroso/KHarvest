@@ -97,3 +97,10 @@ void AddedTasksList::unfavouritedTask(const TaskPtrRef &unfavouritedTask) {
     }
     emit favouritesChanged();
 }
+
+void AddedTasksList::reload() {
+    mTasks.clear();
+    mTasksCache.clear();
+    emit tasksReloaded();
+    harvestHandler->list_tasks(appDate->date().addDays(-2), appDate->date().addDays(2));
+}
