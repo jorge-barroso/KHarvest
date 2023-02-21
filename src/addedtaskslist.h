@@ -14,6 +14,7 @@
 
 class AddedTasksList : public QObject {
 Q_OBJECT
+
     typedef std::shared_ptr<Task> TaskPtrRef;
 public:
     explicit AddedTasksList(QObject *parent = nullptr);
@@ -27,6 +28,8 @@ public:
     void startTask(int index);
 
     void unfavouritedTask(const TaskPtrRef &unfavouritedTask);
+
+    bool alreadyAdded(const TaskPtrRef& task);
 
 signals:
 

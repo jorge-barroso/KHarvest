@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2023 Jorge Barroso <jorge_barroso_11 at hotmail dot com>
 
+#include <KLocalizedString>
 #include "tasksmanager.h"
+#include "errorhandler.h"
 
 TasksManager::TasksManager(QObject *parent,
                            ProjectsList &projectsList,
@@ -57,7 +59,13 @@ void TasksManager::newTaskAdded(int projectIndex, int taskIndex, const QString &
             .date=appDate->date(),
             .favourited=mFavourites.isFavourited(project.projectId, task.task_id)
     })};
-    harvestHandler->add_task(newTask);
+
+    if(mAddedTasks.alreadyAdded(newTask)) {
+        ErrorHandler::instance()->warning(i18nc("Warning to the user that this task has already been added",
+                                                "This task has already been added with the same note, please edit it instead"));
+    } else {
+        harvestHandler->add_task(newTask);
+    }
 }
 
 void TasksManager::taskUpdated(const int index, int projectIndex, int taskIndex,

@@ -109,3 +109,7 @@ QString AddedTasksList::getCacheKeyFromTask(const AddedTasksList::TaskPtrRef &ta
     const QString idString{QString::number(task->taskId)};
     return QString("%1 %2").arg(idString, task->note);
 }
+
+bool AddedTasksList::alreadyAdded(const TaskPtrRef& task) {
+    return mTasksCache[appDate->date()].contains(getCacheKeyFromTask(task));
+}
