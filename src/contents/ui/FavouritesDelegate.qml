@@ -27,10 +27,13 @@ Kirigami.AbstractCard {
             Column {
                 Layout.fillWidth: true
                 Kirigami.Heading {
+                    id: projectHeader
                     level: 1
                     text: model.header
                 }
-                Controls.Label {
+                Kirigami.Heading {
+                    id: taskNameHeader
+                    level: 3
                     wrapMode: Text.NoWrap
                     text: model.taskName
                     visible: taskName.length > 0
