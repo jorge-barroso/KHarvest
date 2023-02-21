@@ -60,11 +60,21 @@ Kirigami.AbstractCard {
                     level: 1
                     text: model.header
                 }
-                Controls.Label {
+                Kirigami.Heading {
+                    level: 3
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                     text: model.subtitle
-                    visible: subtitle.length > 0
+                    visible: model.subtitle.length > 0
+                }
+                Kirigami.Separator {
+                    Layout.fillWidth: true
+                    visible: noteLabel.visible
+                }
+                Controls.Label {
+                    id: noteLabel
+                    text: model.note
+                    visible: model.note.length > 0
                 }
             }
 
