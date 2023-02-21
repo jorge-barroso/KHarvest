@@ -30,7 +30,7 @@ bool AddedTasksList::taskEdited(const int index, const TaskPtrRef& task) {
 }
 
 void AddedTasksList::taskAdded(const TaskPtrRef& task) {
-    if(MapUtils::map_insert_or_create_set(mTasksCache, task->date, task->taskId)) {
+    if(MapUtils::map_insert_or_create_set(mTasksCache, task->date, getCacheKeyFromTask(task))) {
         if (task->date == appDate->date())
                 emit preTaskAdded();
 
@@ -54,7 +54,7 @@ void AddedTasksList::taskRemoved(const int index) {
 
     emit preTaskRemoved(index);
     HarvestHandler::instance()->delete_task(*tasks.at(index));
-    mTasksCache[appDate->date()].remove(tasks.at(index)->taskId);
+    mTasksCache[appDate->date()].remove(getCacheKeyFromTask(tasks.at(index)));
     tasks.remove(index);
     emit postTaskRemoved();
 }
@@ -103,4 +103,9 @@ void AddedTasksList::reload() {
     mTasksCache.clear();
     emit tasksReloaded();
     harvestHandler->list_tasks(appDate->date().addDays(-2), appDate->date().addDays(2));
+}
+
+QString AddedTasksList::getCacheKeyFromTask(const AddedTasksList::TaskPtrRef &task) {
+    const QString idString{QString::number(task->taskId)};
+    return QString("%1 %2").arg(idString, task->note);
 }

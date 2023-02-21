@@ -56,10 +56,12 @@ public slots:
 
 private:
     QMap<QDate, QVector<TaskPtrRef>> mTasks;
-    QMap<QDate, QSet<qlonglong>> mTasksCache;
+    QMap<QDate, QSet<QString>> mTasksCache;
     std::shared_ptr<AppDate> appDate;
 
     std::shared_ptr<HarvestHandler> harvestHandler;
+
+    QString getCacheKeyFromTask(const TaskPtrRef& task);
 };
 
 #endif // ADDEDTASKSLIST_H
