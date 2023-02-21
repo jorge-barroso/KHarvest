@@ -18,53 +18,42 @@ Kirigami.AbstractCard {
         id: cardItem
         // implicitWidth/Height define the natural width/height of an item if no width or height is specified.
         // The setting below defines a component's preferred size based on its content
-        implicitWidth: delegateLayout.implicitWidth
-        implicitHeight: delegateLayout.implicitHeight
+        implicitWidth: favouriteRow.implicitWidth
+        implicitHeight: favouriteRow.implicitHeight
 
-        GridLayout {
-            id: delegateLayout
-            anchors {
-                left: parent.left
-                top: parent.top
-                right: parent.right
+        RowLayout {
+            id: favouriteRow
+            anchors.fill: parent
+            Column {
+                Layout.fillWidth: true
+                Kirigami.Heading {
+                    level: 1
+                    text: model.header
+                }
+                Controls.Label {
+                    wrapMode: Text.NoWrap
+                    text: model.taskName
+                    visible: taskName.length > 0
+                }
             }
-            rowSpacing: Kirigami.Units.largeSpacing
-            columnSpacing: Kirigami.Units.largeSpacing
-            columns: 2
 
-            RowLayout {
-                ColumnLayout {
-                    Kirigami.Heading {
-                        Layout.fillWidth: true
-                        level: 1
-                        text: model.header
-                    }
-                    Controls.Label {
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        text: model.taskName
-                        visible: taskName.length > 0
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        openAddTaskSheet(favouritesDelegate.currentModel)
-                    }
-                }
+            Column {
                 Controls.Button {
                     id: unfavButton
-                    Layout.alignment: Qt.AlignRight
-                    Layout.columnSpan: 1
+
                     icon.name: "bookmark-remove"
                     onClicked: KHarvest.TasksManager.unfavouritedFromFavouritesPage(index)
                 }
             }
+            Component.onCompleted: {
+                favouritesDelegate.currentModel = model
+            }
         }
-
-        Component.onCompleted: {
-            favouritesDelegate.currentModel = model
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                openAddTaskSheet(favouritesDelegate.currentModel)
+            }
         }
     }
 }
