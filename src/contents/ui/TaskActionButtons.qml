@@ -44,11 +44,11 @@ GridLayout {
             if(model.favourited) {
                 // remove from favourites
                 model.favourited = false
-                KHarvest.TasksManager.removeFavouriteFromAddedTask(index);
+                KHarvest.TasksManager.removeFavouriteFromAddedTask(taskDelegate.index);
             } else {
                 // add to favourites
                 model.favourited = true
-                KHarvest.TasksManager.addFavouriteFromAddedTask(index)
+                KHarvest.TasksManager.addFavouriteFromAddedTask(taskDelegate.index)
             }
         }
     }
@@ -59,7 +59,7 @@ GridLayout {
         Layout.alignment: Qt.AlignRight
         Layout.columnSpan: 1
         icon.name: "document-edit"
-        onClicked: openEditTaskSheet(index, model)
+        onClicked: openEditTaskSheet(taskDelegate.index, model)
     }
 
     // REMOVE TASK
@@ -68,6 +68,6 @@ GridLayout {
         Layout.alignment: Qt.AlignRight
         Layout.columnSpan: 1
         icon.name: "list-remove"
-        onClicked: addedTasksList.taskRemoved(index)
+        onClicked: addedTasksList.taskRemoved(taskDelegate.index)
     }
 }
