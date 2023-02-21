@@ -32,6 +32,9 @@ Kirigami.ApplicationWindow {
         onTriggered: KHarvest.WindowController.saveWindowGeometry(root)
     }
 
+    required property KHarvest.ProjectsList projectsList
+    required property KHarvest.AddedTasksList addedTasksList
+    required property KHarvest.FavouritesList favouritesList
     property var runningTask: undefined
 
     Connections {

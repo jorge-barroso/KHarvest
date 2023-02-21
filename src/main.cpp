@@ -133,11 +133,17 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "WindowController", &WindowController::instance());
 
     ProjectsList projectsList;
-    engine.rootContext()->setContextProperty(QStringLiteral("projectsList"), &projectsList);
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "ProjectsList", &projectsList);
     AddedTasksList addedTasksList;
-    engine.rootContext()->setContextProperty(QStringLiteral("addedTasksList"), &addedTasksList);
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "AddedTasksList", &addedTasksList);
     FavouritesList favouritesList;
-    engine.rootContext()->setContextProperty(QStringLiteral("favouritesList"), &favouritesList);
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "FavouritesList", &favouritesList);
+
+    engine.setInitialProperties({
+                                        {QStringLiteral("projectsList"), QVariant::fromValue(&projectsList)},
+                                        {QStringLiteral("addedTasksList"), QVariant::fromValue(&addedTasksList)},
+                                        {QStringLiteral("favouritesList"), QVariant::fromValue(&favouritesList)},
+                                });
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
