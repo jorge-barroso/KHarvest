@@ -35,6 +35,7 @@
 #include "favouriteslist.h"
 #include "favouritesmodel.h"
 #include "appdate.h"
+#include "errorhandler.h"
 
 static QQuickWindow* windowFromEngine(QQmlApplicationEngine *engine)
 {
@@ -118,6 +119,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[]) {
 
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "AppDate", AppDate::instance().get());
     qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "HarvestHandler", HarvestHandler::instance().get());
+    qmlRegisterSingletonInstance("org.kde.kharvest", 1, 0, "ErrorHandler", ErrorHandler::instance().get());
 
     QQmlApplicationEngine engine;
 

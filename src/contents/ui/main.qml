@@ -43,13 +43,17 @@ Kirigami.ApplicationWindow {
         function onReady() {
             applicationWindow().pageStack.replace(page);
         }
+    }
 
-        function onHarvestError(errorText = "") {
+    Connections {
+        target: KHarvest.ErrorHandler
+
+        function onError(errorText = "") {
             errorMessage.text = errorText
             errorMessage.visible = true
         }
 
-        function onHarvestWarning(warningText = "") {
+        function onWarning(warningText = "") {
             console.log("warning received");
             warningMessage.text = warningText
             warningMessage.visible = true

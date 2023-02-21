@@ -12,6 +12,8 @@ add_executable(kharvest
         app.h
         appdate.cpp
         appdate.h
+        errorhandler.cpp
+        errorhandler.h
         favouriteslist.cpp
         favouriteslist.h
         favouritesmodel.cpp

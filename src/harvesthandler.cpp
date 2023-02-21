@@ -5,6 +5,7 @@
 #include "harvesttask.h"
 #include "harvestproject.h"
 #include "task.h"
+#include "errorhandler.h"
 
 #include <QApplication>
 #include <QTcpSocket>
@@ -82,7 +83,7 @@ void HarvestHandler::login() {
         const QString &warningHeader = i18nc("Harvest API error title, like 'Error: something something'", "Error");
         const QString warningBody{i18nc("Harvest API error description",
                                         "Error while waiting for Harvest authorization")};
-        emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
+        ErrorHandler::instance()->warning(buildErrorMessage(warningHeader, warningBody));
         return;
     }
 
@@ -143,7 +144,7 @@ void HarvestHandler::code_received() {
                     QString warningBody{
                             i18nc("We are missing a few details that Harvest should've sent us back",
                                   "The details received from Harvest did not contain the minimum details required")};
-                    emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
+                    ErrorHandler::instance()->warning(buildErrorMessage(warningHeader, warningBody));
                     return;
                 }
 
@@ -179,7 +180,7 @@ void HarvestHandler::authentication_received(QNetworkReply* reply) {
         const QString &baseWarningBody = i18nc("Wrong auth details for Harvest API",
                                                "Error while authenticating with Harvest services:");
         const QString warningBody{QString("%1 %2").arg(baseWarningBody, reply->errorString())};
-        emit harvestWarning(buildErrorMessage(warningHeader, warningBody));
+        ErrorHandler::instance()->warning(buildErrorMessage(warningHeader, warningBody));
         return;
     }
 
@@ -502,11 +503,11 @@ bool HarvestHandler::default_error_check(QNetworkReply *reply, const QString &ba
     if (reply->error() == QNetworkReply::NetworkError::TimeoutError ||
         reply->error() == QNetworkReply::NetworkError::OperationCanceledError) {
         const QString &timeoutMessage = i18nc("Timeout requesting to Harvest", "the request timed out.");
-        emit harvestError(buildErrorMessage(baseErrorBody, timeoutMessage));
+        ErrorHandler::instance()->error(buildErrorMessage(baseErrorBody, timeoutMessage));
         return true;
     } else if (reply->error() == QNetworkReply::NetworkError::UnknownNetworkError) {
         const QString &timeoutMessage = i18nc("Unknown network error requesting to Harvest", "unknown network error.");
-        emit harvestError(buildErrorMessage(baseErrorBody, timeoutMessage));
+        ErrorHandler::instance()->error(buildErrorMessage(baseErrorBody, timeoutMessage));
         return true;
     } else if (reply->error() == QNetworkReply::NetworkError::HostNotFoundError ||
                reply->error() == QNetworkReply::NetworkError::NetworkSessionFailedError) {
@@ -529,7 +530,7 @@ bool HarvestHandler::default_error_check(QNetworkReply *reply, const QString &ba
         const QString error_string{(error_report["error"].isNull() ?
                                     error_report["error"] :
                                     error_report["message"]).toString()};
-        emit harvestError(buildErrorMessage(baseErrorBody, error_string));
+        ErrorHandler::instance()->error(buildErrorMessage(baseErrorBody, error_string));
         return true;
     }
     return false;
